@@ -1,6 +1,6 @@
 {
   "name": "tjbot",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Node.js module for interacting with TJBot",
   "main": "index.js",
   "scripts": {
@@ -34,10 +34,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/victordibia/tjbot.git"
+    "url": "https://github.com/ibmtjbot/tjbotlib.git"
   },
   "bugs": {
-    "url": "https://github.com/victordibia/tjbot/issues"
+    "url": "https://github.com/ibmtjbot/tjbotlib/issues"
   },
-  "homepage": "https://github.com/victordibia/tjbot#readme"
+  "homepage": "https://github.com/ibmtjbot/tjbotlib#readme"
 }
