@@ -1,0 +1,43 @@
+{
+  "name": "tjbot",
+  "version": "0.0.8",
+  "description": "Node.js module for interacting with TJBot",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --reporter spec"
+  },
+  "license": "Apache-2.0",
+  "dependencies": {
+    "aplay": "^1.0.0",
+    "assert": "^1.4.1",
+    "asyncawait": "^1.0.6",
+    "color-model": "^0.2.2",
+    "colornames": "^1.1.1",
+    "fifo": "^2.3.0",
+    "mic": "^2.1.1",
+    "object.pick": "^1.2.0",
+    "pigpio": "^0.4.0",
+    "rpi-ws281x-native": "^0.8.1",
+    "semaphore": "^1.0.5",
+    "sleep": "^5.0.0",
+    "temp": "^0.8.3",
+    "twitter": "^1.5.0",
+    "web-audio-api": "^0.2.2",
+    "watson-developer-cloud": "^2.11.1"
+  },
+  "engines": {
+    "node": ">=4.2.4"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/victordibia/tjbot.git"
+  },
+  "bugs": {
+    "url": "https://github.com/victordibia/tjbot/issues"
+  },
+  "homepage": "https://github.com/victordibia/tjbot#readme"
+}
