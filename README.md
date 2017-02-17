@@ -1,6 +1,6 @@
-# tjbot
+# TJBot
 
-Nodejs library that abstracts several functions for TJBot.
+Node.js library that abstracts several functions for TJBot.
 
 
 > Encapsulates basic functions for TJBot such as making your bot see, listen, speak, play sounds, etc.
@@ -68,7 +68,7 @@ tj.shine("red");
 
 ## tjbot (hardware, config, credentials)
 
-Returns a tjbot object instace that can be used to control the various hardware addons (e.g. microphone, speaker, led, servo arm etc) and exposes some additional helper functions.
+Returns a tjbot object instance that can be used to control the various hardware add-ons (e.g. microphone, speaker, led, servo arm, etc) and exposes some additional helper functions.
 
 
 - hardware - JSON containing a strings for the various hardware components you would like access to. Valid options are `led`, `microphone`, `speaker`, `servo`, `camera`
@@ -77,14 +77,14 @@ Returns a tjbot object instace that can be used to control the various hardware 
 
 ## tjbot.shine(color)
 
-Change the color of the LED to the specified color.
+Changes the color of the LED to the specified color.
 
 - color - Color which may be in string or hex format. E.g `red`, `yellow` `#ffff`
 
 
 ## tjbot.pulse(color, duration, delay)
 
-Continuously pulse a color until stopPulsing() is called.
+Continuously pulses a color until stopPulsing() is called.
 
 - color - Color which may be in string or hex format. E.g `red`, `yellow` `#ffff`
 - duration - integer representing pulse duration in seconds
@@ -98,20 +98,20 @@ Speaks a given message
 
 ## tjbot.wave()
 
-Wave robot arm up-down-up
+Waves robot arm up-down-up
 
 ## tjbot.listen()
 
-listen for utterances from the microphone, returns a callback with the message transcript.
+listens for utterances from the microphone, returns a callback with the message transcript.
 
 
 ## tjbot.listenWithAttentionWord()
 
-listen for utterances from the microphone, returns a callback with the message transcript only when the message starts with a given attentionword.
+listens for utterances from the microphone, returns a callback with the message transcript only when the message starts with a given attentionword.
 
 ## tjbot.converse(workspaceId, message, callback)
 
-Starts a conversation turn using the watson conversation api.
+Starts a conversation turn using the Watson conversation api.
 
 - workspaceId - workspaceid, used to keep track of the conversation context.
 - message - message sent to the conversation service.
@@ -119,14 +119,12 @@ Starts a conversation turn using the watson conversation api.
 
 ## tjbot.seeAsync(mode)
 
-Capture an image, analyze it using the IBM watson visual recognition service.
+Captures an image and analyzes it using the IBM Watson visual recognition service.
 
 - mode - String variable that specifies the type of service used to analyze image. Values are     
 
    - `classify` - classify image across known tags
    -  `text` - recognize text within the image
-
-
 
 
 ## License
