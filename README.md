@@ -72,6 +72,25 @@ Returns a tjbot object instance that can be used to control the various hardware
 
 - hardware - string array containing strings for the various hardware components you would like access to. Valid options are `led`, `microphone`, `speaker`, `servo`, `camera`
 - config - JSON object containing configuration parameters.
+
+  ```
+  var config = {
+      'attentionWord': 'TJ', // attention word for STT
+      'ledPin': 8,    
+      'servoPin': 7,
+      'voice': 'en-US_MichaelVoice',
+      'verboseLogging': false,  
+      'ttsReconnect': true,    // reconnect to STT service on error
+      'visionConfidenceThreshold': 0.5, // Confidence threshold for tags from visual recognition service. Tags below this will be ignored.
+      'visionTextConfidenceThreshold': 0.1,
+      'cameraParams': {
+          height: 720,
+          width: 960,
+          vflip: true,   // vertical flip
+          hflilp: true    // horizontal flip
+      } //set camera params
+  };
+  ```
 - credentials - JSON object containing credentials for various IBM Watson Cognitive services that can be integrated with TJBot.
 
 ## tjbot.shine(color)
