@@ -1,6 +1,6 @@
 {
   "name": "tjbot",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Node.js library that abstracts basic functions for TJBot",
   "main": "index.js",
   "scripts": {
