@@ -32,3 +32,20 @@ exports.credentials.visual_recognition = {
     key: '',
     version: '2016-05-19'
 }
+
+// Watson Tone Analyzer
+// https://www.ibm.com/watson/developercloud/tone-analyzer.html
+exports.credentials.tone_analyzer = {
+    password: '',
+    username: ''
+};
+
+// Twitter
+exports.credentials.twitter = {
+    consumer_key: '',
+    consumer_secret: '',
+    access_token_key: '',
+    access_token_secret: ''
+};
+
+exports.sentiment_keyword = "christmas";

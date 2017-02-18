@@ -22,48 +22,54 @@ var hardware = ['microphone', 'speaker', 'led', 'servo'];
 // Set up configuration paramters
 var tjConfig = {
     verboseLogging: true, //enable console debugging
-    servoPin: 7 // set servo pin
+    servoPin: 7, // set servo pin
+    cameraParams: {
+        height: 720,
+        width: 960,
+        vflip: true,
+        hflilp: true
+    } // setup my camera capture parameters
 };
 
 // instantiate our TJBot!
 var tj = new tjbot(hardware, tjConfig, credentials);
-tj.shine("white")
-tj.seeAsync("text");
+
 
 // listen for utterances send the result to
 // the Conversation service
 tj.listen(function(msg) {
+
     // send to the conversation service
-    tj.converse(WORKSPACEID, msg, function(response, responseText) {
+    tj.converse(WORKSPACEID, msg, function(response) {
         // speak the result
-        if (response.output.text.length > 0) {
-            //console.log(response)
-            conversation_response = response.output.text[0];
+        if (response.object.output.text.length > 0) {
+            //console.log(response.object)
+            conversation_response = response.object.output.text[0];
             if (conversation_response != undefined) {
-                var matchedIntent = response.intents[0].intent; // intent with the highest confidence
-                var intentconfidence = response.intents[0].confidence;
-                console.log("> intents : ", response.intents);
+                var matchedIntent = response.object.intents[0].intent; // intent with the highest confidence
+                var intentconfidence = response.object.intents[0].confidence;
+                console.log("> intents : ", response.object.intents);
 
                 if (intentconfidence > 0.5) {
                     tj.shine("green");
                     if (matchedIntent == "dance") {
-                        tj.speakAsync(conversation_response).then(function() {
+                        tj.speak(conversation_response).then(function() {
                             dance("club.wav")
                         });
                         //dance();
                     } else if (matchedIntent == "wave") {
-                        tj.speakAsync(conversation_response).then(function() {
+                        tj.speak(conversation_response).then(function() {
                             // wave
                             tj.wave();
                             tj.wave();
                             tj.shine("white");
                         })
                     } else if (matchedIntent == "see") {
-                        tj.speakAsync(conversation_response).then(function() {
-                            tj.seeAsync().then(function(response) {
+                        tj.speak(conversation_response).then(function() {
+                            tj.see().then(function(response) {
                                 console.log(" ... response .. ", response.description)
                                 if (response.description != null) {
-                                    tj.speakAsync(response.description).then(function() {
+                                    tj.speak(response.description).then(function() {
                                         tj.shine("white");
                                     })
                                 }
@@ -72,7 +78,7 @@ tj.listen(function(msg) {
                     } else if (matchedIntent == "off_topic") {
                         // do nothing
                     } else {
-                        tj.speakAsync(conversation_response).then(function() {
+                        tj.speak(conversation_response).then(function() {
                             tj.shine("white");
                         });
                     }

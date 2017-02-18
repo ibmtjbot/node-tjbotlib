@@ -1,7 +1,7 @@
 {
   "name": "tjbot",
   "version": "0.0.9",
-  "description": "Node.js module for interacting with TJBot",
+  "description": "Node.js library that abstracts basic functions for TJBot",
   "main": "index.js",
   "scripts": {
     "test": "mocha --reporter spec"

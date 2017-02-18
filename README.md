@@ -1,4 +1,4 @@
-# TJBot
+# TJBot [Beta]
 
 Node.js library that abstracts several functions for TJBot.
 
@@ -10,12 +10,11 @@ To use each of these services, you will need to add a config.js file to your app
 
 - [tjbot.shine(color)](#tjbotshinecolor)
 - [tjbot.pulse(color, duration,delay)](#tjbotpulsecolor-duration-delay)
-- [tjob.speakAsync(message)](#tjbotseeasyncmode)
+- [tjob.speak(message)](#tjbotseemode)
 - [tjbot.wave()](#tjbotwave)
-- [tjbot.listen()](#tjbotlisten)
-- [tjbot.listenWithAttentionWord(tjbotlistenwithattentionword)](#)
+- [tjbot.listen(callback)](#tjbotlistencallback)
 - [tjbot.converse(workspaceId, message, callback)](#tjbotconverseworkspaceid-message-callback)
-- [tjbot.seeAsync(mode)](#tjbotseeasyncmode)
+- [tjbot.see(mode)](#tjbotseemode)
 
 ## Installation
 
@@ -47,7 +46,7 @@ Below is an example of how to use the module.
 var tjbot = require('tjbot');
 var config = require('./config'); // user configuration file
 
-// obtain credentials from config.js
+// obtain credentials from config.js, see config.default.js for more info.
 var credentials = config.credentials;
 
 // these are the hardware capabilities that our TJ needs for this example
@@ -71,9 +70,9 @@ tj.shine("red");
 Returns a tjbot object instance that can be used to control the various hardware add-ons (e.g. microphone, speaker, led, servo arm, etc) and exposes some additional helper functions.
 
 
-- hardware - JSON containing a strings for the various hardware components you would like access to. Valid options are `led`, `microphone`, `speaker`, `servo`, `camera`
-- config - JSON containing configuration parameters.
-- credentials - JSON containing credentials for various IBM Watson Cognitive services that can be integrated with TJBot.
+- hardware - string array containing strings for the various hardware components you would like access to. Valid options are `led`, `microphone`, `speaker`, `servo`, `camera`
+- config - JSON object containing configuration parameters.
+- credentials - JSON object containing credentials for various IBM Watson Cognitive services that can be integrated with TJBot.
 
 ## tjbot.shine(color)
 
@@ -90,41 +89,44 @@ Continuously pulses a color until stopPulsing() is called.
 - duration - integer representing pulse duration in seconds
 - delay - integer representing delay in seconds
 
-## tjbot.speakAsync(message)
+## tjbot.speak(message)
 
-Speaks a given message
+Speaks a given message. This method returns a promise with a string which is the path to the audio file that is played.
 
 - message - text to be spoken out
 
 ## tjbot.wave()
 
-Waves robot arm up-down-up
+Waves robot arm (up-down-up).
 
-## tjbot.listen()
+## tjbot.listen(callback)
 
-listens for utterances from the microphone, returns a callback with the message transcript.
+listens for utterances from the microphone, takes a callback function as an argument.
+- callback - function that is called whenever a new transcript arrives.
 
 
-## tjbot.listenWithAttentionWord()
-
-listens for utterances from the microphone, returns a callback with the message transcript only when the message starts with a given attentionword.
 
 ## tjbot.converse(workspaceId, message, callback)
 
-Starts a conversation turn using the Watson conversation api.
+Starts a conversation turn using the watson conversation api, takes a callback function as an argument.
 
 - workspaceId - workspaceid, used to keep track of the conversation context.
 - message - message sent to the conversation service.
-- callback - callback function that returns the conversation response object and conversation response text.
+- callback - function that is called whenever there is a response from the conversation service. This callback is called with a response object
+  - response - JSON object {object: obj, description: string}
+    - object - JSON object returned from the conversation api
+    - description - String containing text returned from conversation service.
 
-## tjbot.seeAsync(mode)
+## tjbot.see(mode)
 
-Captures an image and analyzes it using the IBM Watson visual recognition service.
+Captures an image, and analyzes it using the IBM Watson visual recognition service.
 
 - mode - String variable that specifies the type of service used to analyze image. Values are     
 
    - `classify` - classify image across known tags
    -  `text` - recognize text within the image
+
+
 
 
 ## License

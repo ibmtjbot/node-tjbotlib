@@ -31,7 +31,7 @@ tj.shine("white")
 
 // listen for utterances and process them.
 tj.listen(function(transcriptMessage) {
-    var containsPlay = transcriptMessage.indexOf("play") >= 0;
+    var containsPlay = transcriptMessage.indexOf("play") >= -1;
     if (containsPlay) {
         transcriptMessage = transcriptMessage.replace("play", "");
         transcriptMessage = transcriptMessage.replace("song", "");
@@ -86,7 +86,7 @@ function searchSpotify(searchTerm) {
                     })
                     var searchResponseText = "Found song " + selectedtrack.name + " by " + trackartists;
                     console.log(searchResponseText, selectedtrack.popularity)
-                    tj.speakAsync(searchResponseText).then(function() {
+                    tj.speak(searchResponseText).then(function() {
                         downloadFile(selectedtrack.preview_url)
                     });
                 }
