@@ -15,18 +15,20 @@
  */
 
 var tjbot = require('../lib/tjbot');
-var config = require('./config');
+var constants = require('./config');
 
 // obtain our credentials from config.js
-var credentials = config.credentials;
+var credentials = constants.credentials;
 
 // these are the hardware capabilities that our TJ needs for this recipe
 var hardware = ['led', 'microphone', 'speaker'];
 
 // turn on debug logging to the console
 var config = {
-    logToConsole: true
+    verboseLogging: true
 };
+// obtain our configs from config.js and merge with custom configs
+config = Object.assign(constants.config, config);
 
 // instantiate our TJBot!
 var tj = new tjbot(hardware, config, credentials);

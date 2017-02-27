@@ -16,14 +16,17 @@
     "fifo": "^2.3.0",
     "mic": "^2.1.1",
     "object.pick": "^1.2.0",
-    "pigpio": "^0.4.0",
-    "rpi-ws281x-native": "^0.8.1",
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
     "temp": "^0.8.3",
     "twitter": "^1.5.0",
     "web-audio-api": "^0.2.2",
     "watson-developer-cloud": "^2.11.1"
+  },
+  "optionalDependencies": {
+    "//": "pigpio and pi-ws281x-native are raspberry exclusive. To the project works in Linux it should be keeped as optional.",
+    "pigpio": "^0.4.0",
+    "rpi-ws281x-native": "^0.8.1"
   },
   "engines": {
     "node": ">=4.2.4"

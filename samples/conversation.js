@@ -15,38 +15,40 @@
  */
 
 var tjbot = require('../lib/tjbot');
-var config = require('./config');
-
-// obtain our credentials from config.js
-var credentials = config.credentials;
-
-// obtain user-specific config
-var VOICE = config.voice;
-var WORKSPACEID = config.conversationWorkspaceId;
+var constants = require('./config');
 
 // these are the hardware capabilities that TJ needs for this recipe
 var hardware = ['microphone', 'speaker'];
 
+// obtain our credentials from config.js
+var credentials = constants.credentials;
+
 // turn on debug logging to the console
-var tjConfig = {
+var config = {
     verboseLogging: true
 };
+// obtain our configs from config.js and merge with custom configs
+config = Object.assign(constants.config, config);
+
+// obtain user-specific config
+var WORKSPACEID = config.conversationWorkspaceId;
 
 // instantiate our TJBot!
-var tj = new tjbot(hardware, tjConfig, credentials);
+var tj = new tjbot(hardware, config, credentials);
 
 // listen for utterances with our attentionWord and send the result to
 // the Conversation service
 tj.listen(function(msg) {
 
     // check for an attention word
-    if (msg.startsWith(tj.configuration.attentionWord)) {
+    if (msg.startsWith(config.attentionWord)) {
         // remove the attention word from the message
-        var turn = msg.toLowerCase().replace(tj.configuration.attentionWord.toLowerCase(), "");
+        var turn = msg.toLowerCase().replace(config.attentionWord.toLowerCase(), "");
 
         // send to the conversation service
         tj.converse(WORKSPACEID, turn, function(response) {
             // speak the result
+            console.log(response);
             tj.speak(response);
         });
     }
