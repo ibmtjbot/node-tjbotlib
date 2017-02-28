@@ -37,7 +37,6 @@ exports.credentials.speech_to_text = {
 // Watson Text to Speech
 // https://www.ibm.com/watson/developercloud/text-to-speech.html
 exports.credentials.text_to_speech = {
-  "url": "",
   "username": "",
   "password": ""
 };
@@ -45,7 +44,14 @@ exports.credentials.text_to_speech = {
 // Watson Conversation
 // https://www.ibm.com/watson/developercloud/conversation.html
 exports.credentials.conversation = {
-  "url": "",
+  "username": "",
+  "password": ""
+};
+
+// Language Translator
+// https://www.ibm.com/watson/developercloud/language-translator.html
+exports.credentials.language_tranlator = {
+  "url": "https://gateway.watsonplatform.net/language-translator/api/v2",
   "username": "",
   "password": ""
 };
