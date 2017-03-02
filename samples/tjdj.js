@@ -3,29 +3,31 @@
  *
  */
 var tjbot = require('../lib/tjbot');
-var config = require('./config');
+var constants = require('./config');
 var request = require("request");
 var fs = require('fs');
 var AudioContext = require('web-audio-api').AudioContext
 
 // obtain our credentials from config.js
-var credentials = config.credentials;
+var credentials = constants.credentials;
 
 // obtain user-specific config
-var VOICE = config.voice;
-var WORKSPACEID = config.conversationWorkspaceId;
+var VOICE = constants.config.voice;
+var WORKSPACEID = constants.config.conversationWorkspaceId;
 
 // these are the hardware capabilities that TJ needs for this recipe
 var hardware = ['microphone', 'speaker', 'led', 'servo'];
 
-// Set up configuration paramters
-var tjConfig = {
-    verboseLogging: true, //enable console debugging
-    servoPin: 7 // set servo pin
+// Set up configuration parameters
+var config = {
+  verboseLogging: true, //enable console debugging
+  servoPin: 7 // set servo pin
 };
+// obtain our configs from config.js and merge with custom configs
+config = Object.assign(constants.config, config);
 
 // instantiate our TJBot!
-var tj = new tjbot(hardware, tjConfig, credentials);
+var tj = new tjbot(hardware, config, credentials);
 tj.shine("white")
 //tj.dance("club.wav");
 

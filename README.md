@@ -28,6 +28,9 @@ ALSA tools for sound recording.
   $ sudo apt-get install alsa-base alsa-utils
 ```
 
+> FOR DEVELOPMENT PURPOSE: to develop using TJLib is possible to test your conversation recipe in Ubuntu.
+> Just verify if alsa-base alsa-utils are installed and set configuration.microphone config with card/device found at arecord -l
+
 After the above dependencies are installed, you can proceed to install the module using:
 
 ```
@@ -72,6 +75,7 @@ Returns a tjbot object instance that can be used to control the various hardware
 
 - hardware - string array containing strings for the various hardware components you would like access to. Valid options are `led`, `microphone`, `speaker`, `servo`, `camera`
 - config - JSON object containing configuration parameters.
+It could be set at config.js with default parameters and replaced at your TJ script.
 
   ```
   var config = {

@@ -1,6 +1,6 @@
 // User-specific CONFIGURATION
 exports.config = {}
-exports.config.voice = {"gender": "female", "language": "en-US"};
+exports.config.voice = {"gender": "male", "language": "en-US"};
 exports.config.conversationWorkspaceId = ''; // replace with the workspace identifier of your conversation
 
 // Card and Device found in command arecord -l of your hardware. In general 0,0 or 1,0 or 0,1
@@ -8,8 +8,6 @@ exports.config.conversationWorkspaceId = ''; // replace with the workspace ident
 exports.config.microphone = "plughw:0,0";
 // Attention word that bot are waiting for
 exports.config.attentionWord = 'TJ';
-// To see log messages
-exports.config.verboseLogging = false;
 
 exports.config.ledPin = 8;
 exports.config.servoPin = 7;
@@ -21,6 +19,9 @@ exports.config.cameraParams = {
     height: 720,
     width: 960
 }
+
+// To see log messages
+exports.config.verboseLogging = false;
 
 // Create the CREDENTIALS object for export
 exports.credentials = {
@@ -43,6 +44,14 @@ exports.credentials.text_to_speech = {
 // Watson Conversation
 // https://www.ibm.com/watson/developercloud/conversation.html
 exports.credentials.conversation = {
+  "username": "",
+  "password": ""
+};
+
+// Language Translator
+// https://www.ibm.com/watson/developercloud/language-translator.html
+exports.credentials.language_tranlator = {
+  "url": "https://gateway.watsonplatform.net/language-translator/api/v2",
   "username": "",
   "password": ""
 };

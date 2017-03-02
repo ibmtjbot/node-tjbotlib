@@ -25,7 +25,8 @@ var credentials = constants.credentials;
 
 // turn on debug logging to the console
 var config = {
-    verboseLogging: true
+    verboseLogging: true,
+    voice: {"gender": "female", "language": "en-BR"}
 };
 // obtain our configs from config.js and merge with custom configs
 config = Object.assign(constants.config, config);
@@ -38,19 +39,7 @@ var tj = new tjbot(hardware, config, credentials);
 
 // listen for utterances with our attentionWord and send the result to
 // the Conversation service
+//tj.speak("Welcome");
 tj.listen(function(msg) {
-
-    // check for an attention word
-    if (msg.startsWith(config.attentionWord)) {
-        // remove the attention word from the message
-        var turn = msg.toLowerCase().replace(config.attentionWord.toLowerCase(), "");
-
-        // send to the conversation service
-        tj.converse(WORKSPACEID, turn, function(response) {
-            // speak the result
-            console.log(response);
-            tj.speak(response);
-        });
-    }
-
+    tj.speak(msg);
 });
