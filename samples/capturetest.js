@@ -7,7 +7,7 @@ var filePath = "bingo.jpg"
 cameraParams.push('-vf');
 cameraParams.push('-hf');
 cameraParams.push('-np');
-cameraParams.push('-ex', "sports")
+//cameraParams.push('-ex', "sports")
 cameraParams.push('-o', filePath);
 cameraParams.push('-t', 0)
 
