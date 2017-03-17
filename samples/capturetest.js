@@ -9,7 +9,7 @@ cameraParams.push('-hf');
 cameraParams.push('-np');
 //cameraParams.push('-ex', "sports")
 cameraParams.push('-o', filePath);
-cameraParams.push('-t', 0)
+cameraParams.push('-t', 1)
 
 starttime = Date.now();
 console.log(cameraParams)
