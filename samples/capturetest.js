@@ -12,6 +12,7 @@ cameraParams.push('-o', filePath);
 cameraParams.push('-t', 0)
 
 starttime = Date.now();
+console.log(cameraParams)
 var spawn = require('child_process').spawn('raspistill', cameraParams);
 spawn.on('exit', function(code) {
     endtime = Date.now();
