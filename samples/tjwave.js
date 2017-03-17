@@ -36,7 +36,7 @@ config = Object.assign(constants.config, config);
 // instantiate our TJBot!
 var tj = new tjbot(hardware, config, credentials);
 
-
+tj.see();
 // listen for utterances send the result to
 // the Conversation service
 tj.listen(function(msg) {
