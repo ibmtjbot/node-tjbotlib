@@ -5,13 +5,10 @@ exports.config = {
         "language": "en-US"
     },
     conversationWorkspaceId: "", // replace with the workspace identifier of your conversation
-    // Card and Device found in command arecord -l of your hardware. In general 0,0 or 1,0 or 0,1
+    microphoneDeviceId: "plughw:0,0", // Card and Device found in command arecord -l of your hardware. In general 0,0 or 1,0 or 0,1
     // If bot is closing without wait for listening you maybe have to change that parameter
-    microphone: "plughw:0,0",
-    // Attention word that bot are waiting for
-    attentionWord: 'TJ',
-    // To see log messages
-    verboseLogging: false,
+    attentionWord: 'TJ', // Attention word that triggers bot response
+    verboseLogging: false, // To see log messages
     ledPin: 8,
     servoPin: 7,
     ttsReconnect: true,
