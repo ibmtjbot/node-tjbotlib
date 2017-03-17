@@ -26,7 +26,10 @@ var credentials = constants.credentials;
 // turn on debug logging to the console
 var config = {
     verboseLogging: true,
-    voice: {"gender": "female", "language": "en-BR"}
+    voice: {
+        "gender": "female",
+        "language": "en-BR"
+    }
 };
 // obtain our configs from config.js and merge with custom configs
 config = Object.assign(constants.config, config);
@@ -41,5 +44,6 @@ var tj = new tjbot(hardware, config, credentials);
 // the Conversation service
 //tj.speak("Welcome");
 tj.listen(function(msg) {
-    tj.speak(msg);
+    console.log(msg)
+    //stj.speak(msg);
 });
