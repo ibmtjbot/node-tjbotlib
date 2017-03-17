@@ -28,7 +28,7 @@ var config = {
     verboseLogging: true,
     voice: {
         "gender": "female",
-        "language": "en-US"
+        "language": "en-BR"
     }
 };
 // obtain our configs from config.js and merge with custom configs
@@ -44,6 +44,5 @@ var tj = new tjbot(hardware, config, credentials);
 // the Conversation service
 //tj.speak("Welcome");
 tj.listen(function(msg) {
-    console.log("What tjbot heard", msg)
-    //stj.speak(msg);
+    tj.speak(msg);
 });
