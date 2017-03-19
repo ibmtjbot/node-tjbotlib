@@ -24,7 +24,7 @@
     "watson-developer-cloud": "^2.11.1"
   },
   "optionalDependencies": {
-    "//": "pigpio and pi-ws281x-native are raspberry exclusive. To the project works in Linux it should be keeped as optional.",
+    "//": "pigpio and pi-ws281x-native are raspberry exclusive libraries. To enable the project work within the Linux environment, they should be keeped as optional.",
     "pigpio": "^0.4.0",
     "rpi-ws281x-native": "^0.8.1"
   },

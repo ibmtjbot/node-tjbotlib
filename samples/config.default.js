@@ -24,7 +24,6 @@ exports.config = {
     }
 }
 
-
 // Create the CREDENTIALS object for export
 exports.credentials = {};
 
