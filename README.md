@@ -47,18 +47,16 @@ Below is an example of how to use the module.
 ```
 
 var tjbot = require('tjbot');
-var config = require('./config'); // user configuration file
+var constants = require('./config'); // user configuration file (samples/config.default.js)
 
-// obtain credentials from config.js, see config.default.js for more info.
-var credentials = config.credentials;
+// obtain credentials from config.js, see samples/config.default.js for more info.
+var credentials = constants.credentials;
 
 // these are the hardware capabilities that our TJ needs for this example
 var hardware = ['led', 'microphone', 'speaker'];
 
 // turn on debug logging to the console
-var config = {
-    verboseLogging: true  // enable console debugging
-};
+var config = constants.config ;
 
 // instantiate the TJBot library!
 var tj = new tjbot(hardware, config, credentials);

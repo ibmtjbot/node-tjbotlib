@@ -26,7 +26,10 @@ var credentials = constants.credentials;
 // turn on debug logging to the console
 var config = {
     verboseLogging: true,
-    voice: {"gender": "female", "language": "en-BR"}
+    voice: {
+        "gender": "female",
+        "language": "en-BR"
+    }
 };
 // obtain our configs from config.js and merge with custom configs
 config = Object.assign(constants.config, config);
