@@ -37,10 +37,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ibmtjbot/tjbotlib.git"
+    "url": "https://github.com/ibmtjbot/tjbot-lib.git"
   },
   "bugs": {
-    "url": "https://github.com/ibmtjbot/tjbotlib/issues"
+    "url": "https://github.com/ibmtjbot/tjbot-lib/issues"
   },
-  "homepage": "https://github.com/ibmtjbot/tjbotlib#readme"
+  "homepage": "https://github.com/ibmtjbot/tjbot-lib#readme"
 }
