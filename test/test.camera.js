@@ -1,25 +1,35 @@
-// var tjbot = require('../lib/tjbot')
-// var tj = new tjbot(['servo'], {
-//     servoPin: 7
-// }, {});
-// tj.wave()
-
-// var startTime = new Date();
-
+/**
+ * Copyright 2016 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
 'use strict';
-var expect = require('chai').expect;
-var tjbot = require('../lib/tjbot')
-var tj = new tjbot(['camera'], {}, {});
 
+const chai = require('chai');
+chai.config.includeStack = true;
+
+const fs = require('fs');
+
+const TJBot = require('../lib/tjbot')
+
+var tj = new TJBot(['camera'], {}, {});
 
 describe('#tjbot CAMERA', function() {
-    it('should take a picture and save to a location', function() {
-        tj.captureImage("picture.jpg").then(function(result) {
-            console.log("result is", result)
-            expect(result).to.equal("picture.jpg");
+    it('should take a picture named picture.jpg', function() {
+        tj._captureImage("picture.jpg").then(function(result) {
+            var exists = fs.existsSync('picture.jpg');
+            chai.expect(exists).to.be.true;
         });
     });
 });
-
-// var endTime = new Date();
-// console.log("time to shine led ", startTime, endTime, (startTime - endTime) / 1000)
