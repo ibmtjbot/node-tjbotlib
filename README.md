@@ -83,7 +83,7 @@ Valid options for `hardware` are defined in `TJBot.prototype.hardware`: `camera`
 
 The `credentials` object expects credentials to be defined for each Watson service needed by your application. Valid Watson services are defined in `TJBot.prototype.services`: `conversation`, `language_translator`, `speech_to_text`, `text_to_speech`, `tone_analyzer`, and `visual_recognition`.
 
-Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition`) expects an API `key`.
+Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition`) expect an API `key`.
 
 Example credentials object:
 
@@ -112,7 +112,7 @@ var credentials = {
 	visual_recognition: {
 		key: 'xxx'
 	}
-}
+};
 ```
 
 ## Configuration
@@ -128,10 +128,10 @@ The most common configuration options are:
 
 Additional configuration options allow you to specify the PIN to which the servo is connected, the resolution of images captured from the camera, thresholds on the confidence of object recognition for `visual_recognition`, and the device ID used to access the microphone.
 
-# TJBot API
-Below is the TJBot API. There are a number of internal methods prefixed with an underscore (`_`); these are not meant to be used outside of the library.
+# API Methods
+A description of the public TJBot API is given below. There are a number of internal library methods that are prefixed with an underscore (`_`); these methods are not intended for use outside the scope of the library.
 
-However, if you need low-level access to the Watson APIs beyond the level provided by `TJBot`, you can access them as follows:
+If you do need low-level access to the Watson APIs beyond the level provided by `TJBot`, you can access them as follows:
 
 ```
 var tj = new TJBot(hardware, configuration, credentials);
@@ -143,7 +143,7 @@ tj._toneAnalyzer; // the ToneAnalyzerV3 service object
 tj._visualRecognition; // the VisualRecognitionV3 service object
 ```
 
-Please see the documentation for the [Watson Node SDK](https://github.com/watson-developer-cloud/node-sdk) for more details.
+Please see the documentation for the [Watson Node SDK](https://github.com/watson-developer-cloud/node-sdk) for more details on these objects.
 
 ## Utility methods
 
