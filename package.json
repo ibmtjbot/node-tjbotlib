@@ -19,7 +19,6 @@
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
     "temp": "^0.8.3",
-    "twitter": "^1.5.0",
     "watson-developer-cloud": "^2.11.1",
     "web-audio-api": "^0.2.2"
   },
@@ -37,7 +36,6 @@
   "license": "Apache-2.0",
   "main": "index.js",
   "optionalDependencies": {
-    "//": "pigpio and rpi-ws281x-native are exclusive to raspberry pi. to enable this library to work on Linux environments, we include them as optional dependencies.",
     "pigpio": "^0.4.0",
     "rpi-ws281x-native": "^0.8.1"
   },
