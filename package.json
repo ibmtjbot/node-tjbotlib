@@ -1,12 +1,11 @@
 {
   "name": "tjbot",
-  "version": "0.0.10",
-  "description": "Node.js library that abstracts basic functions for TJBot",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha --reporter spec"
+  "description": "Node.js library for writing TJBot recipes",
+  "version": "1.1.0",
+  "author": "Justin Weisz <jweisz@us.ibm.com>",
+  "bugs": {
+    "url": "https://github.com/ibmtjbot/tjbotlib/issues"
   },
-  "license": "Apache-2.0",
   "dependencies": {
     "aplay": "^1.0.0",
     "assert": "^1.4.1",
@@ -15,32 +14,38 @@
     "colornames": "^1.1.1",
     "fifo": "^2.3.0",
     "mic": "^2.1.1",
+    "node-raspistill": "0.0.9",
     "object.pick": "^1.2.0",
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
     "temp": "^0.8.3",
     "twitter": "^1.5.0",
-    "web-audio-api": "^0.2.2",
-    "watson-developer-cloud": "^2.11.1"
-  },
-  "optionalDependencies": {
-    "//": "pigpio and pi-ws281x-native are raspberry exclusive libraries. To enable the project work within the Linux environment, they should be keeped as optional.",
-    "pigpio": "^0.4.0",
-    "rpi-ws281x-native": "^0.8.1"
-  },
-  "engines": {
-    "node": ">=4.2.4"
+    "watson-developer-cloud": "^2.11.1",
+    "web-audio-api": "^0.2.2"
   },
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0"
   },
+  "engines": {
+    "node": ">=4.2.4"
+  },
+  "homepage": "https://github.com/ibmtjbot/tjbotlib",
+  "keywords": [
+    "tjbot"
+  ],
+  "license": "Apache-2.0",
+  "main": "index.js",
+  "optionalDependencies": {
+    "//": "pigpio and rpi-ws281x-native are exclusive to raspberry pi. to enable this library to work on Linux environments, we include them as optional dependencies.",
+    "pigpio": "^0.4.0",
+    "rpi-ws281x-native": "^0.8.1"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ibmtjbot/tjbotlib.git"
   },
-  "bugs": {
-    "url": "https://github.com/ibmtjbot/tjbotlib/issues"
-  },
-  "homepage": "https://github.com/ibmtjbot/tjbotlib#readme"
+  "scripts": {
+    "test": "mocha --reporter spec"
+  }
 }
