@@ -121,10 +121,11 @@ TJBot has a number of configuration options for its hardware and behaviors. Defa
 
 The most common configuration options are:
 
-- `verboseLogging`: Setting this to `true` will cause debug messages to be printed to the console.
+- `robot.name`: This is the name of your TJBot! You can use this in your recipes to know when someone is speaking to your TJBot. The default name is 'TJ'.
 - `robot.gender`: This is used to specify which voice is used in `text_to_speech`. Can either be `"male"` or `"female"`.
 - `listen.language`: This is used to specify the language in which `speech_to_text` listens. See `TJBot.prototype.languages.listen` for all available options.
 - `speak.language`: This is used to specify the language in which `text_to_speech` speaks. See `TJBot.prototype.languages.speak` for all available options.
+- `verboseLogging`: Setting this to `true` will cause debug messages to be printed to the console.
 
 Additional configuration options allow you to specify the PIN to which the servo is connected (`wave.servoPin`), the resolution of images captured from the camera (`see.camera.*`), thresholds on the confidence of object recognition for `visual_recognition` (`see.confidenceThreshold.*`), and the device ID used to access the microphone (`listen.microphoneDeviceId`).
 
