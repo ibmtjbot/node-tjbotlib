@@ -126,7 +126,7 @@ The most common configuration options are:
 - `listen.language`: This is used to specify the language in which `speech_to_text` listens. See `TJBot.prototype.languages.listen` for all available options.
 - `speak.language`: This is used to specify the language in which `text_to_speech` speaks. See `TJBot.prototype.languages.speak` for all available options.
 
-Additional configuration options allow you to specify the PIN to which the servo is connected, the resolution of images captured from the camera, thresholds on the confidence of object recognition for `visual_recognition`, and the device ID used to access the microphone.
+Additional configuration options allow you to specify the PIN to which the servo is connected (`wave.servoPin`), the resolution of images captured from the camera (`see.camera.*`), thresholds on the confidence of object recognition for `visual_recognition` (`see.confidenceThreshold.*`), and the device ID used to access the microphone (`listen.microphoneDeviceId`).
 
 # API Methods
 A description of the public TJBot API is given below. There are a number of internal library methods that are prefixed with an underscore (`_`); these methods are not intended for use outside the scope of the library.
