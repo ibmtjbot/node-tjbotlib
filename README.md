@@ -496,6 +496,18 @@ Causes TJBot to lower its arm to the downward position.
 
 Causes TJBot to wave the arm once (up-down-up).
 
+# Tests
+Several tests are included with the library to ensure the TJBot hardware is set up correctly. Note that we only test these hardware components: `camera`, `led`, `servo`, and `speaker`. We do not include tests for methods that depend on Watson services due to the requirements of having credentials for each Watson service.
+
+Individual tests can be run in the following manner.
+
+```
+$ npm test test/test.camera.js
+$ npm test test/test.led.js
+$ npm test test/test.servo.js
+$ npm test test/test.speaker.js
+```
+
 # Contributing
 We encourage you to make enhancements to this library and contribute them back to us via a pull request.
 
