@@ -472,6 +472,122 @@ Sample usage:
 tj.play('/usr/share/doc/Greenfoot/scenarios/lunarlander/sounds/Explosion.wav');
 ```
 
+# Translate
+
+## tj.translate(text, sourceLanguage, targetLanguage)
+
+Translates the given text from the source language to the target language.
+
+- `sourceLanguage` is the 2 character string that identifies the language from which to translate
+- `targetLanguage` is the 2 character string that identifies the language to which to translate
+
+> Note: Not all languages can be translated to other languages! Use the method `tj.isTranslatable()` to determine if a translation model exists between a soruce and target langauge.
+
+Below are examples of common languages and the 2 character strings used to represent them.
+
+| Language | Code |
+|---|---|
+| Arabic | ar |
+| Chinese | zh |
+| German | de |
+| English | en |
+| French | fr |
+| Italian | it |
+| Japanese | ja |
+| Korean | ko |
+| Spanish | es |
+| Portuguese | pt |
+
+Sample usage:
+
+```
+tj.translate("Hello, my name is TJBot!", 'en', 'es').then(function(translation) {
+    ...
+});
+```
+
+Sample response:
+
+```
+translation = {
+	"translations":[
+		{
+			"translation":"Hola, mi nombre es TJBot!"
+		}
+	],
+	"word_count":5,
+	"character_count":24
+}
+```
+
+## tj.identifyLanguage(text)
+
+Identifies the language in which the text was written.
+
+- `text` is the text whose language should be identified
+
+Sample usage:
+
+```
+tj.identifyLanguage("Hello, my name is TJBot!").then(function(languages) {
+    ...
+});
+
+```
+
+Sample response:
+
+```
+languages = {
+	"languages":[
+		{
+			"language":"en",
+			"confidence":0.865653
+		},
+		{
+			"language":"af",
+			"confidence":0.039473
+		},
+		{
+			"language":"nl",
+			"confidence":0.0276556
+		},
+		{
+			"language":"nn",
+			"confidence":0.0216675
+		},
+		...
+	]
+}
+```
+
+## tj.isTranslatable(sourceLanguage, targetLanguage)
+
+Returns a Promise that resolves to `true` if there exists a translation model between the source language and the target language.
+
+- `sourceLanguage` is the 2 character string that identifies the source language
+- `targetLanguage` is the 2 character string that identifies the target language
+
+> Note: This method is asynchronous due to the need to load the list of translation models available. If you are confident that the list of translation models has been loaded (e.g. you call `tj.isTranslatable()` a few seconds after your script has been running), you may wish to use the internal method `tj._isTranslatable()` instead.
+
+Sample usage:
+
+```
+tj.isTranslatable('en', 'es').then(function(result) {
+    if (result) {
+        console.log("TJBot can translate between English and Spanish!");
+    } else {
+        console.log("TJBot cannot translate between English and Spanish.");
+    }
+});
+```
+
+Sample response:
+
+```
+TJBot can translate between English and Spanish!
+```
+
 # Wave
 
 ## tj.armBack()
