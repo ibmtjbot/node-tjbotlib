@@ -121,7 +121,7 @@ TJBot has a number of configuration options for its hardware and behaviors. Defa
 
 The most common configuration options are:
 
-- `robot.name`: This is the name of your TJBot! You can use this in your recipes to know when someone is speaking to your TJBot. The default name is 'TJ'.
+- `robot.name`: This is the name of your TJBot! You can use this in your recipes to know when someone is speaking to your TJBot. The default name is 'Watson'.
 - `robot.gender`: This is used to specify which voice is used in `text_to_speech`. Can either be `"male"` or `"female"`.
 - `listen.language`: This is used to specify the language in which `speech_to_text` listens. See `TJBot.prototype.languages.listen` for all available options.
 - `speak.language`: This is used to specify the language in which `text_to_speech` speaks. See `TJBot.prototype.languages.speak` for all available options.
