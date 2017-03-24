@@ -588,7 +588,6 @@ Sample response:
 TJBot can translate between English and Spanish!
 ```
 
-
 # Wave
 
 ## tj.armBack()
