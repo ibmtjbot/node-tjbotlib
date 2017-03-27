@@ -20,7 +20,8 @@
     "sleep": "^5.0.0",
     "temp": "^0.8.3",
     "watson-developer-cloud": "^2.11.1",
-    "web-audio-api": "^0.2.2"
+    "web-audio-api": "^0.2.2",
+    "winston": "^2.3.1"
   },
   "engines": {
     "node": ">=4.2.4"
@@ -41,5 +42,8 @@
   },
   "scripts": {
     "test": "mocha --reporter spec"
+  },
+  "devDependencies": {
+    "mocha": "^3.2.0"
   }
 }
