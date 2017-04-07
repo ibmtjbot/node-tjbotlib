@@ -346,7 +346,7 @@ tj.see().then(function(objects) {
 });
 ```
 
-Sample resposne:
+Sample response:
 
 ```
 objects =
@@ -390,7 +390,7 @@ tj.read().then(function(texts) {
 });
 ```
 
-Sample resposne:
+Sample response:
 
 ```
 TBD
