@@ -19,7 +19,10 @@ var config = {
 };
 // instantiate our TJBot!
 var tj = new tjbot(hardware, config, credentials);
-tj.read().then(function(path) {
-    console.log("saved file to path", path)
+var start = Date.Now();
+var end;
+tj.takePhoto().then(function(path) {
+    end = Date.Now();
+    console.log("saved file to path", path, (end - start) / 1000)
 })
 //tj.see();
