@@ -19,7 +19,7 @@ var config = {
 };
 // instantiate our TJBot!
 var tj = new tjbot(hardware, config, credentials);
-tj.takePhoto("test").then(function(path) {
+tj.takePhoto("test.jpg").then(function(path) {
     console.log("saved file to path", path)
 })
-tj.see();
+//tj.see();
