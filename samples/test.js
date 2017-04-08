@@ -24,5 +24,22 @@ var end;
 tj.takePhoto().then(function(path) {
     end = Date.now();
     console.log("saved file to path", path, (end - start) / 1000)
+}).then(function() {
+    start = Date.now();
+    var cameraParams = [];
+
+    var filePath = "bingo"
+    cameraParams.push('--nopreview'); // no image preview .. makes capture 10x faster
+    cameraParams.push('-o', filePath);
+    cameraParams.push('-t', 1) // no time delay
+
+    //console.log(cameraParams)
+    var spawn = require('child_process').spawn('raspistill', cameraParams);
+    spawn.on('exit', function(code) {
+        end = Date.now();
+        console.info("> saved image to temp file [" + filePath + "]" + "with exit code, " + code + (end - start) / 1000);
+
+    });
 })
 //tj.see();
+//
