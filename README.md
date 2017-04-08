@@ -110,7 +110,7 @@ var credentials = {
 		password: 'yyy'
 	},
 	visual_recognition: {
-		key: 'xxx'
+		api_key: 'xxx'
 	}
 };
 ```
@@ -386,6 +386,24 @@ Sample usage:
 
 ```
 tj.read().then(function(texts) {
+    ...
+});
+```
+
+Sample response:
+
+```
+TBD
+```
+
+### tj.takePhoto(filePath)
+
+Takes an argument of the path where the image file should be stored. If filepath is null, image is stored in a temporary location. This method returns the path where file was saved.
+
+Sample usage:
+
+```
+tj.takePhoto(path).then(function(filePath) {
     ...
 });
 ```
