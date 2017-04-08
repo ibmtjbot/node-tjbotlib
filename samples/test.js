@@ -28,10 +28,12 @@ tj.takePhoto().then(function(path) {
     start = Date.now();
     var cameraParams = [];
 
-    var filePath = "bingo"
+    var filePath = "bingo.jpg"
     cameraParams.push('--nopreview'); // no image preview .. makes capture 10x faster
     cameraParams.push('-o', filePath);
     cameraParams.push('-t', 1) // no time delay
+    cameraParams.push('-w', 720)
+    cameraParams.push('-w', 960)
 
     //console.log(cameraParams)
     var spawn = require('child_process').spawn('raspistill', cameraParams);
