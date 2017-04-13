@@ -411,7 +411,7 @@ tj.takePhoto(filePath).then(function(targetPath) {
 Sample response:
 
 ```
-TBD
+test.jpg
 ```
 
 ## Shine
