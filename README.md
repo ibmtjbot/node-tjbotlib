@@ -398,12 +398,12 @@ TBD
 
 ### tj.takePhoto(filePath)
 
-Takes an argument of the path where the image file should be stored. If filepath is null, image is stored in a temporary location. This method returns the path where file was saved.
+Takes an argument of the path where the image file should be saved. If `filePath` is null, image is stored in a temporary location. This method returns the location `targetPath` where image file was saved.
 
 Sample usage:
 
 ```
-tj.takePhoto(path).then(function(filePath) {
+tj.takePhoto(filePath).then(function(targetPath) {
     ...
 });
 ```
