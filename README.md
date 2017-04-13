@@ -58,14 +58,14 @@ TJBot has a number of capabilities that you can use to bring him to life. Capabi
 
 TJBot's capabilities are:
 
-- **Analyzing Tone**, which requres the [Watson Tone Analyzer](https://www.ibm.com/watson/developercloud/tone-analyzer.html) service
-- **Conversing**, which requires the [Watson Conversation](https://www.ibm.com/watson/developercloud/conversation.html) service
-- **Listening**, which requires a microphone and the [Watson Speech to Text](https://www.ibm.com/watson/developercloud/speech-to-text.html) service
-- **Seeing**, which requires a camera and the [Watson Visual Recognition](https://www.ibm.com/watson/developercloud/visual-recognition.html) service
-- **Shining**, which requires an LED
-- **Speaking**, which requires a speaker and the [Watson Text to Speech](https://www.ibm.com/watson/developercloud/text-to-speech.html) service
-- **Translating**, which requires the [Watson Language Translator](https://www.ibm.com/watson/developercloud/language-translator.html) service
-- **Waving**, which requires a servo motor
+- **Analyzing Tone** [[tj.analyzeTone](#analyze-tone)] , which requres the [Watson Tone Analyzer](https://www.ibm.com/watson/developercloud/tone-analyzer.html) service
+- **Conversing** [[tj.converse(workspaceId, message, callback)](#tjconverseworkspaceid-message-callback)], which requires the [Watson Conversation](https://www.ibm.com/watson/developercloud/conversation.html) service
+- **Listening** [[tj.listen(callback)](#tjlistencallback)], which requires a microphone and the [Watson Speech to Text](https://www.ibm.com/watson/developercloud/speech-to-text.html) service
+- **Seeing** [[tj.see()](#tjsee)], which requires a camera and the [Watson Visual Recognition](https://www.ibm.com/watson/developercloud/visual-recognition.html) service
+- **Shining** [[tj.shine(color)](#tjshinecolor)], which requires an LED
+- **Speaking** [[tj.speak(message)](#tjspeakmessage)], which requires a speaker and the [Watson Text to Speech](https://www.ibm.com/watson/developercloud/text-to-speech.html) service
+- **Translating** [[tj.translate(text, sourceLanguage, targetLanguage)](#tjtranslatetext-sourcelanguage-targetlanguage)], which requires the [Watson Language Translator](https://www.ibm.com/watson/developercloud/language-translator.html) service
+- **Waving** [[tj.wave()](#tjwave)], which requires a servo motor
 
 The full list of capabilities can be accessed programatically via `TJBot.prototype.capabilities`, the full list of hardware components can be accessed programatically via `TJBot.prototype.hardware`, and the full list of Watson services can be accessed programatically via `TJBot.prototype.services`.
 
@@ -110,7 +110,7 @@ var credentials = {
 		password: 'yyy'
 	},
 	visual_recognition: {
-		key: 'xxx'
+		api_key: 'xxx'
 	}
 };
 ```
@@ -346,10 +346,10 @@ tj.see().then(function(objects) {
 });
 ```
 
-Sample resposne:
+Sample response:
 
 ```
-objects = 
+objects =
 [
     {
         "class": "apple",
@@ -390,10 +390,28 @@ tj.read().then(function(texts) {
 });
 ```
 
-Sample resposne:
+Sample response:
 
 ```
 TBD
+```
+
+### tj.takePhoto(targetPath)
+
+Takes an argument of the path `targetPath` where the image file should be saved. If `targetPath` is null, image is stored in a temporary location. This method also returns the location `filePath` where image file was saved.
+
+Sample usage:
+
+```
+tj.takePhoto(targetPath).then(function(filePath) {
+    ...
+});
+```
+
+Sample response:
+
+```
+filePath = "test.jpg"
 ```
 
 ## Shine
