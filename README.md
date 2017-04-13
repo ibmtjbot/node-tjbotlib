@@ -396,14 +396,14 @@ Sample response:
 TBD
 ```
 
-### tj.takePhoto(filePath)
+### tj.takePhoto(targetPath)
 
-Takes an argument of the path where the image file should be saved. If `filePath` is null, image is stored in a temporary location. This method returns the location `targetPath` where image file was saved.
+Takes an argument of the path `targetPath` where the image file should be saved. If `targetPath` is null, image is stored in a temporary location. This method also returns the location `filePath` where image file was saved.
 
 Sample usage:
 
 ```
-tj.takePhoto(filePath).then(function(targetPath) {
+tj.takePhoto(targetPath).then(function(filePath) {
     ...
 });
 ```
@@ -411,7 +411,7 @@ tj.takePhoto(filePath).then(function(targetPath) {
 Sample response:
 
 ```
-test.jpg
+filePath = "test.jpg"
 ```
 
 ## Shine
