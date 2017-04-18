@@ -1,7 +1,7 @@
 {
   "name": "tjbot",
   "description": "Node.js library for writing TJBot recipes",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Justin Weisz <jweisz@us.ibm.com>",
   "bugs": {
     "url": "https://github.com/ibmtjbot/tjbotlib/issues"
@@ -14,7 +14,7 @@
     "colornames": "^1.1.1",
     "fifo": "^2.3.0",
     "mic": "^2.1.1",
-    "node-raspistill": "0.0.9",
+    "node-raspistill": "^0.0.11",
     "object.pick": "^1.2.0",
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
