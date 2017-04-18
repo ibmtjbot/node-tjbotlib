@@ -27,7 +27,7 @@ describe('TJBot', function() {
     });
     describe('#randomColor', function() {
         it('should return a random color', function() {
-            var tj = new TJBot([], {}, {});
+            var tj = new TJBot(['led'], {}, {});
             var color = tj.randomColor();
             assert.ok(color);
         })
