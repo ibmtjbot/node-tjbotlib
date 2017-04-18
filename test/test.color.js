@@ -20,7 +20,7 @@ const assert = require('assert');
 describe('TJBot', function() {
     describe('#shineColors', function() {
         it('should return the list of shine colors', function() {
-            var tj = new TJBot([], {}, {});
+            var tj = new TJBot(['led'], {}, {});
             var colors = tj.shineColors();
             assert.ok(colors.length > 0);
         });
