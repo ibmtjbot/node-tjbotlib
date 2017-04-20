@@ -378,6 +378,22 @@ objects =
 ]
 ```
 
+### tj.recognizeObjectsInPhoto(filePath)
+
+Returns a list of objects seen and their confidences in the given photo.
+
+- `filePath` is the path to the photo to use.
+
+Sample usage:
+
+```
+tj.recognizeObjectsInPhoto(filePath).then(function(objects)) {
+    ...
+});
+```
+
+The response is the same as `tj.see()`.
+
 ### tj.read()
 
 Returns a list of text strings read by TJBot.
@@ -395,6 +411,22 @@ Sample response:
 ```
 TBD
 ```
+
+### tj.recognizeTextInPhoto(filePath)
+
+Returns a list of text strings read by TJBot in the given photo.
+
+- `filePath` is the path to the photo to use.
+
+Sample usage:
+
+```
+tj.recognizeTextInPhoto(filePath).then(function(texts)) {
+    ...
+});
+```
+
+The response is the same as `tj.read()`.
 
 ### tj.takePhoto(targetPath)
 
