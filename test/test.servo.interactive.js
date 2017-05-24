@@ -36,6 +36,7 @@ console.log("  raise: raises the servo by one increment (+100)");
 console.log("  lower: lowers the servo by one increment (-100)");
 console.log("  top: moves the servo to the top of the range (" + tj._SERVO_ARM_BACK + ")");
 console.log("  bottom: moves the servo to the bottom of the range (" + tj._SERVO_ARM_DOWN + ")");
+console.log("  wave: make the arm wave");
 
 var servoPosition = tj._SERVO_ARM_UP;
 tj.raiseArm();
@@ -43,12 +44,12 @@ tj.raiseArm();
 // listen for speech
 tj.listen(function(msg) {
     if (msg.startsWith("raise")) {
-        servoPosition = servoPosition + 100;
-        console.log("raising arm by +100 to " + servoPosition);
+        servoPosition = servoPosition - 100;
+        console.log("raising arm by -100 to " + servoPosition);
         tj._motor.servoWrite(servoPosition);
     } else if (msg.startsWith("lower")) {
-        servoPosition = servoPosition - 100;
-        console.log("lowering arm by -100 to " + servoPosition);
+        servoPosition = servoPosition + 100;
+        console.log("lowering arm by +100 to " + servoPosition);
         tj._motor.servoWrite(servoPosition);
     } else if (msg.startsWith("top")) {
         servoPosition = tj._SERVO_ARM_BACK;
@@ -58,5 +59,8 @@ tj.listen(function(msg) {
         servoPosition = tj._SERVO_ARM_DOWN;
         console.log("moving servo to bottom of the range at " + servoPosition);
         tj._motor.servoWrite(servoPosition);
+    } else if (msg.startsWith("wave")) {
+        console.log("waving");
+        tj.wave();
     }
 });
