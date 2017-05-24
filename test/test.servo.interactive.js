@@ -60,5 +60,3 @@ tj.listen(function(msg) {
         tj._motor.servoWrite(servoPosition);
     }
 });
-
-doListen();
