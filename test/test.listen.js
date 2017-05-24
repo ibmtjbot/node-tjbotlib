@@ -31,24 +31,23 @@ var tjConfig = {
 var tj = new TJBot(hardware, tjConfig, credentials);
 
 // listen for speech
-console.log("listening for 5 seconds");
-
-tj.listen(function(msg) {
-    console.log("received a message");
-});
-
-setTimeout(function() {
-    console.log("timer fired, stoping listening");
-    tj.stopListening();
-}, 5000);
-
-setTimeout(function() {
-    console.log("goodbye!");
-}, 20000);
-
-setTimeout(function() {
-    console.log("timer fired, starting listening again");
+function doListen() {
+    console.log("calling listen()");
     tj.listen(function(msg) {
-        console.log("received a message");
+        if (msg.startsWith("stop")) {
+            console.log("stopping listening");
+            tj.stopListening();
+            //tj.sleep(2000);
+            console.log("calling doListen() again");
+            doListen();
+            console.log("after doListen() call");
+        } else if (msg.startsWith("exit")) {
+            console.log("exiting test");
+            process.exit();
+        }
     });
-}, 10000);
+    console.log("after listen() call");
+}
+
+doListen();
+
