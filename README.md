@@ -464,23 +464,18 @@ tj.shine('pink');
 tj.shine('#0A2C9F');
 ```
 
-### tj.pulse(color, duration, delay)
+### tj.pulse(color, duration)
 
 Pulses the LED the given color (e.g. fades in and out to the given color).
 
 - `color` specifies the color of the pulse
-- `duration` specifies how long the pulse should last
-- `delay` specifies how long to wait in between pulses
+- `duration` specifies how long the pulse should last. TJBot will throw an error if the duration is less than 0.5 seconds or greater than 2 seconds, as pulses outside of these bounds are not very reliable.
 
-This method returns instantly, but TJBot will continue to pulse the LED until `tj.stopPulsing()` is called.
+Sample usage:
 
-### tj.isPulsing()
-
-Returns `true` if TJBot is currently pulsing the LED and `false` otherwise.
-
-### tj.stopPulsing()
-
-Stops pulsing the LED.
+```
+tj.pulse('blue', 1.0);
+```
 
 ### tj.shineColors()
 
