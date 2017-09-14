@@ -52,6 +52,46 @@ This will configure your TJBot as a female robot having an `LED`, `servo`, `micr
 
 The default configuration of TJBot uses English as the main language with a male voice.
 
+The entire list of hardware devices supported by tjbot lib and the configuration parameters are shown below.
+
+```
+var hardware = ['led', 'servo', 'microphone', 'speaker','camera'];
+var configuration = {
+    log: {
+        level: 'info' // valid levels are 'error', 'warn', 'info', 'verbose', 'debug', 'silly'
+    },
+    robot: {
+        gender: 'male', // see TJBot.prototype.genders
+        name: 'Watson'
+    },
+    listen: {
+        microphoneDeviceId: "plughw:1,0", // plugged-in USB card 1, device 0; see arecord -l for a list of recording devices
+        inactivityTimeout: -1, // -1 to never timeout or break the connection. Set this to a value in seconds e.g 120 to end connection after 120 seconds of silence
+        language: 'en-US' // see TJBot.prototype.languages.listen
+    },
+    wave: {
+        servoPin: 7 // corresponds to BCM 7 / physical PIN 26
+    },
+    speak: {
+        language: 'en-US', // see TJBot.prototype.languages.speak
+        voice: undefined, // use a specific voice; if undefined, a voice is chosen based on robot.gender and speak.language
+        speakerDeviceId: "plughw:0,0" // plugged-in USB card 1, device 0; see aplay -l for a list of playback devices
+    },
+    see: {
+        confidenceThreshold: {
+            object: 0.5,   // only list image tags with confidence > 0.5
+            text: 0.1     // only list text tags with confidence > 0.5
+        },
+        camera: {
+            height: 720,
+            width: 960,
+            verticalFlip: false, // flips the image vertically, may need to set to 'true' if the camera is installed upside-down
+            horizontalFlip: false // flips the image horizontally, should not need to be overridden
+        }
+    }
+};
+```
+
 # Capabilities
 
 TJBot has a number of capabilities that you can use to bring him to life. Capabilities are combinations of hardware and Watson services that enable TJBot's functionality. For example, "listening" is a combination of having a `speaker` and the `speech_to_text` service. Internally, the `_assertCapability()` method checks to make sure your TJBot is configured with the right hardware and services before it performs an action that depends on having a capability. Thus, the method used to make TJBot listen, `tj.listen()`, first checks that your TJBot has been configured with a `speaker` and the `speech_to_text` service.
