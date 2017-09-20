@@ -37,7 +37,6 @@ function doListen() {
         if (msg.startsWith("stop")) {
             console.log("stopping listening");
             tj.stopListening();
-            //tj.sleep(2000);
             console.log("calling doListen() again");
             doListen();
             console.log("after doListen() call");
@@ -50,4 +49,3 @@ function doListen() {
 }
 
 doListen();
-
