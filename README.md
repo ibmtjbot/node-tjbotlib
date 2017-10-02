@@ -67,7 +67,8 @@ var configuration = {
     listen: {
         microphoneDeviceId: "plughw:1,0", // plugged-in USB card 1, device 0; see arecord -l for a list of recording devices
         inactivityTimeout: -1, // -1 to never timeout or break the connection. Set this to a value in seconds e.g 120 to end connection after 120 seconds of silence
-        language: 'en-US' // see TJBot.prototype.languages.listen
+        language: 'en-US', // see TJBot.prototype.languages.listen
+        customizationId: null //specify a language customization id if available.
     },
     wave: {
         servoPin: 7 // corresponds to BCM 7 / physical PIN 26
