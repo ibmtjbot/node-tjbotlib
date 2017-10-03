@@ -76,7 +76,10 @@ var configuration = {
     speak: {
         language: 'en-US', // see TJBot.prototype.languages.speak
         voice: undefined, // use a specific voice; if undefined, a voice is chosen based on robot.gender and speak.language
-        speakerDeviceId: "plughw:0,0" // plugged-in USB card 1, device 0; see aplay -l for a list of playback devices
+        speakerDeviceId: "plughw:0,0", // plugged-in USB card 1, device 0; see aplay -l for a list of playback devices
+        soundPlayer: "ffplay",
+        queueSpeech: false //// queue a request to play/speak if there is something already playing.
+
     },
     see: {
         confidenceThreshold: {
