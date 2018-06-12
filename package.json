@@ -1,7 +1,7 @@
 {
   "name": "tjbot",
   "description": "Node.js library for writing TJBot recipes",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": "TJBot <tjbot@us.ibm.com>",
   "bugs": {
     "url": "https://github.com/ibmtjbot/tjbotlib/issues"
@@ -12,14 +12,14 @@
     "color-model": "^0.2.2",
     "colornames": "^1.1.1",
     "fifo": "^2.3.0",
-    "mic": "^2.1.1",
+    "mic": "^2.1.2",
     "node-raspistill": "^0.0.11",
     "object.pick": "^1.2.0",
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
     "sound-player": "^1.0.4",
     "temp": "^0.8.3",
-    "watson-developer-cloud": "^2.11.1",
+    "watson-developer-cloud": "^3.4.5",
     "winston": "^2.3.1"
   },
   "engines": {

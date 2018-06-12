@@ -99,7 +99,7 @@ TJBot has a number of capabilities that you can use to bring him to life. Capabi
 TJBot's capabilities are:
 
 - **Analyzing Tone** [[tj.analyzeTone](#analyze-tone)] , which requres the [Watson Tone Analyzer](https://www.ibm.com/watson/developercloud/tone-analyzer.html) service
-- **Conversing** [[tj.converse(workspaceId, message, callback)](#tjconverseworkspaceid-message-callback)], which requires the [Watson Conversation](https://www.ibm.com/watson/developercloud/conversation.html) service
+- **Conversing** [[tj.converse(workspaceId, message, callback)](#tjconverseworkspaceid-message-callback)], which requires the [Watson Assistant](https://www.ibm.com/watson/services/conversation/) service
 - **Listening** [[tj.listen(callback)](#tjlistencallback)], which requires a microphone and the [Watson Speech to Text](https://www.ibm.com/watson/developercloud/speech-to-text.html) service
 - **Seeing** [[tj.see()](#tjsee)], which requires a camera and the [Watson Visual Recognition](https://www.ibm.com/watson/developercloud/visual-recognition.html) service
 - **Shining** [[tj.shine(color)](#tjshinecolor)], which requires an LED
@@ -121,7 +121,7 @@ function TJBot(hardware, configuration, credentials)
 
 Valid options for `hardware` are defined in `TJBot.prototype.hardware`: `camera`, `led`, `microphone`, `servo`, and `speaker`.
 
-The `credentials` object expects credentials to be defined for each Watson service needed by your application. Valid Watson services are defined in `TJBot.prototype.services`: `conversation`, `language_translator`, `speech_to_text`, `text_to_speech`, `tone_analyzer`, and `visual_recognition`.
+The `credentials` object expects credentials to be defined for each Watson service needed by your application. Valid Watson services are defined in `TJBot.prototype.services`: `assistant`, `language_translator`, `speech_to_text`, `text_to_speech`, `tone_analyzer`, and `visual_recognition`.
 
 Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition`) expect an API `key`.
 
@@ -129,7 +129,7 @@ Example credentials object:
 
 ```
 var credentials = {
-	conversation: {
+	assistant: {
 		username: 'xxx',
 		password: 'yyy'
 	},
@@ -176,7 +176,7 @@ If you do need low-level access to the Watson APIs beyond the level provided by 
 
 ```
 var tj = new TJBot(hardware, configuration, credentials);
-tj._conversation; // the ConversationV1 service object
+tj._assistant; // the AssistantV1 service object
 tj._languageTranslator; // the LanguageTranslatorV2 service object
 tj._stt; // the SpeechToTextV1 service object
 tj._tts; // the TextToSpeechV1 service object
@@ -315,9 +315,9 @@ response = {
 
 ### tj.converse(workspaceId, message, callback)
 
-Takes a conversational turn in the Conversation service.
+Takes a conversational turn in the Assistant service.
 
-- `workspaceId` specifies the workspace ID of the conversation in the Watson Conversation service
+- `workspaceId` specifies the workspace ID of the conversation in the Watson Assistant service
 - `message` is the text of the conversational turn
 - `callback` is called with the conversational response
 
