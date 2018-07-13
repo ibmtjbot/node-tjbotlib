@@ -125,6 +125,12 @@ The `credentials` object expects credentials to be defined for each Watson servi
 
 Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition`) expect an API `key`.
 
+Also note that as of June 2018, several watson services are migrating
+from a `username` and `password` to a `iam_apikey` the which one you
+should use will depend on service creation date. In the following 
+credentials object example note the language_translator which will
+be configured using the `iam_apikey` approach
+
 Example credentials object:
 
 ```
@@ -134,8 +140,7 @@ var credentials = {
 		password: 'yyy'
 	},
 	language_translator: {
-		username: 'xxx',
-		password: 'yyy'
+		iam_apikey: 'xxx'
 	},
 	speech_to_text: {
 		username: 'xxx',
