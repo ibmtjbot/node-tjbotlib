@@ -150,7 +150,7 @@ var credentials = {
 		password: 'yyy'
 	},
 	visual_recognition: {
-		api_key: 'xxx'
+		iam_apikey: 'xxx'
 	}
 };
 ```
