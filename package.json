@@ -19,7 +19,7 @@
     "sleep": "^5.0.0",
     "sound-player": "^1.0.4",
     "temp": "^0.8.3",
-    "watson-developer-cloud": "^3.4.5",
+    "watson-developer-cloud": "^3.10",
     "winston": "^2.3.1"
   },
   "engines": {
