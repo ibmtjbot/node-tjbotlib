@@ -123,7 +123,7 @@ Valid options for `hardware` are defined in `TJBot.prototype.hardware`: `camera`
 
 The `credentials` object expects credentials to be defined for each Watson service needed by your application. Valid Watson services are defined in `TJBot.prototype.services`: `assistant`, `language_translator`, `speech_to_text`, `text_to_speech`, `tone_analyzer`, and `visual_recognition`.
 
-Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition`) expect an API `key`.
+Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition` and `language_translator`) expect an `apikey`.
 
 Example credentials object:
 
@@ -134,8 +134,7 @@ var credentials = {
 		password: 'yyy'
 	},
 	language_translator: {
-		username: 'xxx',
-		password: 'yyy'
+		apikey: 'xxx'
 	},
 	speech_to_text: {
 		username: 'xxx',
@@ -150,7 +149,7 @@ var credentials = {
 		password: 'yyy'
 	},
 	visual_recognition: {
-		api_key: 'xxx'
+		apikey: 'xxx'
 	}
 };
 ```
@@ -177,7 +176,7 @@ If you do need low-level access to the Watson APIs beyond the level provided by 
 ```
 var tj = new TJBot(hardware, configuration, credentials);
 tj._assistant; // the AssistantV1 service object
-tj._languageTranslator; // the LanguageTranslatorV2 service object
+tj._languageTranslator; // the LanguageTranslatorV3 service object
 tj._stt; // the SpeechToTextV1 service object
 tj._tts; // the TextToSpeechV1 service object
 tj._toneAnalyzer; // the ToneAnalyzerV3 service object
