@@ -8,13 +8,11 @@
   },
   "dependencies": {
     "assert": "^1.4.1",
-    "asyncawait": "^1.0.6",
     "color-model": "^0.2.2",
     "colornames": "^1.1.1",
     "fifo": "^2.3.0",
     "mic": "^2.1.2",
     "node-raspistill": "^0.0.11",
-    "object.pick": "^1.2.0",
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
     "sound-player": "^1.0.4",
