@@ -359,6 +359,11 @@ Sample response:
 text = "hello tjbot my name is bobby"
 ```
 
+### tj.payAttention(callback)
+
+If `tj.configuration.speak.enableVoice` is set to `true` (default) `tj.listen(callback)` is called.
+If `tj.configuration.speak.enableVoice` is set to `false` input is being recursively read from the console (stdin).
+
 ### tj.pauseListening()
 
 Pauses listening.
@@ -526,7 +531,7 @@ Selects a random color from the array returned by `tj.shineColors()`.
 
 ## Speak
 
-## tj.speak(message)
+### tj.speak(message)
 
 Speaks the given message using `text_to_speech`.
 
@@ -544,7 +549,7 @@ tj.speak("hello world").then(function() {
 
 In this example, TJBot will first speak "hello world". After audio playback has finished, it will then speak "my name is tjbot". After audio playback has finished, it will then speak "it's very nice to meet you!". The [Promise pattern](https://en.wikipedia.org/wiki/Futures_and_promises) is used here to ensure that statements can be spoken consecutively without interference.
 
-## tj.play(soundFile)
+### tj.play(soundFile)
 
 Plays the given sound file.
 
@@ -556,9 +561,14 @@ Sample usage:
 tj.play('/usr/share/doc/Greenfoot/scenarios/lunarlander/sounds/Explosion.wav');
 ```
 
-# Translate
+### tj.answer(message)
 
-## tj.translate(text, sourceLanguage, targetLanguage)
+If `tj.configuration.speak.enableVoice` is set to `true` (default) `tj.speak(message)` is called.
+If `tj.configuration.speak.enableVoice` is set to `false` `message` is being written to stdout
+
+## Translate
+
+### tj.translate(text, sourceLanguage, targetLanguage)
 
 Translates the given text from the source language to the target language.
 
@@ -604,7 +614,7 @@ translation = {
 }
 ```
 
-## tj.identifyLanguage(text)
+### tj.identifyLanguage(text)
 
 Identifies the language in which the text was written.
 
@@ -645,7 +655,7 @@ languages = {
 }
 ```
 
-## tj.isTranslatable(sourceLanguage, targetLanguage)
+### tj.isTranslatable(sourceLanguage, targetLanguage)
 
 Returns a Promise that resolves to `true` if there exists a translation model between the source language and the target language.
 
@@ -672,29 +682,43 @@ Sample response:
 TJBot can translate between English and Spanish!
 ```
 
-# Wave
+## Wave
 
-## tj.armBack()
+### tj.armBack()
 
 Causes TJBot to move its arm backward (like a wind-up for a pitch).
 
 > Note: if this method doesn't produce the expected result, the servo motor stop points may need to be overridden. Override the value of `TJBot.prototype._SERVO_ARM_BACK` to find a stop point that satisfies the "back" position. Note that valid servo values are in the range [500, 2300].
 
-## tj.raiseArm()
+### tj.raiseArm()
 
 Causes TJBot to raise its arm to the upward position.
 
 > Note: if this method doesn't produce the expected result, the servo motor stop points may need to be overridden. Override the value of `TJBot.prototype._SERVO_ARM_UP` to find a stop point that satisfies the "back" position. Note that valid servo values are in the range [500, 2300].
 
-## tj.lowerArm()
+### tj.lowerArm()
 
 Causes TJBot to lower its arm to the downward position.
 
 > Note: if this method doesn't produce the expected result, the servo motor stop points may need to be overridden. Override the value of `TJBot.prototype._SERVO_ARM_DOWN` to find a stop point that satisfies the "back" position. Note that valid servo values are in the range [500, 2300].
 
-## tj.wave()
+### tj.wave()
 
 Causes TJBot to wave the arm once (up-down-up).
+
+## Other useful functionality
+
+### tj.terminate
+
+Closes readline streams and ends the process with code 0
+
+### tj.getContext(workspaceId)
+
+Returns the context of the conversation of the given Watson Assistant workspace.
+
+### tj.setContext(workspaceId, context)
+
+Sets the context of the conversation of the given Watson Assistant workspace.
 
 # Contributing
 We encourage you to make enhancements to this library and contribute them back to us via a pull request.

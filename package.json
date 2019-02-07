@@ -14,6 +14,7 @@
     "fifo": "^2.3.0",
     "mic": "^2.1.2",
     "node-raspistill": "^0.0.11",
+	"readline": "^1.3.0",
     "semaphore": "^1.0.5",
     "sleep": "^5.0.0",
     "sound-player": "^1.0.4",
