@@ -1,7 +1,7 @@
 {
   "name": "tjbot",
   "description": "Node.js library for writing TJBot recipes",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "author": "TJBot <tjbot@us.ibm.com>",
   "bugs": {
     "url": "https://github.com/ibmtjbot/tjbotlib/issues"
