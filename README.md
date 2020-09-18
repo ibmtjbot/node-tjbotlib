@@ -1,12 +1,12 @@
 # TJBot Library
 
-> Node.js library that encapsulates TJBot's basic capabilities: seeing, listening, speaking, shining, etc.
+> Node.js library that encapsulates TJBot's capabilities: seeing, listening, speaking, shining, and waving.
 
 This library can be used to create your own recipes for [TJBot](http://ibm.biz/mytjbot).
 
-Some of TJBot's capabilities require specific [IBM Watson](https://www.ibm.com/watson/developercloud/services-catalog.html) services. For example, "seeing" is powered by the [Watson Visual Recognition](https://www.ibm.com/watson/developercloud/visual-recognition.html) service. Similarly, speaking and listening are powered by the [Watson Text to Speech](https://www.ibm.com/watson/developercloud/text-to-speech.html) and [Watson Speech to Text](https://www.ibm.com/watson/developercloud/speech-to-text.html) services.
+Some of TJBot's capabilities require [IBM Cloud](https://www.ibm.com/cloud) services. For example, seeing is powered by the [IBM Watson Visual Recognition](https://www.ibm.com/cloud/watson-visual-recognition) service. Speaking and listening are powered by the [IBM Watson Text to Speech](https://www.ibm.com/cloud/watson-text-to-speech) and [IBM Watson Speech to Text](https://www.ibm.com/cloud/watson-speech-to-text) services.
 
-To use these services, you will need to specify credentials for each of the Watson services you are interested in using.
+To use these services, you will need to sign up for a free [IBM Cloud](https://www.ibm.com/cloud) account, create instances of the services you need, and download the authentication credentials.
 
 # Usage
 
@@ -21,75 +21,56 @@ $ npm install --save tjbot
 Instantiate the `TJBot` object.
 
 ```
-const TJBot = require('tjbot');
-
-var hardware = ['led', 'servo', 'microphone', 'speaker'];
-var configuration = {
-    robot: {
-        gender: 'female'
-    },
-    listen: {
-        language: 'ja-JP'
-    },
-    speak: {
-        language: 'en-US'
-    }
-};
-var credentials = {
-    speech_to_text: {
-        username: 'xxx',
-        password: 'xxx'
-    },
-    text_to_speech: {
-        username: 'xxx',
-        password: 'xxx'
-    }
-}
-var tj = new TJBot(hardware, configuration, credentials);
+import TJBot from 'tjbot';
+const tj = new TJBot();
+tj.initialize([TJBot.HARDWARE.LED, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHONE, TJBot.HARDWARE.SPEAKER]);
 ```
 
-This will configure your TJBot as a female robot having an `LED`, `servo`, `microphone`, and `speaker`, and with the Watson `speech_to_text` and `text_to_speech` services. In addition, this robot is configured to listen in Japanese and speak in English (using a female voice).
-
-The default configuration of TJBot uses English as the main language with a male voice.
-
-The entire list of hardware devices supported by tjbot lib and the configuration parameters are shown below.
+This will configure your TJBot with an `LED`, `servo`, `microphone`, and `speaker`. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
 
 ```
-var hardware = ['led', 'servo', 'microphone', 'speaker','camera'];
+var tj = new TJBot({ robot: { gender: TJBot.GENDERS.FEMALE }, speak: { language: TJBot.LANGUAGES.SPEAK.JAPANESE } });
+```
+
+The entire list of hardware devices supported by TJBot is defined in `TJBot.HARDWARE` and includes `CAMERA`, `LED`, `MICROPHONE`, `SERVO`, and `SPEAKER`. Each of these hardware devices may be configured by passing in configuration options to the `TJBot` constructor as follows.
+
+```
 var configuration = {
     log: {
-        level: 'info' // valid levels are 'error', 'warn', 'info', 'verbose', 'debug', 'silly'
+        level: 'info', // valid levels are 'error', 'warn', 'info', 'verbose', 'debug', 'silly'
     },
     robot: {
-        gender: 'male', // see TJBot.prototype.genders
-        name: 'Watson'
+        gender: TJBot.GENDERS.MALE, // see TJBot.GENDERS
+    },
+    converse: {
+        assistantId: undefined, // placeholder for Watson Assistant's assistantId
     },
     listen: {
-        microphoneDeviceId: "plughw:1,0", // plugged-in USB card 1, device 0; see arecord -l for a list of recording devices
+        microphoneDeviceId: 'plughw:1,0', // plugged-in USB card 1, device 0; see 'arecord -l' for a list of recording devices
         inactivityTimeout: -1, // -1 to never timeout or break the connection. Set this to a value in seconds e.g 120 to end connection after 120 seconds of silence
-        language: 'en-US' // see TJBot.prototype.languages.listen
+        backgroundAudioSuppression: 0.4, // should be in the range [0.0, 1.0] indicating how much audio suppression to perform
+        language: TJBot.LANGUAGES.LISTEN.ENGLISH_US, // see TJBot.LANGUAGES.LISTEN
     },
     wave: {
-        servoPin: 7 // corresponds to BCM 7 / physical PIN 26
+        servoPin: 7, // corresponds to BCM 7 / physical PIN 26
     },
     speak: {
-        language: 'en-US', // see TJBot.prototype.languages.speak
+        language: TJBot.LANGUAGES.SPEAK.ENGLISH_US, // see TJBot.LANGUAGES.SPEAK
         voice: undefined, // use a specific voice; if undefined, a voice is chosen based on robot.gender and speak.language
-        speakerDeviceId: "plughw:0,0" // plugged-in USB card 1, device 0; see aplay -l for a list of playback devices
+        speakerDeviceId: 'plughw:0,0', // plugged-in USB card 1, device 0; 'see aplay -l' for a list of playback devices
     },
     see: {
-        confidenceThreshold: {
-            object: 0.5,   // only list image tags with confidence > 0.5
-            text: 0.1     // only list text tags with confidence > 0.5
-        },
+        confidenceThreshold: 0.6,
         camera: {
             height: 720,
             width: 960,
             verticalFlip: false, // flips the image vertically, may need to set to 'true' if the camera is installed upside-down
-            horizontalFlip: false // flips the image horizontally, should not need to be overridden
-        }
-    }
+            horizontalFlip: false, // flips the image horizontally, should not need to be overridden
+        },
+        language: TJBot.LANGUAGES.SEE.ENGLISH_US,
+    },
 };
+const tj = new TJBot(configuration);
 ```
 
 # Capabilities

@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 /**
- * Copyright 2016 IBM Corp. All Rights Reserved.
+ * Copyright 2016-2020 IBM Corp. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,26 +15,15 @@
  * limitations under the License.
  */
 
-const TJBot = require('../lib/tjbot');
-const config = require('./config');
+// import rl from 'readline-sync';
+import TJBot from '../lib/tjbot';
 
-var credentials = config.credentials;
-var hardware = ['speaker'];
+test('tjbot playing audio', async () => {
+    const sound = '/usr/share/sounds/alsa/Front_Center.wav';
+    const tjbot = new TJBot({ log: { level: 'silly' } });
+    tjbot.initiatlize([TJBot.HARDWARE.SPEAKER]);
+    await tjbot.play(sound);
 
-// turn on debug logging to the console
-var tjConfig = {
-    log: {
-        level: 'silly'
-    }
-};
-
-// instantiate our TJBot!
-var tj = new TJBot(hardware, tjConfig, credentials);
-
-// play a sound file
-var sound = "/usr/share/sounds/alsa/Front_Center.wav";
-
-console.log("playing sound");
-tj.play(sound).then(function() {
-    console.log("sound should have played");
+    // const answer = rl.question('Did you hear the audio play (y/n)? ');
+    // expect(answer.toLowerCase()).toEqual('y');
 });

@@ -1,5 +1,6 @@
+/* eslint-disable no-undef */
 /**
- * Copyright 2016 IBM Corp. All Rights Reserved.
+ * Copyright 2016-2020 IBM Corp. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +15,14 @@
  * limitations under the License.
  */
 
-const TJBot = require('../lib/tjbot');
-const assert = require('assert');
+// import readline from 'readline-sync';
+import TJBot from '../lib/tjbot';
 
-describe('TJBot', function() {
-    describe('#constructor', function() {
-        it('should construct a TJBot object with no hardware', function() {
-            var tj = new TJBot([], {}, {});
-            assert.ok(tj);
-        });
-    });
+test('tjbot waving arm', async () => {
+    const tjbot = new TJBot({ log: { level: 'silly' } });
+    tjbot.initialize([TJBot.HARDWARE.SERVO]);
+    tjbot.wave();
+
+    // const answer = rl.question('Did the arm wave (y/n)? ');
+    // expect(answer.toLowerCase()).toEqual('y');
 });

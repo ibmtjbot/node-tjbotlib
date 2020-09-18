@@ -1,1 +1,1 @@
-module.exports = require('./lib/tjbot');
+export { default } from './lib/tjbot';
