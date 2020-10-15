@@ -111,7 +111,7 @@ The full list of capabilities can be accessed programatically via `TJBot.CAPABIL
 
 ## TJBot API
 
-Please see [the API docs](docs/tjbot/2.0.0/) for documentation of the TJBot API.
+Please see [the API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.0/) for documentation of the TJBot API.
 
 # Contributing
 We encourage you to make enhancements to this library and contribute them back to us via a pull request.
