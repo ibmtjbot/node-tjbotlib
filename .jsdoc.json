@@ -1,0 +1,36 @@
+{
+    "tags": {
+        "allowUnknownTags": true,
+        "dictionaries": ["jsdoc"]
+    },
+    "source": {
+        "include": ["lib", "package.json", "README.md"],
+        "includePattern": ".js$",
+        "excludePattern": "(node_modules/|docs)"
+    },
+    "plugins": [
+        "plugins/markdown"
+    ],
+    "templates": {
+        "referenceTitle": "tjbotlib",
+        "disableSort": true,
+        "collapse": false,
+        "resources": {
+            "tjbot": "https://ibmtjbot.github.io",
+            "ibm-cloud": "https://cloud.ibm.com",
+            "assistant": "https://cloud.ibm.com/apidocs/assistant-v2",
+            "language-translator": "https://cloud.ibm.com/apidocs/language-translator",
+            "speech-to-text": "https://cloud.ibm.com/apidocs/speech-to-text",
+            "text-to-speech": "https://cloud.ibm.com/apidocs/text-to-speech",
+            "tone-analyzer": "https://cloud.ibm.com/apidocs/tone-analyzer",
+            "visual-recognition": "https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3"
+        }
+    },
+    "opts": {
+        "destination": "../ibmtjbot.github.io/docs/",
+        "encoding": "utf8",
+        "private": true,
+        "recurse": true,
+        "template": "./node_modules/braintree-jsdoc-template"
+    }
+}

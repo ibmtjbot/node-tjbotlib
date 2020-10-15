@@ -28,6 +28,7 @@
     "@babel/preset-env": "^7.11.5",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.3.0",
+    "braintree-jsdoc-template": "^3.3.0",
     "eslint": "^7.8.1",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-standard": "^14.1.1",
@@ -40,8 +41,8 @@
     "readline-sync": "^1.4.10"
   },
   "scripts": {
-    "test": "jest --testPathPattern=tests",
-    "jsdoc": "jsdoc lib/tjbot.js -d doc"
+    "test": "node_modules/.bin/jest --testPathPattern=tests",
+    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "repository": {
     "type": "git",
