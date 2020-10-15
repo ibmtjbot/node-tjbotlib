@@ -8,17 +8,17 @@ Some of TJBot's capabilities require [IBM Cloud](https://www.ibm.com/cloud) serv
 
 To use these services, you will need to sign up for a free [IBM Cloud](https://www.ibm.com/cloud) account, create instances of the services you need, and download the authentication credentials.
 
-# Usage
+## Usage
 
-Install the library as follows.
+1. Install the library using `npm`.
 
 ```
 $ npm install --save tjbot
 ```
 
-> Note: The TJBot library was developed for use on Raspberry Pi. It may be possible to develop and test portions of this library on other Linux-based systems (e.g. Ubuntu), but this usage is not officially supported.
+> 💡 Note: The TJBot library was developed for use on Raspberry Pi. It may be possible to develop and test portions of this library on other Linux-based systems (e.g. Ubuntu), but this usage is not officially supported.
 
-Instantiate the `TJBot` object.
+2. Instantiate the `TJBot` object.
 
 ```
 import TJBot from 'tjbot';
@@ -26,11 +26,30 @@ const tj = new TJBot();
 tj.initialize([TJBot.HARDWARE.LED, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHONE, TJBot.HARDWARE.SPEAKER]);
 ```
 
-This will configure your TJBot with an `LED`, `servo`, `microphone`, and `speaker`. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
+This code will configure your TJBot with an `LED`, `servo`, `microphone`, and `speaker`. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
 
 ```
-var tj = new TJBot({ robot: { gender: TJBot.GENDERS.FEMALE }, speak: { language: TJBot.LANGUAGES.SPEAK.JAPANESE } });
+var tj = new TJBot({ 
+    robot: { 
+        gender: TJBot.GENDERS.FEMALE 
+    }, 
+    speak: { 
+        language: TJBot.LANGUAGES.SPEAK.JAPANESE 
+    }
+});
 ```
+
+### IBM Watson Credentials
+
+If you are using IBM Watson services, store your authentication credentials in a file named `ibm-credentials.env`. Credentials may be downloaded from the page for your service instance, in the section named "Credentials."
+
+If you are using multiple IBM Watson services, you may combine all of the credentials together in a single file.
+
+The file `ibm-credentials.sample.env` shows a sample of how credentials are stored.
+
+> 💡 Note: You may also specify the path to the credentials file in the TJBot constructor using the `credentialsFile` argument. For example, `const tj = new TJBot(credentialsFile="/home/pi/my-credentials.env")`.
+
+## Hardware Configuration
 
 The entire list of hardware devices supported by TJBot is defined in `TJBot.HARDWARE` and includes `CAMERA`, `LED`, `MICROPHONE`, `SERVO`, and `SPEAKER`. Each of these hardware devices may be configured by passing in configuration options to the `TJBot` constructor as follows.
 
@@ -73,108 +92,35 @@ var configuration = {
 const tj = new TJBot(configuration);
 ```
 
-# Capabilities
+## Capabilities
 
-TJBot has a number of capabilities that you can use to bring him to life. Capabilities are combinations of hardware and Watson services that enable TJBot's functionality. For example, "listening" is a combination of having a `speaker` and the `speech_to_text` service. Internally, the `_assertCapability()` method checks to make sure your TJBot is configured with the right hardware and services before it performs an action that depends on having a capability. Thus, the method used to make TJBot listen, `tj.listen()`, first checks that your TJBot has been configured with a `speaker` and the `speech_to_text` service.
+TJBot has a number of capabilities that you can use to bring it to life. Capabilities are combinations of hardware and Watson services that enable TJBot's functionality. For example, "listening" is a combination of having a `speaker` and the `speech_to_text` service. Internally, the `_assertCapability()` method checks to make sure your TJBot is configured with the right hardware and services before it performs an action that depends on having a capability. Thus, the method used to make TJBot listen, `tj.listen()`, first checks that your TJBot has been configured with a `speaker` and the `speech_to_text` service.
 
 TJBot's capabilities are:
 
-- **Analyzing Tone** [[tj.analyzeTone](#analyze-tone)] , which requres the [Watson Tone Analyzer](https://www.ibm.com/watson/developercloud/tone-analyzer.html) service
-- **Conversing** [[tj.converse(workspaceId, message, callback)](#tjconverseworkspaceid-message-callback)], which requires the [Watson Assistant](https://www.ibm.com/watson/services/conversation/) service
-- **Listening** [[tj.listen(callback)](#tjlistencallback)], which requires a microphone and the [Watson Speech to Text](https://www.ibm.com/watson/developercloud/speech-to-text.html) service
-- **Seeing** [[tj.see()](#tjsee)], which requires a camera and the [Watson Visual Recognition](https://www.ibm.com/watson/developercloud/visual-recognition.html) service
-- **Shining** [[tj.shine(color)](#tjshinecolor)], which requires an LED
-- **Speaking** [[tj.speak(message)](#tjspeakmessage)], which requires a speaker and the [Watson Text to Speech](https://www.ibm.com/watson/developercloud/text-to-speech.html) service
-- **Translating** [[tj.translate(text, sourceLanguage, targetLanguage)](#tjtranslatetext-sourcelanguage-targetlanguage)], which requires the [Watson Language Translator](https://www.ibm.com/watson/developercloud/language-translator.html) service
-- **Waving** [[tj.wave()](#tjwave)], which requires a servo motor
+- **Analyzing Tone** with the [Watson Tone Analyzer](https://www.ibm.com/cloud/watson-tone-analyzer) service
+- **Conversing** with the [Watson Assistant](https://www.ibm.com/cloud/watson-assistant/) service
+- **Listening** with the [Watson Speech to Text](https://www.ibm.com/cloud/watson-speech-to-text) service
+- **Seeing** with the [Watson Visual Recognition](https://www.ibm.com/cloud/watson-visual-recognition) service
+- **Shining** its LED
+- **Speaking** with the [Watson Text to Speech](https://www.ibm.com/cloud/watson-text-to-speech) service
+- **Translating** between languages with the [Watson Language Translator](https://www.ibm.com/cloud/watson-language-translator) service
+- **Waving**  its arm
 
-The full list of capabilities can be accessed programatically via `TJBot.prototype.capabilities`, the full list of hardware components can be accessed programatically via `TJBot.prototype.hardware`, and the full list of Watson services can be accessed programatically via `TJBot.prototype.services`.
+The full list of capabilities can be accessed programatically via `TJBot.CAPABiLITIES`, the full list of hardware components can be accessed programatically via `TJBot.HARDWARE`, and the full list of Watson services can be accessed programatically via `TJBot.SERVICES`.
 
-# TJBot API
+## TJBot API
 
-## Constructor
+Please see [the API docs](api/TJBot.html) for documentation of the TJBot API.
 
-The `TJBot` constructor takes three arguments: the list of hardware present in the robot, the configuration of the robot, and the set of Watson credentials.
+# Contributing
+We encourage you to make enhancements to this library and contribute them back to us via a pull request.
 
-```
-function TJBot(hardware, configuration, credentials)
-```
+# License
+This project uses the [Apache License Version 2.0](LICENSE) software license.
 
-Valid options for `hardware` are defined in `TJBot.prototype.hardware`: `camera`, `led`, `microphone`, `servo`, and `speaker`.
 
-The `credentials` object expects credentials to be defined for each Watson service needed by your application. Valid Watson services are defined in `TJBot.prototype.services`: `assistant`, `language_translator`, `speech_to_text`, `text_to_speech`, `tone_analyzer`, and `visual_recognition`.
-
-Please see `TJBot.prototype._createServiceAPI()` to understand what kind of credentials are required for each specific service. Most services expect a `username` and `password`, although some (e.g. `visual_recognition` and `language_translator`) expect an `apikey`.
-
-Example credentials object:
-
-```
-var credentials = {
-	assistant: {
-		username: 'xxx',
-		password: 'yyy'
-	},
-	language_translator: {
-		apikey: 'xxx'
-	},
-	speech_to_text: {
-		username: 'xxx',
-		password: 'yyy'
-	},
-	text_to_speech: {
-		username: 'xxx',
-		password: 'yyy'
-	},
-	tone_analyzer: {
-		username: 'xxx',
-		password: 'yyy'
-	},
-	visual_recognition: {
-		apikey: 'xxx'
-	}
-};
-```
-
-## Configuration
-
-TJBot has a number of configuration options for its hardware and behaviors. Defaults are given in `TJBot.prototype.defaultConfiguration`, and these are overridden by any options specified in the `TJBot` constructor.
-
-The most common configuration options are:
-
-- `robot.name`: This is the name of your TJBot! You can use this in your recipes to know when someone is speaking to your TJBot. The default name is 'Watson'.
-- `robot.gender`: This is used to specify which voice is used in `text_to_speech`. Can either be `"male"` or `"female"`.
-- `listen.language`: This is used to specify the language in which `speech_to_text` listens. See `TJBot.prototype.languages.listen` for all available options.
-- `speak.language`: This is used to specify the language in which `text_to_speech` speaks. See `TJBot.prototype.languages.speak` for all available options.
-- `verboseLogging`: Setting this to `true` will cause debug messages to be printed to the console.
-
-Additional configuration options allow you to specify the PIN to which the servo is connected (`wave.servoPin`), the resolution of images captured from the camera (`see.camera.*`), thresholds on the confidence of object recognition for `visual_recognition` (`see.confidenceThreshold.*`), and the device ID used to access the microphone (`listen.microphoneDeviceId`).
-
-# API Methods
-A description of the public TJBot API is given below. There are a number of internal library methods that are prefixed with an underscore (`_`); these methods are not intended for use outside the scope of the library.
-
-If you do need low-level access to the Watson APIs beyond the level provided by `TJBot`, you can access them as follows:
-
-```
-var tj = new TJBot(hardware, configuration, credentials);
-tj._assistant; // the AssistantV1 service object
-tj._languageTranslator; // the LanguageTranslatorV3 service object
-tj._stt; // the SpeechToTextV1 service object
-tj._tts; // the TextToSpeechV1 service object
-tj._toneAnalyzer; // the ToneAnalyzerV3 service object
-tj._visualRecognition; // the VisualRecognitionV3 service object
-```
-
-Please see the documentation for the [Watson Node SDK](https://github.com/watson-developer-cloud/node-sdk) for more details on these objects.
-
-## Utility methods
-
-### tj.sleep(msec)
-
-Sleeps for the given number of milliseconds.
-
-- `msec` is the number of milliseconds to sleep for.
-
-Sleeping blocks the Node.js event loop.
+# TODO: MERGE BELOW INTO JSDOC
 
 ## Analyze Tone
 
@@ -652,33 +598,3 @@ Sample response:
 ```
 TJBot can translate between English and Spanish!
 ```
-
-# Wave
-
-## tj.armBack()
-
-Causes TJBot to move its arm backward (like a wind-up for a pitch).
-
-> Note: if this method doesn't produce the expected result, the servo motor stop points may need to be overridden. Override the value of `TJBot.prototype._SERVO_ARM_BACK` to find a stop point that satisfies the "back" position. Note that valid servo values are in the range [500, 2300].
-
-## tj.raiseArm()
-
-Causes TJBot to raise its arm to the upward position.
-
-> Note: if this method doesn't produce the expected result, the servo motor stop points may need to be overridden. Override the value of `TJBot.prototype._SERVO_ARM_UP` to find a stop point that satisfies the "back" position. Note that valid servo values are in the range [500, 2300].
-
-## tj.lowerArm()
-
-Causes TJBot to lower its arm to the downward position.
-
-> Note: if this method doesn't produce the expected result, the servo motor stop points may need to be overridden. Override the value of `TJBot.prototype._SERVO_ARM_DOWN` to find a stop point that satisfies the "back" position. Note that valid servo values are in the range [500, 2300].
-
-## tj.wave()
-
-Causes TJBot to wave the arm once (up-down-up).
-
-# Contributing
-We encourage you to make enhancements to this library and contribute them back to us via a pull request.
-
-# License
-This project uses the [Apache License Version 2.0](LICENSE) software license.
