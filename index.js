@@ -1,1 +1,2 @@
-export { default } from './lib/tjbot';
+import TJBot from './lib/tjbot.js';
+export default TJBot;
