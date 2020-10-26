@@ -88,6 +88,9 @@ var configuration = {
         },
         language: TJBot.LANGUAGES.SEE.ENGLISH_US,
     },
+    shine: {
+        grbFormat: false, // use the GRB color format (set this to true if your LED shines green when it should shine red or visa versa)
+    },
 };
 const tj = new TJBot(configuration);
 ```
