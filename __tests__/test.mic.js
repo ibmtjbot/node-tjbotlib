@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-// import rl from 'readline-sync';
-import TJBot from '../lib/tjbot';
+import TJBot from '../lib/tjbot.js';
 
-test('tjbot playing audio', async () => {
-    const sound = '/usr/share/sounds/alsa/Front_Center.wav';
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.initiatlize([TJBot.HARDWARE.SPEAKER]);
-    await tjbot.play(sound);
+const tjbot = new TJBot({ log: { level: 'silly' } });
+tjbot.initialize([TJBot.HARDWARE.MICROPHONE]);
 
-    // const answer = rl.question('Did you hear the audio play (y/n)? ');
-    // expect(answer.toLowerCase()).toEqual('y');
+console.log("TJBot is listening and will echo what you say on the console. Say 'stop' to stop the test.");
+tjbot.listen((msg) => {
+    if (msg.startsWith('stop')) {
+        tjbot.stopListening();
+    }
 });

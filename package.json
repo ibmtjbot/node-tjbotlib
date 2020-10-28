@@ -44,7 +44,11 @@
     "readline-sync": "^1.4.10"
   },
   "scripts": {
-    "test": "node_modules/.bin/jest --testPathPattern=tests",
+    "test": "node_modules/.bin/jest test.tjbotlib.js",
+    "test-led": "sudo node __tests__/test.led.js",
+    "test-mic": "sudo node __tests__/test.mic.js",
+    "test-servo": "sudo node __tests__/test.servo.js",
+    "test-speaker": "sudo node __tests__/test.speaker.js",
     "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "repository": {

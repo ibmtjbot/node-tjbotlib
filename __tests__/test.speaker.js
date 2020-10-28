@@ -15,16 +15,22 @@
  * limitations under the License.
  */
 
-import TJBot from '../lib/tjbot';
+import rl from 'readline-sync';
+import TJBot from '../lib/tjbot.js';
 
-test('tjbot listening', () => {
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.instantiate([TJBot.HARDWARE.MICROPHONE]);
-    tjbot.listen((msg) => {
-        expect(msg).toBeDefined();
-        if (msg.startsWith('stop')) {
-            tjbot.stopListening();
-            expect(true).toBeTruthy();
-        }
-    });
-});
+function confirm(behavior) {
+    let answer = rl.question(`Did TJBot ${behavior} (Y/n)? `);
+    if (answer === '') {
+        answer = 'y';
+    }
+    if (answer.toLowerCase() !== 'y') {
+        throw new Error(`TJBot did not ${behavior}`);
+    }
+}
+
+const sound = '/usr/share/sounds/alsa/Front_Center.wav';
+const tjbot = new TJBot({ log: { level: 'silly' } });
+tjbot.initialize([TJBot.HARDWARE.SPEAKER]);
+await tjbot.play(sound);
+
+confirm('play the "Front Center" sound');

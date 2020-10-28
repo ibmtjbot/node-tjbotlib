@@ -15,14 +15,35 @@
  * limitations under the License.
  */
 
-// import readline from 'readline-sync';
-import TJBot from '../lib/tjbot';
+import rl from 'readline-sync';
+import TJBot from '../lib/tjbot.js';
 
-test('tjbot waving arm', async () => {
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.initialize([TJBot.HARDWARE.SERVO]);
-    tjbot.wave();
+function confirm(behavior) {
+    let answer = rl.question(`Did TJBot ${behavior} (Y/n)? `);
+    if (answer === '') {
+        answer = 'y';
+    }
+    if (answer.toLowerCase() !== 'y') {
+        throw new Error(`TJBot did not ${behavior}`);
+    }
+}
 
-    // const answer = rl.question('Did the arm wave (y/n)? ');
-    // expect(answer.toLowerCase()).toEqual('y');
-});
+const tjbot = new TJBot({ log: { level: 'silly' } });
+tjbot.initialize([TJBot.HARDWARE.SERVO]);
+
+console.log("Moving TJBot's arm back");
+tjbot.armBack();
+confirm('move the arm back');
+
+console.log("Raising TJBot's arm");
+tjbot.raiseArm();
+confirm('raise the arm');
+
+console.log("Lowering TJBot's arm");
+tjbot.lowerArm();
+confirm('lower the arm');
+
+console.log("Waving TJBot's arm (2x)");
+tjbot.wave();
+tjbot.wave();
+confirm('wave the arm');

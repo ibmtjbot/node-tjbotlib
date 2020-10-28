@@ -15,41 +15,33 @@
  * limitations under the License.
  */
 
-// import rl from 'readline-sync';
-import TJBot from '../lib/tjbot';
+import rl from 'readline-sync';
+import TJBot from '../lib/tjbot.js';
 
-test('tjbot shining red', () => {
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.initialize([TJBot.HARDWARE.LED]);
-    tjbot.shine('red');
+function confirm(behavior) {
+    let answer = rl.question(`Did TJBot ${behavior} (Y/n)? `);
+    if (answer === '') {
+        answer = 'y';
+    }
+    if (answer.toLowerCase() !== 'y') {
+        throw new Error(`TJBot did not ${behavior}`);
+    }
+}
 
-    // const answer = rl.question('Did the light shine red (y/n)? ');
-    // expect(answer.toLowerCase()).toEqual('y');
+const tjbot = new TJBot({ log: { level: 'silly' } });
+tjbot.initialize([TJBot.HARDWARE.LED]);
+
+// shine various colors
+let answer;
+const colors = ["red", "green", "blue", "orange", "purple"];
+
+colors.forEach((color) => {
+    tjbot.shine(color);
+    confirm(`shine the light ${color}`);
 });
 
-test('tjbot shining green', () => {
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.initialize([TJBot.HARDWARE.LED]);
-    tjbot.shine('green');
-
-    // const answer = rl.question('Did the light shine green (y/n)? ');
-    // expect(answer.toLowerCase()).toEqual('y');
-});
-
-test('tjbot shining blue', () => {
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.initialize([TJBot.HARDWARE.LED]);
-    tjbot.shine('blue');
-
-    // const answer = rl.question('Did the light shine blue (y/n)? ');
-    // expect(answer.toLowerCase()).toEqual('y');
-});
-
-test('tjbot pulsing red', async () => {
-    const tjbot = new TJBot({ log: { level: 'silly' } });
-    tjbot.initialize([TJBot.HARDWARE.LED]);
-    await tjbot.pulse('red');
-
-    // const answer = rl.question('Did the light pulse red (y/n)? ');
-    // expect(answer.toLowerCase()).toEqual('y');
-});
+// pulse
+await tjbot.pulse('red');
+await tjbot.pulse('red');
+await tjbot.pulse('red');
+confirm(`pulse the light red`);

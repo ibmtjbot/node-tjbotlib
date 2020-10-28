@@ -116,6 +116,31 @@ The full list of capabilities can be accessed programatically via `TJBot.CAPABIL
 
 Please see [the API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.0/) for documentation of the TJBot API.
 
+## Tests
+
+TJBotLib uses the [Jest](https://jestjs.io) framework for basic testing of the library. These tests may be run from the `tjbotlib` directory using `npm`:
+
+    npm test
+
+These tests include tests covering the following Watson services:
+
+- Assistant (using the `tjbot-skill-sample.json` provided in the [Conversation](https://github.com/ibmtjbot/tjbot/tree/master/recipes/conversation) recipe)
+- Language Translator
+- Tone Analyzer
+
+> 💡 Remember to create an `ibm-credentials.env` file in the root `tjbotlib` directory for your Watson authentication credentials.
+
+### Hardware Tests
+
+As TJBot has a number of hardware components that may or may not be hooked up correctly, we provide an additional set of hardware tests that may be run individually (i.e. outside of the Jest framework). These tests are contained in the `__tests__` directory and may be run via `npm run-script` from the `tjbotlib` directory:
+
+    npm run-script test-led
+    npm run-script test-mic
+    npm run-script test-servo
+    npm run-script test-speaker
+
+> 💡 The `test-mic` tests requires authentication credientials for the Tone Analyzer service defined in an `ibm-credentials.env` file in the root `tjbotlib` directory.
+
 # Contributing
 We encourage you to make enhancements to this library and contribute them back to us via a pull request.
 

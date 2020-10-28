@@ -15,7 +15,39 @@
  * limitations under the License.
  */
 
-import TJBot from '../lib/tjbot';
+import TJBot from '../lib/tjbot.js';
+
+test('instantiate TJBot', () => {
+    const tjbot = new TJBot();
+    expect(tjbot).toBeDefined();
+});
+
+test('instantiate TJBot with configuration', () => {
+    const tjbot = new TJBot({
+        log: { level: 'silly' },
+        robot: { gender: TJBot.GENDERS.FEMALE },
+    });
+    expect(tjbot.configuration.log.level).toEqual('silly');
+    expect(tjbot.configuration.robot.gender).toEqual('female');
+});
+
+test('instantiate TJBot with credentials file', () => {
+    // eslint-disable-next-line no-unused-vars
+    const tjbot = new TJBot({}, 'credentials.env');
+    expect(process.env.IBM_CREDENTIALS_FILE).toEqual('credentials.env');
+});
+
+test('instantiate TJBot with no hardware', () => {
+    const tjbot = new TJBot();
+    tjbot.initialize([]);
+    expect(tjbot).toBeDefined();
+});
+
+test('instantiate TJBot with all hardware', () => {
+    const tjbot = new TJBot();
+    tjbot.initialize(Object.keys(TJBot.HARDWARE));
+    expect(tjbot).toBeDefined();
+});
 
 test('test language translator', () => {
     const tjbot = new TJBot();
