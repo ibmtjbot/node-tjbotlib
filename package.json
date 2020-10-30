@@ -9,7 +9,7 @@
     "test": "test"
   },
   "exports": {
-      ".": "./index.js"
+    ".": "./index.js"
   },
   "dependencies": {
     "bluebird": "^3.7.2",
