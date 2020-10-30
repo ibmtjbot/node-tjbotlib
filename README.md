@@ -116,6 +116,8 @@ The full list of capabilities can be accessed programatically via `TJBot.CAPABIL
 
 Please see [the API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.0/) for documentation of the TJBot API.
 
+> 💡 Please see the [Migration Guide](MIGRATING.md) for guidance on migrating your code to the latest version of the TJBot API.
+
 ## Tests
 
 TJBotLib uses the [Jest](https://jestjs.io) framework for basic testing of the library. These tests may be run from the `tjbotlib` directory using `npm`:
