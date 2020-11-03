@@ -29,7 +29,7 @@ tj.initialize([TJBot.HARDWARE.LED, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHO
 This code will configure your TJBot with an `LED`, `servo`, `microphone`, and `speaker`. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
 
 ```
-var tj = new TJBot({ 
+const tj = new TJBot({ 
     robot: { 
         gender: TJBot.GENDERS.FEMALE 
     }, 
@@ -89,7 +89,7 @@ var configuration = {
         language: TJBot.LANGUAGES.SEE.ENGLISH_US,
     },
     shine: {
-        grbFormat: false, // use the GRB color format (set this to true if your LED shines green when it should shine red or visa versa)
+        grbFormat: false, // if false, the RGB color format will be used for the LED; if true, the GRB format will be used
     },
 };
 const tj = new TJBot(configuration);
