@@ -48,15 +48,3 @@ test('instantiate TJBot with all hardware', () => {
     tjbot.initialize(Object.keys(TJBot.HARDWARE));
     expect(tjbot).toBeDefined();
 });
-
-test('test language translator', () => {
-    const tjbot = new TJBot();
-    const translation = tjbot.translate('hello world', 'en', 'es');
-    expect(translation).toBeDefined();
-});
-
-test('test tone analyzer', () => {
-    const tjbot = new TJBot();
-    const tone = tjbot.analyzeTone('this is awesome');
-    expect(tone).toBeDefined();
-});

@@ -124,13 +124,7 @@ TJBotLib uses the [Jest](https://jestjs.io) framework for basic testing of the l
 
     npm test
 
-These tests include tests covering the following Watson services:
-
-- Assistant (using the `tjbot-skill-sample.json` provided in the [Conversation](https://github.com/ibmtjbot/tjbot/tree/master/recipes/conversation) recipe)
-- Language Translator
-- Tone Analyzer
-
-> 💡 Remember to create an `ibm-credentials.env` file in the root `tjbotlib` directory for your Watson authentication credentials.
+The tests run by this command only covers basic functionality of the library. A separate set of tests (see below) covers hardware-specific behaviors. These tests also do not cover functionality provided by Watson services.
 
 ### Hardware Tests
 
