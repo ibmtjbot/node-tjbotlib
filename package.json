@@ -45,6 +45,7 @@
   },
   "scripts": {
     "test": "node_modules/.bin/jest test.tjbotlib.js",
+    "test-camera": "sudo node __tests__/test.camera.js",
     "test-led": "sudo node __tests__/test.led.js",
     "test-mic": "sudo node __tests__/test.mic.js",
     "test-servo": "sudo node __tests__/test.servo.js",
