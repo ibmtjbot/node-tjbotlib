@@ -126,16 +126,7 @@ TJBotLib uses the [Jest](https://jestjs.io) framework for basic testing of the l
 
 The tests run by this command only covers basic functionality of the library. A separate set of tests (see below) covers hardware-specific behaviors. These tests also do not cover functionality provided by Watson services.
 
-### Hardware Tests
-
-As TJBot has a number of hardware components that may or may not be hooked up correctly, we provide an additional set of hardware tests that may be run individually (i.e. outside of the Jest framework). These tests are contained in the `__tests__` directory and may be run via `npm run-script` from the `tjbotlib` directory:
-
-    npm run-script test-led
-    npm run-script test-mic
-    npm run-script test-servo
-    npm run-script test-speaker
-
-> 💡 The `test-mic` tests requires authentication credientials for the Tone Analyzer service defined in an `ibm-credentials.env` file in the root `tjbotlib` directory.
+A suite of hardware tests exists in the main [TJBot repository](https://github.com/ibmtjbot/tjbot) in the `bootstrap/tests` directory.
 
 # Contributing
 We encourage you to make enhancements to this library and contribute them back to us via a pull request.
