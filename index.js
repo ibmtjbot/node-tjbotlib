@@ -1,1 +1,2 @@
-module.exports = require('./lib/tjbot');
+import TJBot from './lib/tjbot.js';
+export default TJBot;

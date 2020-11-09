@@ -1,47 +1,62 @@
 {
   "name": "tjbot",
+  "version": "2.0.0",
   "description": "Node.js library for writing TJBot recipes",
-  "version": "1.5.3",
-  "author": "TJBot <tjbot@us.ibm.com>",
-  "bugs": {
-    "url": "https://github.com/ibmtjbot/tjbotlib/issues"
+  "main": "index.js",
+  "type": "module",
+  "directories": {
+    "lib": "lib",
+    "test": "__tests__"
+  },
+  "exports": {
+    ".": "./index.js"
   },
   "dependencies": {
-    "assert": "^1.4.1",
-    "bluebird": "^3.5.2",
+    "bluebird": "^3.7.2",
     "color-model": "^0.2.2",
     "colornames": "^1.1.1",
     "fifo": "^2.3.0",
+    "ibm-watson": "^5.7.0",
     "mic": "^2.1.2",
-    "node-raspistill": "^0.0.11",
-    "semaphore": "^1.0.5",
-    "sleep": "^5.0.0",
-    "sound-player": "^1.0.4",
-    "temp": "^0.8.3",
-    "watson-developer-cloud": "^3.10",
-    "winston": "^2.3.1"
+    "node-raspistill": "^1.0.1",
+    "pigpio": "^3.2.3",
+    "rpi-ws281x-native": "^0.10.0",
+    "semaphore": "^1.1.0",
+    "sleep": "^6.3.0",
+    "sound-player": "^1.0.13",
+    "temp": "^0.9.1",
+    "winston": "^3.3.3"
   },
-  "engines": {
-    "node": ">=4.2.4"
+  "devDependencies": {
+    "@babel/preset-env": "^7.11.5",
+    "babel-eslint": "^10.1.0",
+    "babel-jest": "^26.3.0",
+    "braintree-jsdoc-template": "^3.3.0",
+    "eslint": "^7.8.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-config-standard": "^14.1.1",
+    "eslint-plugin-import": "^2.22.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "jest": "^26.4.2",
+    "jsdoc": "^3.6.5"
   },
-  "homepage": "https://github.com/ibmtjbot/tjbotlib",
-  "keywords": [
-    "tjbot"
-  ],
-  "license": "Apache-2.0",
-  "main": "index.js",
-  "optionalDependencies": {
-    "pigpio": "^1.2.3",
-    "rpi-ws281x-native": "^0.9.0"
+  "scripts": {
+    "test": "node_modules/.bin/jest test.tjbotlib.js",
+    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ibmtjbot/tjbotlib.git"
+    "url": "git+https://github.com/ibmtjbot/tjbotlib.git"
   },
-  "scripts": {
-    "test": "mocha --reporter spec"
+  "keywords": [
+    "tjbot"
+  ],
+  "author": "TJBot",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ibmtjbot/tjbotlib/issues"
   },
-  "devDependencies": {
-    "mocha": "^3.2.0"
-  }
+  "homepage": "https://github.com/ibmtjbot/tjbotlib#readme"
 }
