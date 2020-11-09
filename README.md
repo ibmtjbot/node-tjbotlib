@@ -23,10 +23,10 @@ $ npm install --save tjbot
 ```
 import TJBot from 'tjbot';
 const tj = new TJBot();
-tj.initialize([TJBot.HARDWARE.LED, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHONE, TJBot.HARDWARE.SPEAKER]);
+tj.initialize([TJBot.HARDWARE.LED_NEOPIXEL, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHONE, TJBot.HARDWARE.SPEAKER]);
 ```
 
-This code will configure your TJBot with an `LED`, `servo`, `microphone`, and `speaker`. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
+This code will configure your TJBot with an LED (Neopixel), servo, microphone, and speaker. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
 
 ```
 const tj = new TJBot({ 
@@ -51,7 +51,7 @@ The file `ibm-credentials.sample.env` shows a sample of how credentials are stor
 
 ## Hardware Configuration
 
-The entire list of hardware devices supported by TJBot is defined in `TJBot.HARDWARE` and includes `CAMERA`, `LED`, `MICROPHONE`, `SERVO`, and `SPEAKER`. Each of these hardware devices may be configured by passing in configuration options to the `TJBot` constructor as follows.
+The entire list of hardware devices supported by TJBot is defined in `TJBot.HARDWARE` and includes `CAMERA`, `LED_NEOPIXEL`, `LED_COMMON_ANODE`, `MICROPHONE`, `SERVO`, and `SPEAKER`. Each of these hardware devices may be configured by passing in configuration options to the `TJBot` constructor as follows.
 
 ```
 var configuration = {
@@ -71,7 +71,7 @@ var configuration = {
         language: TJBot.LANGUAGES.LISTEN.ENGLISH_US, // see TJBot.LANGUAGES.LISTEN
     },
     wave: {
-        servoPin: 7, // corresponds to BCM 7 / physical PIN 26
+        servoPin: 7, // default pin is GPIO 7 (physical pin 26)
     },
     speak: {
         language: TJBot.LANGUAGES.SPEAK.ENGLISH_US, // see TJBot.LANGUAGES.SPEAK
@@ -89,8 +89,17 @@ var configuration = {
         language: TJBot.LANGUAGES.SEE.ENGLISH_US,
     },
     shine: {
-        grbFormat: false, // if false, the RGB color format will be used for the LED; if true, the GRB format will be used
-    },
+        // see https://pinout.xyz for a pin diagram
+        neopixel: {
+            gpioPin: 18, // default pin is GPIO 18 (physical pin 12)
+            grbFormat: false // if false, the RGB color format will be used for the LED; if true, the GRB format will be used
+        },
+        commonAnode: {
+            redPin: 19, // default red pin is GPIO 19 (physical pin 35)
+            greenPin: 13, // default green pin is GPIO 13 (physical pin 33)
+            bluePin: 12 // default blue pin is GPIO 12 (physical pin 32)
+        }
+    }
 };
 const tj = new TJBot(configuration);
 ```
