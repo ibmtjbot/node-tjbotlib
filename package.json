@@ -20,7 +20,7 @@
     "mic": "^2.1.2",
     "node-raspistill": "^1.0.1",
     "pigpio": "^3.2.3",
-    "rpi-ws281x-native": "^0.10.0",
+    "rpi-ws281x-native": "^0.10.1",
     "semaphore": "^1.1.0",
     "sleep": "^6.3.0",
     "sound-player": "^1.0.13",
