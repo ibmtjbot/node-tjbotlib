@@ -1,7 +1,7 @@
 # TJBotLib Migration Guide
 
 ## Migrating from 1.x to 2.x
-There have been several significant changes to the 2.x release of TJBotLib that break compatability with the 1.x release. Please use this guide, the new [TJBot API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.0/), and the [updated recipes](https://github.com/ibmtjbot/tjbot/tree/master/recipes) in the `tjbot` repository, to help you migrate your recipes to the new 2.x API.
+There have been several significant changes to the 2.x release of TJBotLib that break compatability with the 1.x release. Please use this guide, the new [TJBot API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.1/), and the [updated recipes](https://github.com/ibmtjbot/tjbot/tree/master/recipes) in the `tjbot` repository, to help you migrate your recipes to the new 2.x API.
 
 ### ES6 Module
 TJBot is now packaged as an ES6 module, meaning it can be imported as follows:
@@ -62,4 +62,4 @@ There are a few new methods for translation, such as `tj.translatableLanguages()
 There is a new configuration option, `TJBot.DEFAULT_CONFIG.shine.grbFormat`. If true, TJBot will send colors to the LED in GRB format; if false, TJBot will send colors to the LED in RGB format.
 
 ### Documentation enhancements
-All TJBotLib code has been commented using JSDoc syntax. Please see the [API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.0/) for a complete documentation reference.
+All TJBotLib code has been commented using JSDoc syntax. Please see the [API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.1/) for a complete documentation reference.
