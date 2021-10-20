@@ -3,12 +3,14 @@
 ## Migrating from 1.x to 2.x
 There have been several significant changes to the 2.x release of TJBotLib that break compatability with the 1.x release. Please use this guide, the new [TJBot API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.1/), and the [updated recipes](https://github.com/ibmtjbot/tjbot/tree/master/recipes) in the `tjbot` repository, to help you migrate your recipes to the new 2.x API.
 
-### ES6 Module
-TJBot is now packaged as an ES6 module, meaning it can be imported as follows:
+### ES6 / CommonJS Hybrid Module
+TJBotLib is now packaged as hybrid ES6 / CommonJS module, meaning it can be imported as follows:
 
-    import TJBot from 'tjbot';
+    import TJBot from 'tjbot'; // ES6
 
-Because of this new packaging, TJBotLib requires Node 15.x.
+    const TJBot = require('tjbot').default; // CommonJS
+
+Node 15.x+ is required to use TJBotLib as an ES6 module.
 
 ### `async`/`await` Semantics
 TJBot now uses `async`/`await` semantics rather than `Promise` semantics. This change has resulted in much cleaner, and easier to understand code. Thus, functions that used to return promises (e.g. `tj.analyzeTone()`) should now be called with `await`.
