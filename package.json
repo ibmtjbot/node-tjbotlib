@@ -1,15 +1,18 @@
 {
   "name": "tjbot",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Node.js library for writing TJBot recipes",
-  "main": "index.js",
-  "type": "module",
+  "main": "dist/cjs/tjbot.js",
+  "module": "dist/mjs/tjbot.js",
   "directories": {
     "lib": "lib",
     "test": "__tests__"
   },
   "exports": {
-    ".": "./index.js"
+    ".": {
+      "import": "./dist/mjs/tjbot.js",
+      "require": "./dist/cjs/tjbot.js"
+    }
   },
   "dependencies": {
     "bluebird": "^3.7.2",
@@ -40,11 +43,15 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "jest": "^26.4.2",
-    "jsdoc": "^3.6.5"
+    "jsdoc": "^3.6.5",
+    "typescript": "^4.4.4"
   },
   "scripts": {
-    "test": "node_modules/.bin/jest test.tjbotlib.js",
-    "generate-docs": "node_modules/.bin/jsdoc --configure .jsdoc.json --verbose"
+    "prebuild": "rm -rf dist/*",
+    "build": "tsc -p tsconfig-mjs.json && tsc -p tsconfig-cjs.json",
+    "postbuild": "sh fixup.sh",
+    "test": "jest test.tjbotlib.js",
+    "generate-docs": "jsdoc --configure .jsdoc.json --verbose"
   },
   "repository": {
     "type": "git",

@@ -18,10 +18,27 @@ $ npm install --save tjbot
 
 > 💡 Note: The TJBot library was developed for use on Raspberry Pi. It may be possible to develop and test portions of this library on other Linux-based systems (e.g. Ubuntu), but this usage is not officially supported.
 
-2. Instantiate the `TJBot` object.
+2. Import the TJBot library.
+
+TJBot is packaged as both an ES6 and a CommonJS module (explained in [this guide](https://www.sensedeep.com/blog/posts/2021/how-to-create-single-source-npm-module.html)), which means you may import it using either the ES6 `import` statement or the CommonJS `require` method.
+
+For ES6, import TJBot as follows:
 
 ```
 import TJBot from 'tjbot';
+```
+
+For CommonJS, import TJBot as follows:
+
+```
+const TJBot = require('tjbot').default;
+```
+
+> 💡 Note: For CommonJS, the `TJBot` class is exported under a `.default` reference.
+
+3. Instantiate the `TJBot` object.
+
+```
 const tj = new TJBot();
 tj.initialize([TJBot.HARDWARE.LED_NEOPIXEL, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHONE, TJBot.HARDWARE.SPEAKER]);
 ```
@@ -123,7 +140,7 @@ The full list of capabilities can be accessed programatically via `TJBot.CAPABIL
 
 ## TJBot API
 
-Please see [the API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.1/) for documentation of the TJBot API.
+Please see [the API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.2/) for documentation of the TJBot API.
 
 > 💡 Please see the [Migration Guide](MIGRATING.md) for guidance on migrating your code to the latest version of the TJBot API.
 

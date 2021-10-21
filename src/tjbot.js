@@ -48,7 +48,7 @@ class TJBot {
      * TJBot library version
      * @readonly
     */
-    static VERSION = 'v2.0.1';
+    static VERSION = 'v2.0.2';
 
     /**
      * TJBot capabilities
