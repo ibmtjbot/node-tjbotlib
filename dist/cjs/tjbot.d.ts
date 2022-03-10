@@ -401,6 +401,17 @@ declare class TJBot {
      * @private
      */
     private _resumeListening;
+    /**
+     * Stop listening for spoken utterances
+    */
+    stopListening() : void;
+    /**
+     * Internal method for stopping listening, used when
+     * we want to stop listening  but we don't want to assert
+     * the 'listen' capability.
+     * @private
+     */
+    private _stopListening()
     /** ------------------------------------------------------------------------ */
     /** SEE                                                                      */
     /** ------------------------------------------------------------------------ */

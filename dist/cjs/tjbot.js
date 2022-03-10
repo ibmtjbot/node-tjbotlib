@@ -343,9 +343,11 @@ class TJBot {
                         + 'Please check that you included the '
                         + `${TJBot.HARDWARE.CAMERA} hardware in the TJBot initialize() method.`);
                 }
-                if (!this._visualRecognition) {
-                    this._createServiceAPI(TJBot.SERVICES.VISUAL_RECOGNITION);
-                }
+		winston_1.default.info('Visual recognition is no longer available, it wil not be initialized, but you can still take photos');
+		// Visual reco no longer available, comment the lines (I still want to use the "take photo" functionality)
+                //if (!this._visualRecognition) {
+                //    this._createServiceAPI(TJBot.SERVICES.VISUAL_RECOGNITION);
+                //}
                 break;
             case TJBot.CAPABILITIES.SHINE:
                 // one LED should be defined
@@ -505,12 +507,21 @@ class TJBot {
                 }
             }
             // define the conversational turn
+	    // include the context in the result if return_context: true
+	    let ctxt = false;
+	    const ct = this.configuration.converse?.input?.options?.return_context;
+	    if( ct !== undefined && ct === true) {
+	       ctxt = true;
+	    }
             const turn = {
                 assistantId: this.configuration.converse.assistantId,
                 sessionId: this._assistantSessionId,
                 input: {
                     message_type: 'text',
                     text: message,
+                    options: {
+                       return_context: ctxt
+                    },
                 },
             };
             // send to Assistant service
@@ -528,16 +539,32 @@ class TJBot {
                     response = result.output.text;
                 }
                 const responseText = response.length > 0 ? response[0].text : '';
+                let objresp;
+                // If context information is needed, will return the whole result
+                if ( ctxt === true ) {
+                   objresp = result;
+                } else {
+                   objresp = result.output;
+                }
                 const assistantResponse = {
-                    object: result.output,
+                    object: objresp,
                     description: responseText,
                 };
                 winston_1.default.verbose(`received response from assistant: ${JSON.stringify(responseText)}`);
                 return assistantResponse;
             }
             catch (err) {
-                winston_1.default.error(`the ${TJBot.SERVICES.ASSISTANT} service returned an error.`, err);
-                throw err;
+	        // check the case when the session times out
+		if (err.status === 404) {
+		   winston_1.default.info("Session Expired. A new session will be created, try again. ");
+		   this._assistantSessionId = undefined;
+		   const assistantResponse = "SESSION_EXPIRED";
+		   return assistantResponse;
+		}
+		else {
+                   winston_1.default.error(`the ${TJBot.SERVICES.ASSISTANT} service returned an error.`, err);
+                   throw err;
+		}
             }
         });
     }
@@ -615,6 +642,36 @@ class TJBot {
             this._mic.resume();
         }
     }
+
+    // Added stop listening again, I need this for TJBot in Node-RED
+    /**
+     * Stop listening for spoken utterances
+    */
+    stopListening() {
+            // make sure we can listen
+            this._assertCapability(TJBot.CAPABILITIES.LISTEN);
+	    this._recognizeStream.stop();
+            // stop the mic
+            this._stopListening();
+	    this._sttTextStream = undefined;
+    }
+
+    /**
+     * Internal method for stopping listening, used when
+     * we want to stop listening  but we don't want to assert
+     * the 'listen' capability.
+     * @private
+     */
+     _stopListening() {
+        if (this._mic !== undefined) {
+            winston_1.default.verbose('listening stopped');
+            this._mic.stop();
+            // sleep for 1 second to wait for the mic to finish closing. this seems
+            // necessary for a subsequent call to listen() to work correctly.
+	    TJBot.sleep(1000);
+        }
+     }
+
     /** ------------------------------------------------------------------------ */
     /** SEE                                                                      */
     /** ------------------------------------------------------------------------ */
