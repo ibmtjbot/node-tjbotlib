@@ -606,7 +606,13 @@ class TJBot {
                 this._mic.start();
                 // handle errors
                 this._sttTextStream.on('error', (err) => {
+                  if(err.raw.data.includes("No speech detected for ")) {
+                    winston_1.default.verbose('inactivityTimeout reached');
+                    var data = "INACTIVITY_TIMEOUT";
+                    this._sttTextStream.emit('data',data);
+                  } else {
                     winston_1.default.error('an error occurred in the STT text stream', err);
+                  }
                 });
             }
             const fd = this._sttTextStream;
@@ -614,6 +620,11 @@ class TJBot {
                 fd.once('data', resolve);
             });
             const transcript = yield end;
+            // winston_1.default.silly('this._sttTextStream =',this._sttTextStream);
+            if ( transcript === 'INACTIVITY_TIMEOUT' ){
+              winston_1.default.verbose('Will now try to stop listening');
+              this.stopListening();
+            }
             winston_1.default.info(`TJBot heard: "${transcript.trim()}"`);
             return transcript.trim();
         });
@@ -1020,6 +1031,10 @@ class TJBot {
         this._commonAnodeLed.redPin.pwmWrite(rgb[0] == null ? 255 : 255 - rgb[0]);
         this._commonAnodeLed.greenPin.pwmWrite(rgb[1] == null ? 255 : 255 - rgb[1]);
         this._commonAnodeLed.bluePin.pwmWrite(rgb[2] == null ? 255 : 255 - rgb[2]);
+        // common Catode? :
+        //this._commonAnodeLed.redPin.pwmWrite(rgb[0] == null ? 0 : rgb[0] );
+        //this._commonAnodeLed.greenPin.pwmWrite(rgb[1] == null ? 0 : rgb[1] );
+        //this._commonAnodeLed.bluePin.pwmWrite(rgb[2] == null ? 0 : rgb[2] );
     }
     /** ------------------------------------------------------------------------ */
     /** SPEAK                                                                    */
