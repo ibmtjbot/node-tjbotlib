@@ -15,7 +15,27 @@
  * limitations under the License.
  */
 
-import TJBot from '../lib/tjbot.js';
+// import { config } from 'bluebird';
+import TJBot from '../src/tjbot.js';
+import config from './config.js';
+
+test('instantiate TJBot with Tone Analyzer/NLU', async () => {
+    const tjbot = new TJBot({}, 'ibm-credentials.env');
+    tjbot.initialize([]);
+    let tone = await tjbot.analyzeTone("I am so happy to see you! Thank you for being here!");
+    console.log("targets: ", tone.emotion.targets);
+    console.log("document: ", tone.emotion.document);
+    const tones = [];
+    Object.keys(tone.emotion.document.emotion).forEach(key => {
+        let value = tone.emotion.document.emotion[key];
+        tones.push({tone_id: key, score: value});
+    })
+    const emotionalTones = tones.filter((t) => t.tone_id === 'anger' || t.tone_id === 'fear' || t.tone_id === 'joy' || t.tone_id === 'sadness');
+        if (emotionalTones.length > 0) {
+            const maxTone = emotionalTones.reduce((a, b) => ((a.score > b.score) ? a : b));
+            expect(maxTone.tone_id).toBe('joy');
+        }
+});
 
 test('instantiate TJBot', () => {
     const tjbot = new TJBot();
@@ -33,8 +53,18 @@ test('instantiate TJBot with configuration', () => {
 
 test('instantiate TJBot with credentials file', () => {
     // eslint-disable-next-line no-unused-vars
-    const tjbot = new TJBot({}, 'credentials.env');
-    expect(process.env.IBM_CREDENTIALS_FILE).toEqual('credentials.env');
+    const tjbot = new TJBot({}, 'ibm-credentials.env');
+    expect(process.env.IBM_CREDENTIALS_FILE).toEqual('ibm-credentials.env');
+});
+
+test('instantiate TJBot with Assistant', async () => {
+    const tjbot = new TJBot({
+        log: { level: 'info' },
+        converse: { assistantId: config.assistantId }
+    }, 'ibm-credentials.env');
+    tjbot.initialize([]);
+    let data = await tjbot.converse("hello");
+    expect(data.description).toBe("Hello");
 });
 
 test('instantiate TJBot with no hardware', () => {
