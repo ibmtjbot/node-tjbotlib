@@ -46,7 +46,7 @@ declare class TJBot {
         LANGUAGE_TRANSLATOR: string;
         SPEECH_TO_TEXT: string;
         TEXT_TO_SPEECH: string;
-        TONE_ANALYZER: string;
+        NATURAL_LANGUAGE_UNDERSTANDING: string;
         VISUAL_RECOGNITION: string;
     };
     /**
@@ -290,7 +290,7 @@ declare class TJBot {
     _languageTranslator: LanguageTranslatorV3 | undefined;
     _stt: SpeechToTextV1 | undefined;
     _tts: TextToSpeechV1 | undefined;
-    _toneAnalyzer: ToneAnalyzerV3 | undefined;
+    _nlu: NaturalLanguageUnderstandingV1 | undefined;
     _visualRecognition: VisualRecognitionV3 | undefined;
     /**
      * Assert that TJBot is able to perform a specified capability. Instantiates Watson
@@ -305,58 +305,41 @@ declare class TJBot {
     /**
      * Analyze the tone of the given text.
      * @param {string} text The text to analyze.
-     * @return {object} Returns the response object from the Tone Analyzer service.
+     * @return {object} Returns the response object from the Natural Language Understanding service.
      * @example
      * response = {
-     *     "document_tone": {
-     *         "tones": [{
-     *                 "score": 0.6165,
-     *                 "tone_id": "sadness",
-     *                 "tone_name": "Sadness"
-     *             },
-     *             {
-     *                 "score": 0.829888,
-     *                 "tone_id": "analytical",
-     *                 "tone_name": "Analytical"
-     *             }
-     *         ]
-     *     },
-     *     "sentences_tone": [{
-     *             "sentence_id": 0,
-     *             "text": "Team, I know that times are tough!",
-     *             "tones": [{
-     *                 "score": 0.801827,
-     *                 "tone_id": "analytical",
-     *                 "tone_name": "Analytical"
-     *             }]
-     *         },
-     *         {
-     *             "sentence_id": 1,
-     *             "text": "Product sales have been disappointing for the past three quarters.",
-     *             "tones": [{
-     *                     "score": 0.771241,
-     *                     "tone_id": "sadness",
-     *                     "tone_name": "Sadness"
-     *                 },
-     *                 {
-     *                     "score": 0.687768,
-     *                     "tone_id": "analytical",
-     *                     "tone_name": "Analytical"
-     *                 }
-     *             ]
-     *         },
-     *         {
-     *             "sentence_id": 2,
-     *             "text": "We have a competitive product, but we need to do a better job of selling it!",
-     *             "tones": [{
-     *                 "score": 0.506763,
-     *                 "tone_id": "analytical",
-     *                 "tone_name": "Analytical"
-     *             }]
-     *         }
-     *     ]
+     *      "usage": {
+     *          text_units": 1,
+     *          "text_characters": 37,
+     *          "features": 1
+     *      },
+     *      "language": "en",
+     *      "emotion": {
+     *          "targets": [
+     *              {
+     *                  "text": "apples",
+     *                      "emotion": {
+     *                      "sadness": 0.028574,
+     *                      "joy": 0.859042,
+     *                      "fear": 0.02752,
+     *                      "disgust": 0.017519,
+     *                      "anger": 0.012855
+     *                      }
+     *              }
+     *          ],
+     *      "document": {
+     *          "emotion": {
+     *              "sadness": 0.32665,
+     *              "joy": 0.563273,
+     *              "fear": 0.033387,
+     *              "disgust": 0.022637,
+     *              "anger": 0.041796
+     *          }
+     *      }
+     *  }
+
      * }
-     * @see {@link https://cloud.ibm.com/apidocs/tone-analyzer?code=node#tone|Tone Analyzer} documentation provides details on the response object.
+     * @see {@link https://cloud.ibm.com/apidocs/natural-language-understanding?code=node#emotion|Natural Language Understanding} documentation provides details on the response object.
      * @async
      */
     analyzeTone(text: string): object;
@@ -662,5 +645,5 @@ import AssistantV2 from "ibm-watson/assistant/v2.js";
 import LanguageTranslatorV3 from "ibm-watson/language-translator/v3.js";
 import SpeechToTextV1 from "ibm-watson/speech-to-text/v1.js";
 import TextToSpeechV1 from "ibm-watson/text-to-speech/v1.js";
-import ToneAnalyzerV3 from "ibm-watson/tone-analyzer/v3.js";
+import NaturalLanguageUnderstandingV1 from "ibm-watson/natural-language-understanding/v1";
 import VisualRecognitionV3 from "ibm-watson/visual-recognition/v3.js";

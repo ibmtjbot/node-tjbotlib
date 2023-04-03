@@ -8,6 +8,9 @@
     "lib": "lib",
     "test": "__tests__"
   },
+  "jest": {
+    "testEnvironment": "node"
+  },
   "exports": {
     ".": {
       "import": "./dist/mjs/tjbot.js",

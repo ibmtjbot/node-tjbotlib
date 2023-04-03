@@ -1,3 +1,6 @@
+*.env
+config.js
+
 # Logs
 logs
 *.log

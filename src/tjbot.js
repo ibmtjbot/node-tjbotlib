@@ -37,7 +37,7 @@ import AssistantV2 from 'ibm-watson/assistant/v2.js';
 import LanguageTranslatorV3 from 'ibm-watson/language-translator/v3.js';
 import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
-import ToneAnalyzerV3 from 'ibm-watson/tone-analyzer/v3.js';
+import NaturalLanguageUnderstandingV1 from 'ibm-watson/natural-language-understanding/v1';
 import VisualRecognitionV3 from 'ibm-watson/visual-recognition/v3.js';
 
 /**
@@ -90,7 +90,7 @@ class TJBot {
         LANGUAGE_TRANSLATOR: 'language_translator',
         SPEECH_TO_TEXT: 'speech_to_text',
         TEXT_TO_SPEECH: 'text_to_speech',
-        TONE_ANALYZER: 'tone_analyzer',
+        NATURAL_LANGUAGE_UNDERSTANDING: 'natural_language_understanding',
         VISUAL_RECOGNITION: 'visual_recognition',
     };
 
@@ -491,11 +491,11 @@ class TJBot {
             break;
         }
 
-        case TJBot.SERVICES.TONE_ANALYZER: {
-            // https://cloud.ibm.com/apidocs/tone-analyzer
-            const defaultVersion = '2017-09-21';
+        case TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING: {
+            // https://cloud.ibm.com/apidocs/natural-language-understanding
+            const defaultVersion = '2022-04-07';
 
-            this._toneAnalyzer = new ToneAnalyzerV3({
+            this._nlu = new NaturalLanguageUnderstandingV1({
                 version: version || defaultVersion,
             });
             break;
@@ -526,8 +526,8 @@ class TJBot {
     _assertCapability(capability) {
         switch (capability) {
         case TJBot.CAPABILITIES.ANALYZE_TONE:
-            if (!this._toneAnalyzer) {
-                this._createServiceAPI(TJBot.SERVICES.TONE_ANALYZER);
+            if (!this._nlu) {
+                this._createServiceAPI(TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING);
             }
             break;
 
@@ -636,74 +636,64 @@ class TJBot {
     /**
      * Analyze the tone of the given text.
      * @param {string} text The text to analyze.
-     * @return {object} Returns the response object from the Tone Analyzer service.
+     * @return {object} Returns the response object from the Natural Language Understanding service.
      * @example
      * response = {
-     *     "document_tone": {
-     *         "tones": [{
-     *                 "score": 0.6165,
-     *                 "tone_id": "sadness",
-     *                 "tone_name": "Sadness"
-     *             },
-     *             {
-     *                 "score": 0.829888,
-     *                 "tone_id": "analytical",
-     *                 "tone_name": "Analytical"
-     *             }
-     *         ]
-     *     },
-     *     "sentences_tone": [{
-     *             "sentence_id": 0,
-     *             "text": "Team, I know that times are tough!",
-     *             "tones": [{
-     *                 "score": 0.801827,
-     *                 "tone_id": "analytical",
-     *                 "tone_name": "Analytical"
-     *             }]
-     *         },
-     *         {
-     *             "sentence_id": 1,
-     *             "text": "Product sales have been disappointing for the past three quarters.",
-     *             "tones": [{
-     *                     "score": 0.771241,
-     *                     "tone_id": "sadness",
-     *                     "tone_name": "Sadness"
-     *                 },
-     *                 {
-     *                     "score": 0.687768,
-     *                     "tone_id": "analytical",
-     *                     "tone_name": "Analytical"
-     *                 }
-     *             ]
-     *         },
-     *         {
-     *             "sentence_id": 2,
-     *             "text": "We have a competitive product, but we need to do a better job of selling it!",
-     *             "tones": [{
-     *                 "score": 0.506763,
-     *                 "tone_id": "analytical",
-     *                 "tone_name": "Analytical"
-     *             }]
-     *         }
-     *     ]
+     *      "usage": {
+     *          text_units": 1,
+     *          "text_characters": 37,
+     *          "features": 1
+     *      },
+     *      "language": "en",
+     *      "emotion": {
+     *          "targets": [
+     *              {
+     *                  "text": "apples",
+     *                      "emotion": {
+     *                      "sadness": 0.028574,
+     *                      "joy": 0.859042,
+     *                      "fear": 0.02752,
+     *                      "disgust": 0.017519,
+     *                      "anger": 0.012855
+     *                      }
+     *              }
+     *          ],
+     *      "document": {
+     *          "emotion": {
+     *              "sadness": 0.32665,
+     *              "joy": 0.563273,
+     *              "fear": 0.033387,
+     *              "disgust": 0.022637,
+     *              "anger": 0.041796
+     *          }
+     *      }
+     *  }
+
      * }
-     * @see {@link https://cloud.ibm.com/apidocs/tone-analyzer?code=node#tone|Tone Analyzer} documentation provides details on the response object.
+     * @see {@link https://cloud.ibm.com/apidocs/natural-language-understanding?code=node#emotion|Natural Language Understanding} documentation provides details on the response object.
      * @async
      */
     async analyzeTone(text) {
         this._assertCapability(TJBot.CAPABILITIES.ANALYZE_TONE);
 
         const params = {
-            toneInput: { text },
-            contentType: 'application/json',
+            text: text,
+            language: 'en',
+            features: {
+                emotion: {
+                  targets: [
+                    text
+                  ]
+                }
+              }
         };
 
         try {
-            const body = await this._toneAnalyzer.tone(params);
+            const body = await this._nlu.analyze(params);
             winston.silly(`response from _toneAnalyzer.tone(): ${body}`);
             return body.result;
         } catch (err) {
-            winston.error(`the ${TJBot.SERVICES.TONE_ANALYZER} service returned an error.`, err);
+            winston.error(`the ${TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING} service returned an error when trying to analyze the text.`, err);
             throw err;
         }
     }
