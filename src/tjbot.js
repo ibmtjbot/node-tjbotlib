@@ -495,7 +495,7 @@ class TJBot {
             // https://cloud.ibm.com/apidocs/natural-language-understanding
             const defaultVersion = '2022-04-07';
 
-            this._toneAnalyzer = new NaturalLanguageUnderstandingV1({
+            this._nlu = new NaturalLanguageUnderstandingV1({
                 version: version || defaultVersion,
             });
             break;
@@ -526,7 +526,7 @@ class TJBot {
     _assertCapability(capability) {
         switch (capability) {
         case TJBot.CAPABILITIES.ANALYZE_TONE:
-            if (!this._toneAnalyzer) {
+            if (!this._nlu) {
                 this._createServiceAPI(TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING);
             }
             break;
@@ -689,12 +689,11 @@ class TJBot {
         };
 
         try {
-            const body = await this._toneAnalyzer.analyze(params);
+            const body = await this._nlu.analyze(params);
             winston.silly(`response from _toneAnalyzer.tone(): ${body}`);
             return body.result;
         } catch (err) {
-            console.log("err: ", err);
-            winston.error(`the ${TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING} service returned an error.`, err);
+            winston.error(`the ${TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING} service returned an error when trying to analyze the text.`, err);
             throw err;
         }
     }
@@ -729,7 +728,6 @@ class TJBot {
 
                 this._assistantSessionId = body.result.session_id;
             } catch (err) {
-                winston.error('error: ', err);
                 winston.error(`error creating session for ${TJBot.SERVICES.ASSISTANT} service. please check that tj.configuration.converse.assistantId is defined.`);
                 throw err;
             }

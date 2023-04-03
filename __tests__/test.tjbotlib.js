@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-// import { config } from 'bluebird';
 import TJBot from '../src/tjbot.js';
 import config from './config.js';
 
