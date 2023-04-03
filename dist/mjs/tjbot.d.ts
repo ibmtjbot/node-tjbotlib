@@ -290,7 +290,7 @@ declare class TJBot {
     _languageTranslator: LanguageTranslatorV3 | undefined;
     _stt: SpeechToTextV1 | undefined;
     _tts: TextToSpeechV1 | undefined;
-    _toneAnalyzer: NaturalLanguageUnderstandingV1 | undefined;
+    _nlu: NaturalLanguageUnderstandingV1 | undefined;
     _visualRecognition: VisualRecognitionV3 | undefined;
     /**
      * Assert that TJBot is able to perform a specified capability. Instantiates Watson

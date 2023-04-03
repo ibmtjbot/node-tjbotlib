@@ -1,4 +1,4 @@
-ibm-credentials.env
+*.env
 config.js
 
 # Logs

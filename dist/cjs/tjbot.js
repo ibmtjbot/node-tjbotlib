@@ -95,7 +95,7 @@ class TJBot {
             if (!Array.isArray(hardware)) {
                 throw new Error('hardware must be an array');
             }
-            winston_1.default.info(`Initializing TJBot with ${hardware}`);
+            winston_1.default.info(`Initializing TJBot with ` + hardware.toString());
             hardware.forEach((device) => {
                 switch (device) {
                     case TJBot.HARDWARE.CAMERA:
@@ -286,7 +286,7 @@ class TJBot {
             case TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING: {
                 // https://cloud.ibm.com/apidocs/natural-language-understanding
                 const defaultVersion = '2022-04-07';
-                this._toneAnalyzer = new v1_1.default({
+                this._nlu = new v1_1.default({
                     version: version || defaultVersion,
                 });
                 break;
@@ -313,7 +313,7 @@ class TJBot {
     _assertCapability(capability) {
         switch (capability) {
             case TJBot.CAPABILITIES.ANALYZE_TONE:
-                if (!this._toneAnalyzer) {
+                if (!this._nlu) {
                     this._createServiceAPI(TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING);
                 }
                 break;
@@ -451,13 +451,12 @@ class TJBot {
                 }
             };
             try {
-                const body = yield this._toneAnalyzer.analyze(params);
+                const body = yield this._nlu.analyze(params);
                 winston_1.default.silly(`response from _toneAnalyzer.tone(): ${body}`);
                 return body.result;
             }
             catch (err) {
-                console.log("err: ", err);
-                winston_1.default.error(`the ${TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING} service returned an error.`, err);
+                winston_1.default.error(`the ${TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING} service returned an error when trying to analyze the text.`, err);
                 throw err;
             }
         });
@@ -491,7 +490,6 @@ class TJBot {
                     this._assistantSessionId = body.result.session_id;
                 }
                 catch (err) {
-                    winston_1.default.error('error: ', err);
                     winston_1.default.error(`error creating session for ${TJBot.SERVICES.ASSISTANT} service. please check that tj.configuration.converse.assistantId is defined.`);
                     throw err;
                 }
