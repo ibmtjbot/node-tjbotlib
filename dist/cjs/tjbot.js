@@ -95,7 +95,7 @@ class TJBot {
             if (!Array.isArray(hardware)) {
                 throw new Error('hardware must be an array');
             }
-            winston_1.default.info(`Initializing TJBot with ` + hardware.toString());
+            winston_1.default.info(`Initializing TJBot with ${hardware}`);
             hardware.forEach((device) => {
                 switch (device) {
                     case TJBot.HARDWARE.CAMERA:
