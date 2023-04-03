@@ -18,24 +18,6 @@
 import TJBot from '../src/tjbot.js';
 import config from './config.js';
 
-test('instantiate TJBot with Tone Analyzer/NLU', async () => {
-    const tjbot = new TJBot({}, 'ibm-credentials.env');
-    tjbot.initialize([]);
-    let tone = await tjbot.analyzeTone("I am so happy to see you! Thank you for being here!");
-    console.log("targets: ", tone.emotion.targets);
-    console.log("document: ", tone.emotion.document);
-    const tones = [];
-    Object.keys(tone.emotion.document.emotion).forEach(key => {
-        let value = tone.emotion.document.emotion[key];
-        tones.push({tone_id: key, score: value});
-    })
-    const emotionalTones = tones.filter((t) => t.tone_id === 'anger' || t.tone_id === 'fear' || t.tone_id === 'joy' || t.tone_id === 'sadness');
-        if (emotionalTones.length > 0) {
-            const maxTone = emotionalTones.reduce((a, b) => ((a.score > b.score) ? a : b));
-            expect(maxTone.tone_id).toBe('joy');
-        }
-});
-
 test('instantiate TJBot', () => {
     const tjbot = new TJBot();
     expect(tjbot).toBeDefined();
@@ -64,6 +46,22 @@ test('instantiate TJBot with Assistant', async () => {
     tjbot.initialize([]);
     let data = await tjbot.converse("hello");
     expect(data.description).toBe("Hello");
+});
+
+test('instantiate TJBot with Tone Analyzer/NLU', async () => {
+    const tjbot = new TJBot({}, 'ibm-credentials.env');
+    tjbot.initialize([]);
+    let tone = await tjbot.analyzeTone("I am so happy to see you! Thank you for being here!");
+    const tones = [];
+    Object.keys(tone.emotion.document.emotion).forEach(key => {
+        let value = tone.emotion.document.emotion[key];
+        tones.push({tone_id: key, score: value});
+    })
+    const emotionalTones = tones.filter((t) => t.tone_id === 'anger' || t.tone_id === 'fear' || t.tone_id === 'joy' || t.tone_id === 'sadness');
+        if (emotionalTones.length > 0) {
+            const maxTone = emotionalTones.reduce((a, b) => ((a.score > b.score) ? a : b));
+            expect(maxTone.tone_id).toBe('joy');
+        }
 });
 
 test('instantiate TJBot with no hardware', () => {
