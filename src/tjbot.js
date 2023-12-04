@@ -418,7 +418,7 @@ class TJBot {
      * @param {string} version The version of the service (e.g. "2018-09-20"). If null, the default version will be used.
      * @private
      */
-    _createServiceAPI(service, version) {
+    _createServiceAPI(service) {
         winston.verbose(`initializing ${service} service`);
 
         switch (service) {
