@@ -1,6 +1,6 @@
 /* eslint-disable import/extensions */
 /**
- * Copyright 2016-2020 IBM Corp. All Rights Reserved.
+ * Copyright 2016-2023 IBM Corp. All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 import temp from 'temp';
 import Promise from 'bluebird';
 import fs from 'fs';
-import sleep from 'sleep';
 import colorToHex from 'colornames';
 import cm from 'color-model';
 import winston from 'winston';
@@ -30,12 +29,8 @@ import ws281x from 'rpi-ws281x-native';
 import { Gpio } from 'pigpio';
 import SoundPlayer from 'sound-player';
 // watson modules
-import AssistantV2 from 'ibm-watson/assistant/v2.js';
-import LanguageTranslatorV3 from 'ibm-watson/language-translator/v3.js';
 import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
-import NaturalLanguageUnderstandingV1 from 'ibm-watson/natural-language-understanding/v1';
-import VisualRecognitionV3 from 'ibm-watson/visual-recognition/v3.js';
 /**
 * Class representing a TJBot
 */
@@ -44,20 +39,17 @@ class TJBot {
      * TJBot library version
      * @readonly
     */
-    static VERSION = 'v2.0.2';
+    static VERSION = 'v3.0.0';
     /**
      * TJBot capabilities
      * @readonly
      * @enum {string}
      */
     static CAPABILITIES = {
-        ANALYZE_TONE: 'analyze_tone',
-        CONVERSE: 'converse',
         LISTEN: 'listen',
-        SEE: 'see',
+        LOOK: 'look',
         SHINE: 'shine',
         SPEAK: 'speak',
-        TRANSLATE: 'translate',
         WAVE: 'wave',
     };
     /**
@@ -79,15 +71,11 @@ class TJBot {
      * @enum {string}
      */
     static SERVICES = {
-        ASSISTANT: 'assistant',
-        LANGUAGE_TRANSLATOR: 'language_translator',
         SPEECH_TO_TEXT: 'speech_to_text',
         TEXT_TO_SPEECH: 'text_to_speech',
-        NATURAL_LANGUAGE_UNDERSTANDING: 'natural_language_understanding',
-        VISUAL_RECOGNITION: 'visual_recognition',
     };
     /**
-     * TJBot languages for listening, speaking, and seeing
+     * TJBot languages for listening and speaking
      * @readonly
      * @enum {string}
      */
@@ -120,19 +108,7 @@ class TJBot {
             KOREAN: 'ko-KR',
             PORTUGUESE: 'pt-BR',
             SPANISH: 'es-ES',
-        },
-        // https://cloud.ibm.com/docs/visual-recognition?topic=visual-recognition-language-support-top
-        SEE: {
-            CHINESE: 'zh-cn',
-            ENGLISH: 'en',
-            FRENCH: 'fr',
-            GERMAN: 'de',
-            ITALIAN: 'it',
-            JAPANESE: 'ja',
-            KOREAN: 'ko',
-            PORTUGUESE: 'pt-br',
-            SPANISH: 'es',
-        },
+        }
     };
     /**
      * TJBot genders, used to pick a voice when speaking
@@ -164,9 +140,6 @@ class TJBot {
         robot: {
             gender: TJBot.GENDERS.MALE, // see TJBot.GENDERS
         },
-        converse: {
-            assistantId: undefined, // placeholder for Watson Assistant's assistantId
-        },
         listen: {
             microphoneDeviceId: 'plughw:1,0',
             inactivityTimeout: -1,
@@ -181,15 +154,13 @@ class TJBot {
             voice: undefined,
             speakerDeviceId: 'plughw:0,0', // plugged-in USB card 1, device 0; 'see aplay -l' for a list of playback devices
         },
-        see: {
-            confidenceThreshold: 0.6,
+        look: {
             camera: {
                 height: 720,
                 width: 960,
                 verticalFlip: false,
                 horizontalFlip: false, // flips the image horizontally, should not need to be overridden
             },
-            language: TJBot.LANGUAGES.SEE.ENGLISH_US,
         },
         shine: {
             // see https://pinout.xyz for a pin diagram
@@ -398,29 +369,6 @@ class TJBot {
     _createServiceAPI(service, version) {
         winston.verbose(`initializing ${service} service`);
         switch (service) {
-            case TJBot.SERVICES.ASSISTANT: {
-                // https://cloud.ibm.com/apidocs/assistant-v2
-                const defaultVersion = '2018-09-19';
-                // there seems to be a bug in the AssistantV2 service where
-                // the service name is 'conversation', so it expects the environment
-                // variables for the credentails to be named CONVERSATION_*, but
-                // when downloading the credentials files, they are named
-                // ASSISTANT_*
-                // AssistantV2.DEFAULT_SERVICE_NAME = 'assistant';
-                this._assistant = new AssistantV2({
-                    serviceName: 'assistant',
-                    version: version || defaultVersion,
-                });
-                break;
-            }
-            case TJBot.SERVICES.LANGUAGE_TRANSLATOR: {
-                // https://cloud.ibm.com/apidocs/language-translator
-                const defaultVersion = '2018-05-01';
-                this._languageTranslator = new LanguageTranslatorV3({
-                    version: version || defaultVersion,
-                });
-                break;
-            }
             case TJBot.SERVICES.SPEECH_TO_TEXT: {
                 // https://cloud.ibm.com/apidocs/speech-to-text
                 this._stt = new SpeechToTextV1({});
@@ -429,23 +377,6 @@ class TJBot {
             case TJBot.SERVICES.TEXT_TO_SPEECH: {
                 // https://cloud.ibm.com/apidocs/text-to-speech
                 this._tts = new TextToSpeechV1({});
-                break;
-            }
-            case TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING: {
-                // https://cloud.ibm.com/apidocs/natural-language-understanding
-                const defaultVersion = '2022-04-07';
-                this._nlu = new NaturalLanguageUnderstandingV1({
-                    version: version || defaultVersion,
-                });
-                break;
-            }
-            case TJBot.SERVICES.VISUAL_RECOGNITION: {
-                // https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3
-                const defaultVersion = '2018-03-19';
-                this._visualRecognition = new VisualRecognitionV3({
-                    serviceName: 'visual_recognition',
-                    version: version || defaultVersion,
-                });
                 break;
             }
             default:
@@ -460,21 +391,6 @@ class TJBot {
      */
     _assertCapability(capability) {
         switch (capability) {
-            case TJBot.CAPABILITIES.ANALYZE_TONE:
-                if (!this._nlu) {
-                    this._createServiceAPI(TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING);
-                }
-                break;
-            case TJBot.CAPABILITIES.CONVERSE:
-                if (!this.configuration.converse.assistantId) {
-                    throw new Error('TJBot is not configured to converse. '
-                        + 'Please check that you defined an assistantId for the '
-                        + 'converse.assistantId parameter in the TJBot initialize() method.');
-                }
-                if (!this._assistant) {
-                    this._createServiceAPI(TJBot.SERVICES.ASSISTANT);
-                }
-                break;
             case TJBot.CAPABILITIES.LISTEN:
                 if (!this._mic) {
                     throw new Error('TJBot is not configured to listen. '
@@ -485,14 +401,11 @@ class TJBot {
                     this._createServiceAPI(TJBot.SERVICES.SPEECH_TO_TEXT);
                 }
                 break;
-            case TJBot.CAPABILITIES.SEE:
+            case TJBot.CAPABILITIES.LOOK:
                 if (!this._camera) {
-                    throw new Error('TJBot is not configured to see. '
+                    throw new Error('TJBot is not configured to look. '
                         + 'Please check that you included the '
                         + `${TJBot.HARDWARE.CAMERA} hardware in the TJBot initialize() method.`);
-                }
-                if (!this._visualRecognition) {
-                    this._createServiceAPI(TJBot.SERVICES.VISUAL_RECOGNITION);
                 }
                 break;
             case TJBot.CAPABILITIES.SHINE:
@@ -514,11 +427,6 @@ class TJBot {
                     this._createServiceAPI(TJBot.SERVICES.TEXT_TO_SPEECH);
                 }
                 break;
-            case TJBot.CAPABILITIES.TRANSLATE:
-                if (!this._languageTranslator) {
-                    this._createServiceAPI(TJBot.SERVICES.LANGUAGE_TRANSLATOR);
-                }
-                break;
             case TJBot.CAPABILITIES.WAVE:
                 if (!this._motor) {
                     throw new Error('TJBot is not configured with an arm. '
@@ -538,142 +446,7 @@ class TJBot {
      * @param {int} msec Number of milliseconds to sleep for (1000 msec == 1 sec).
      */
     static sleep(msec) {
-        const usec = msec * 1000;
-        sleep.usleep(usec);
-    }
-    /** ------------------------------------------------------------------------ */
-    /** ANALYZE TONE                                                             */
-    /** ------------------------------------------------------------------------ */
-    /**
-     * Analyze the tone of the given text.
-     * @param {string} text The text to analyze.
-     * @return {object} Returns the response object from the Natural Language Understanding service.
-     * @example
-     * response = {
-     *      "usage": {
-     *          text_units": 1,
-     *          "text_characters": 37,
-     *          "features": 1
-     *      },
-     *      "language": "en",
-     *      "emotion": {
-     *          "targets": [
-     *              {
-     *                  "text": "apples",
-     *                      "emotion": {
-     *                      "sadness": 0.028574,
-     *                      "joy": 0.859042,
-     *                      "fear": 0.02752,
-     *                      "disgust": 0.017519,
-     *                      "anger": 0.012855
-     *                      }
-     *              }
-     *          ],
-     *      "document": {
-     *          "emotion": {
-     *              "sadness": 0.32665,
-     *              "joy": 0.563273,
-     *              "fear": 0.033387,
-     *              "disgust": 0.022637,
-     *              "anger": 0.041796
-     *          }
-     *      }
-     *  }
-
-     * }
-     * @see {@link https://cloud.ibm.com/apidocs/natural-language-understanding?code=node#emotion|Natural Language Understanding} documentation provides details on the response object.
-     * @async
-     */
-    async analyzeTone(text) {
-        this._assertCapability(TJBot.CAPABILITIES.ANALYZE_TONE);
-        const params = {
-            text: text,
-            language: 'en',
-            features: {
-                emotion: {
-                    targets: [
-                        text
-                    ]
-                }
-            }
-        };
-        try {
-            const body = await this._nlu.analyze(params);
-            winston.silly(`response from _toneAnalyzer.tone(): ${body}`);
-            return body.result;
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.NATURAL_LANGUAGE_UNDERSTANDING} service returned an error when trying to analyze the text.`, err);
-            throw err;
-        }
-    }
-    /** ------------------------------------------------------------------------ */
-    /** CONVERSE                                                                 */
-    /** ------------------------------------------------------------------------ */
-    /**
-     * Take a conversational turn in the conversation.
-     * @param  {string} message The message to send to the Assistant service.
-     * @return {object} Returns an object with two keys: `object` contains the full Assistant response object, and `description` contains the string response.
-     * @example
-     * response = {
-     *     "object": {conversation response object},
-     *     "description": "hello, how are you"
-     * }
-     * @see {@link https://cloud.ibm.com/apidocs/assistant/assistant-v2?code=node#message|Assistant} documentation provides details on the response object.
-     * @async
-     */
-    async converse(message) {
-        this._assertCapability(TJBot.CAPABILITIES.CONVERSE);
-        // set up the session if needed
-        if (!this._assistantSessionId) {
-            try {
-                winston.silly(`creating assistant session, sessionId: ${this.configuration.converse.assistantId}`);
-                const body = await this._assistant.createSession({
-                    assistantId: this.configuration.converse.assistantId,
-                });
-                winston.silly(`response from _assistant.createSession(): ${body}`);
-                this._assistantSessionId = body.result.session_id;
-            }
-            catch (err) {
-                winston.error(`error creating session for ${TJBot.SERVICES.ASSISTANT} service. please check that tj.configuration.converse.assistantId is defined.`);
-                throw err;
-            }
-        }
-        // define the conversational turn
-        const turn = {
-            assistantId: this.configuration.converse.assistantId,
-            sessionId: this._assistantSessionId,
-            input: {
-                message_type: 'text',
-                text: message,
-            },
-        };
-        // send to Assistant service
-        try {
-            const body = await this._assistant.message(turn);
-            winston.silly(`response from _assistant.message(): ${JSON.stringify(body)}`);
-            const { result } = body;
-            // this might not be necessary but in the past, conversational replies
-            // came in through result.output.text, not result.output.generic
-            let response;
-            if (result.output.generic) {
-                response = result.output.generic;
-            }
-            else if (result.output.text) {
-                response = result.output.text;
-            }
-            const responseText = response.length > 0 ? response[0].text : '';
-            const assistantResponse = {
-                object: result.output,
-                description: responseText,
-            };
-            winston.verbose(`received response from assistant: ${JSON.stringify(responseText)}`);
-            return assistantResponse;
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.ASSISTANT} service returned an error.`, err);
-            throw err;
-        }
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, msec);
     }
     /** ------------------------------------------------------------------------ */
     /** LISTEN                                                                   */
@@ -748,96 +521,8 @@ class TJBot {
         }
     }
     /** ------------------------------------------------------------------------ */
-    /** SEE                                                                      */
+    /** LOOK                                                                      */
     /** ------------------------------------------------------------------------ */
-    /**
-     * Take a picture and identify the objects present.
-     * @param  {array=} classifierIds (optional) List of classifier IDs to use in the Visual Recognition service.
-     * @return {object} Returns a list of objects seen and their confidences.
-     * @example
-     * response = {
-     *     "images": [{
-     *         "classifiers": [{
-     *             "classifier_id": "roundPlusBanana_1758279329",
-     *             "name": "roundPlusBanana",
-     *             "classes": [{
-     *                     "class": "fruit",
-     *                     "score": 0.788
-     *                 },
-     *                 {
-     *                     "class": "olive color",
-     *                     "score": 0.973
-     *                 },
-     *                 {
-     *                     "class": "lemon yellow color",
-     *                     "score": 0.789
-     *                 }
-     *             ]
-     *         }],
-     *         "image": "fruitbowl.jpg"
-     *     }],
-     *     "images_processed": 1,
-     *     "custom_classes": 6
-     * }
-     * @see {@link https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3?code=node#classify|Visual Recognition}
-     * documentation provides details on the response object. The response object returned by
-     * `see()` corresponds to `response.images[0].classifiers[0].classes` from Visual Recognition.
-     * @async
-     */
-    async see(classifierIds = []) {
-        this._assertCapability(TJBot.CAPABILITIES.SEE);
-        let filePath;
-        let objects;
-        try {
-            winston.verbose('taking a photo with the camera');
-            filePath = await this.takePhoto();
-        }
-        catch (err) {
-            winston.error('an error occured taking a photo', err);
-            throw err;
-        }
-        try {
-            objects = await this.recognizeObjectsInPhoto(filePath, classifierIds);
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.VISUAL_RECOGNITION} service returned an error`, err);
-            throw err;
-        }
-        return objects;
-    }
-    /**
-     * Recognize objects in a given photo.
-     * @param  {string} filePath Path to the photo file.
-     * @param  {array=} classifierIds (optional) List of classifier IDs to use in the Visual Recognition service.
-     * @return {object} Returns a list of objects seen and their confidences.
-     * @see {@link https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3?code=node#classify|Visual Recognition}
-     * documentation provides details on the response object. The response object returned by
-     * `see()` corresponds to `response.images[0].classifiers[0].classes` from Visual Recognition.
-     * @async
-     */
-    async recognizeObjectsInPhoto(filePath, classifierIds = []) {
-        this._assertCapability(TJBot.CAPABILITIES.SEE);
-        winston.verbose(`sending image to the ${TJBot.SERVICES.VISUAL_RECOGNITION} service to recognize objects`);
-        const params = {
-            imagesFile: fs.createReadStream(filePath),
-            threshold: this.configuration.see.confidenceThreshold || 0.6,
-            acceptLanguage: this.configuration.see.language || 'en',
-        };
-        if (classifierIds !== undefined && classifierIds.length > 0) {
-            params.classifierIds = classifierIds;
-            // params.owners = ['me']; // the API docs say this is not necessary to set when specifying classifierIds
-        }
-        try {
-            const body = await this._visualRecognition.classify(params);
-            winston.silly(`response from _visualRecognition.classify() ${JSON.stringify(body)}`);
-            const result = body.result.images[0].classifiers[0].classes;
-            return result;
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.VISUAL_RECOGNITION} service returned an error`, err);
-            throw err;
-        }
-    }
     /**
      * Capture an image and save it in the given path.
      * @param  {string=} filePath (optional) Path at which to save the photo file. If not
@@ -845,8 +530,8 @@ class TJBot {
      * @return {string} Path at which the photo was saved.
      * @async
      */
-    async takePhoto(filePath = '') {
-        this._assertCapability(TJBot.CAPABILITIES.SEE);
+    async look(filePath = '') {
+        this._assertCapability(TJBot.CAPABILITIES.LOOK);
         return this._takePhoto(filePath);
     }
     /**
@@ -1203,245 +888,6 @@ class TJBot {
         player.play(soundFile);
         // wait for the audio to finish playing, either by completing playback or by throwing an error
         await Promise.race([once(player, 'complete'), once(player, 'error')]);
-    }
-    /** ------------------------------------------------------------------------ */
-    /** TRANSLATE                                                                */
-    /** ------------------------------------------------------------------------ */
-    /**
-     * Translates the given text from the source language to the target language.
-     *
-     * @param {string} text The text to translate.
-     * @param {string} sourceLanguage The source language (e.g. "en" for English).
-     * @param {string} targetLanguage The target language (e.g. "es" for Spanish).
-     * @return {object} The response object from the Language Translator service.
-     * @example
-     * response = {
-     *     "object": {
-     *         "translations": [{
-     *             "translation": "Hola, mi nombre es TJBot!"
-     *         }],
-     *         "word_count": 7,
-     *         "character_count": 25
-     *      },
-     *     "description": "Hola, mi nombre es TJBot!"
-     * }
-     * @see Use {@link #TJBot+isTranslatable} to determine whether lanuage can be translated from
-     * the `sourceLanguage` to `targetLanguage`.
-     * @see {@link https://cloud.ibm.com/apidocs/language-translator?code=node#translate|Language Translator}
-     * documentation provides details on the response object.
-     * @async
-     */
-    async translate(text, sourceLanguage, targetLanguage) {
-        this._assertCapability(TJBot.CAPABILITIES.TRANSLATE);
-        const params = {
-            text,
-            source: sourceLanguage,
-            target: targetLanguage,
-        };
-        let translation;
-        try {
-            const body = await this._languageTranslator.translate(params);
-            winston.silly(`response from _languageTranslator.translate(): ${JSON.stringify(body)}`);
-            translation = body.result;
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.LANGUAGE_TRANSLATOR} service returned an error`, err);
-            throw err;
-        }
-        if (Object.prototype.hasOwnProperty.call(translation, 'translations')) {
-            if (translation.translations.length > 0
-                && Object.prototype.hasOwnProperty.call(translation.translations[0], 'translation')) {
-                return {
-                    object: translation,
-                    description: translation.translations[0].translation,
-                };
-            }
-        }
-        return {
-            object: translation,
-            description: '',
-        };
-    }
-    /**
-     * Identifies the language of the given text.
-     * @param {string} text The text to identify.
-     * @return {object} Returns a response object from the Language Translator service.
-     * @example
-     * response = {
-     *     "languages": [{
-     *             "language": "en",
-     *             "confidence": 0.9804833843796723
-     *         },
-     *         {
-     *             "language": "nn",
-     *             "confidence": 0.005988721319786277
-     *         },
-     *         {
-     *             "language": "sq",
-     *             "confidence": 0.0036927759389060203
-     *         },
-     *         {
-     *             "language": "nb",
-     *             "confidence": 0.0035802051870239037
-     *         }
-     *     ]
-     * }
-     * @see {@link https://cloud.ibm.com/apidocs/language-translator?code=node#identify|Language Translator}
-     * documentation provides details on the response object.
-     * @async
-     */
-    async identifyLanguage(text) {
-        this._assertCapability(TJBot.CAPABILITIES.TRANSLATE);
-        const params = {
-            text,
-        };
-        let identifiedLanguages;
-        try {
-            const body = await this._languageTranslator.identify(params);
-            winston.silly(`response from _langaugeTranslator.identify(): ${JSON.stringify(body)}`);
-            identifiedLanguages = body.result;
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.LANGUAGE_TRANSLATOR} service returned an error`, err);
-            throw err;
-        }
-        return identifiedLanguages;
-    }
-    /**
-     * Determines if TJBot can translate from the source language to the target language.
-     * @param {string} sourceLanguage The source language (e.g. "en" for English).
-     * @param {string} targetLanguage The target language (e.g. "es" for Spanish).
-     * @return {bool} True if the `sourceLanguage` can be translated to the
-     * `targetLanguage`, false otherwise.
-     * @async
-     */
-    async isTranslatable(sourceLanguage, targetLanguage) {
-        this._assertCapability(TJBot.CAPABILITIES.TRANSLATE);
-        // lazy load of language translation models…
-        if (this._translationModels === undefined) {
-            winston.verbose('loading language models...');
-            this._translationModels = await this._loadLanguageTranslationModels();
-            winston.verbose('language models loaded');
-        }
-        if (this._translationModels[sourceLanguage] !== undefined) {
-            return this._translationModels[sourceLanguage].includes(targetLanguage);
-        }
-        return false;
-    }
-    /**
-     * Returns a list of languages that can TJBot can translate to from the given language.
-     * @param {string} sourceLanguage The source language (e.g. "en" for English)
-     * @return {array} List of languages that TJBot can translate to from the source langauge
-     */
-    async translatableLanguages(sourceLanguage) {
-        this._assertCapability(TJBot.CAPABILITIES.TRANSLATE);
-        // lazy load of language translation models…
-        if (this._translationModels === undefined) {
-            winston.verbose('loading language models...');
-            this._translationModels = await this._loadLanguageTranslationModels();
-            winston.verbose('language models loaded');
-        }
-        if (this._translationModels[sourceLanguage] !== undefined) {
-            return this._translationModels[sourceLanguage];
-        }
-        return [];
-    }
-    /**
-     * Returns the name of the given language code.
-     * @param {string} languageCode Two-character language code (e.g. "en")
-     * @return {string} Name of the language (e.g. "English"), or undefined if the language is unknown.
-     */
-    // eslint-disable-next-line class-methods-use-this
-    languageForCode(languageCode) {
-        switch (languageCode.toLowerCase()) {
-            case 'ar':
-                return 'Arabic';
-            case 'de':
-                return 'German';
-            case 'en':
-                return 'English';
-            case 'es':
-                return 'Spanish';
-            case 'fr':
-                return 'French';
-            case 'it':
-                return 'Italian';
-            case 'ja':
-                return 'Japanese';
-            case 'ko':
-                return 'Korean';
-            case 'nl':
-                return 'Dutch';
-            case 'pt':
-                return 'Portuguese';
-            case 'zh':
-                return 'Chinese';
-            default:
-                return undefined;
-        }
-    }
-    /**
-     * Returns the two-letter code for the given language.
-     * @param {string} language Name of the language (e.g. "English")
-     * @return {string} Two-letter language code for the language (e.g. "en"), or undefined if the language code is unknown.
-     */
-    // eslint-disable-next-line class-methods-use-this
-    codeForLanguage(language) {
-        switch (language.toLowerCase()) {
-            case 'arabic':
-                return 'ar';
-            case 'german':
-                return 'de';
-            case 'english':
-                return 'en';
-            case 'spanish':
-                return 'es';
-            case 'french':
-                return 'fr';
-            case 'italian':
-                return 'it';
-            case 'japanese':
-                return 'ja';
-            case 'korean':
-                return 'ko';
-            case 'dutch':
-                return 'nl';
-            case 'portuguese':
-                return 'pt';
-            case 'chinese':
-                return 'zh';
-            default:
-                return undefined;
-        }
-    }
-    /**
-     * Loads the list of language models that can be used for translation.
-     * @private
-     * @async
-     */
-    async _loadLanguageTranslationModels() {
-        let models;
-        try {
-            const body = await this._languageTranslator.listModels({});
-            winston.silly(`response from _languageTranslator.listModels(): ${JSON.stringify(body)}`);
-            models = body.result;
-        }
-        catch (err) {
-            winston.error(`the ${TJBot.SERVICES.LANGUAGE_TRANSLATOR} service returned an error`, err);
-            throw err;
-        }
-        const translations = {};
-        if (Object.prototype.hasOwnProperty.call(models, 'models')) {
-            models.models.forEach((model) => {
-                if (translations[model.source] === undefined) {
-                    translations[model.source] = [];
-                }
-                if (!translations[model.source].includes(model.target)) {
-                    translations[model.source].push(model.target);
-                }
-            });
-        }
-        return translations;
     }
     /** ------------------------------------------------------------------------ */
     /** WAVE                                                                     */

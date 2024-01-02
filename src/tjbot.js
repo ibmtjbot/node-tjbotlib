@@ -32,8 +32,8 @@ import { Gpio } from 'pigpio';
 import SoundPlayer from 'sound-player';
 
 // watson modules
-import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1';
-import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1';
+import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
+import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
 
 /**
 * Class representing a TJBot
