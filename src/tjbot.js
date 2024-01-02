@@ -24,6 +24,7 @@ import cm from 'color-model';
 import winston from 'winston';
 import { once } from 'events';
 import TOML from '@iarna/toml';
+import { easeInOutQuad } from 'js-easing-functions';
 
 // hardware modules
 import Mic from 'mic';
@@ -617,7 +618,7 @@ class TJBot {
      * follow an #RRGGBB format.
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      */
-    shine(color) {
+    shine(color, asPulse=false) {
         this._assertCapability(TJBot.Capability.SHINE);
 
         // normalize the color
@@ -634,12 +635,20 @@ class TJBot {
             if (this.config.Shine.neopixel.grbFormat) {
                 // convert to the 0xGGRRBB format for the LED
                 const grb = `0x${c[3]}${c[4]}${c[1]}${c[2]}${c[5]}${c[6]}`;
-                winston.verbose(`shining my LED to GRB color ${grb}`);
+                
+                if (asPulse === false) {
+                    winston.verbose(`shining my LED to GRB color ${grb}`);
+                }
+
                 colors[0] = parseInt(grb, 16);
             } else {
                 // convert to the 0xRRGGBB format for the LED
                 const rgb = `0x${c[1]}${c[2]}${c[3]}${c[4]}${c[5]}${c[6]}`;
-                winston.verbose(`shining my LED to RGB color ${rgb}`);
+                
+                if (asPulze === false) {
+                    winston.verbose(`shining my LED to RGB color ${rgb}`);
+                }
+
                 colors[0] = parseInt(rgb, 16);
             }
 
@@ -672,13 +681,6 @@ class TJBot {
         const numSteps = 20;
 
         // quadratic in-out easing
-        const easeInOutQuad = (t, b, c, d) => {
-            if ((t / d / 2) < 1) {
-                return (c / 2) * (t / d) * (t / d) + b;
-            }
-            return (-c / 2) * ((t - 1) * (t - 3) - 1) + b;
-        };
-
         let ease = [];
         for (let i = 0; i < numSteps; i += 1) {
             ease.push(i);
@@ -686,8 +688,8 @@ class TJBot {
 
         ease = ease.map((x, i) => easeInOutQuad(i, 0, 1, ease.length));
 
-        // normalize to 'duration' msec
-        ease = ease.map((x) => Math.round(x * duration * 1000));
+        // normalize to 'duration' sec
+        ease = ease.map((x) => x * duration);
 
         // convert to deltas
         const easeDelays = [];
@@ -707,11 +709,12 @@ class TJBot {
         }
 
         // perform the ease
+        winston.info(`pulsing my LED to RGB color ${rgb}`);
         for (let i = 0; i < easeDelays.length; i += 1) {
             const c = i < colorRamp.length
                 ? colorRamp[i]
                 : colorRamp[colorRamp.length - 1 - (i - colorRamp.length) - 1];
-            this.shine(c);
+            this.shine(c, true);
             // eslint-disable-next-line no-await-in-loop
             TJBot.sleep(easeDelays[i]);
         }

@@ -21,6 +21,7 @@
     "colornames": "^1.1.1",
     "fifo": "^2.4.1",
     "ibm-watson": "^8.0.0",
+    "js-easing-functions": "^1.0.3",
     "mic": "^2.1.2",
     "node-raspistill": "^2.0.1",
     "pigpio": "^3.3.1",
