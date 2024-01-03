@@ -13,7 +13,7 @@ declare class TJBot {
      * @readonly
      * @enum {string}
      */
-    static readonly CAPABILITIES: {
+    static readonly Capability: {
         LISTEN: string;
         LOOK: string;
         SHINE: string;
@@ -25,7 +25,7 @@ declare class TJBot {
      * @readonly
      * @enum {string}
      */
-    static readonly HARDWARE: {
+    static readonly Hardware: {
         CAMERA: string;
         LED_NEOPIXEL: string;
         LED_COMMON_ANODE: string;
@@ -38,167 +38,40 @@ declare class TJBot {
      * @readonly
      * @enum {string}
      */
-    static readonly SERVICES: {
+    static readonly Services: {
         SPEECH_TO_TEXT: string;
         TEXT_TO_SPEECH: string;
-    };
-    /**
-     * TJBot languages for listening and speaking
-     * @readonly
-     * @enum {string}
-     */
-    static readonly LANGUAGES: {
-        LISTEN: {
-            ARABIC: string;
-            CHINESE: string;
-            ENGLISH_UK: string;
-            ENGLISH_US: string;
-            FRENCH: string;
-            GERMAN: string;
-            ITALIAN: string;
-            JAPANESE: string;
-            KOREAN: string;
-            PORTUGUESE: string;
-            SPANISH: string;
-        };
-        SPEAK: {
-            ARABIC: string;
-            CHINESE: string;
-            DUTCH: string;
-            ENGLISH_GB: string;
-            ENGLISH_US: string;
-            FRENCH: string;
-            GERMAN: string;
-            ITALIAN: string;
-            JAPANESE: string;
-            KOREAN: string;
-            PORTUGUESE: string;
-            SPANISH: string;
-        };
-    };
-    /**
-     * TJBot genders, used to pick a voice when speaking
-     * @readonly
-     * @enum {string}
-     */
-    static readonly GENDERS: {
-        MALE: string;
-        FEMALE: string;
     };
     /**
      * TJBot servo motor stop positions
      * @readonly
      * @enum {int}
      */
-    static readonly SERVO: {
+    static readonly Servo: {
         ARM_BACK: number;
         ARM_UP: number;
         ARM_DOWN: number;
     };
-    /**
-     * TJBot default configuration
-     * @readonly
-     */
-    static readonly DEFAULT_CONFIG: {
-        log: {
-            level: string;
-        };
-        robot: {
-            gender: string;
-        };
-        listen: {
-            microphoneDeviceId: string;
-            inactivityTimeout: number;
-            backgroundAudioSuppression: number;
-            language: string;
-        };
-        wave: {
-            servoPin: number;
-        };
-        speak: {
-            language: string;
-            voice: undefined;
-            speakerDeviceId: string;
-        };
-        look: {
-            camera: {
-                height: number;
-                width: number;
-                verticalFlip: boolean;
-                horizontalFlip: boolean;
-            };
-        };
-        shine: {
-            neopixel: {
-                gpioPin: number;
-                grbFormat: boolean;
-            };
-            commonAnode: {
-                redPin: number;
-                greenPin: number;
-                bluePin: number;
-            };
-        };
-    };
+    static _loadTJBotConfig(configFile: any): any;
     /** ------------------------------------------------------------------------ */
     /** UTILITY METHODS                                                          */
     /** ------------------------------------------------------------------------ */
     /**
      * Put TJBot to sleep.
-     * @param {int} msec Number of milliseconds to sleep for (1000 msec == 1 sec).
+     * @param {int} sec Number of seconds to sleep for.
      */
-    static sleep(msec: int): void;
+    static sleep(sec: int): void;
     /**
      * TJBot constructor. After constructing a TJBot instance, call initialize() to configure its hardware.
      * @param  {object} configuration   Configuration for the TJBot. See TJBot.DEFAULT_CONFIG for all configuration options.
      * @param  {string=} credentialsFile (optional) Path to the 'ibm-credentials.env' file containing authentication credentials for IBM Watson services.
      * @return {TJBot} instance of the TJBot class
      */
-    constructor(configuration?: object, credentialsFile?: string | undefined);
-    configuration: {
-        log: {
-            level: string;
-        };
-        robot: {
-            gender: string;
-        };
-        listen: {
-            microphoneDeviceId: string;
-            inactivityTimeout: number;
-            backgroundAudioSuppression: number;
-            language: string;
-        };
-        wave: {
-            servoPin: number;
-        };
-        speak: {
-            language: string;
-            voice: undefined;
-            speakerDeviceId: string;
-        };
-        look: {
-            camera: {
-                height: number;
-                width: number;
-                verticalFlip: boolean;
-                horizontalFlip: boolean;
-            };
-        };
-        shine: {
-            neopixel: {
-                gpioPin: number;
-                grbFormat: boolean;
-            };
-            commonAnode: {
-                redPin: number;
-                greenPin: number;
-                bluePin: number;
-            };
-        };
-    };
+    constructor(configFile?: string, credentialsFile?: string | undefined);
+    config: any;
     /**
      * @param  {array} hardware List of hardware peripherals attached to TJBot.
-     * @see {@link #TJBot+HARDWARE} for a list of supported hardware.
+     * @see {@link #TJBot+Hardware} for a list of supported hardware.
      * @async
      */
     initialize(hardware: array): Promise<void>;
@@ -210,7 +83,7 @@ declare class TJBot {
     * @private
     */
     private _setupCamera;
-    _camera: Raspistill | undefined;
+    _camera: import("libcamera/dist/types").PiCameraOutput | undefined;
     /**
     * Configure the Neopixel LED hardware.
     * @param {int} gpioPin The GPIO pin number to which the LED is connected.
@@ -302,17 +175,6 @@ declare class TJBot {
      * @async
      */
     look(filePath?: string | undefined): string;
-    /**
-     * Internal method to capture an image at the given path. Used to avoid triggering
-     * the check for an apikey for Watson Visual Recognition in _assertCapability()
-     * during testing.
-     * @param  {string=} filePath (optional) Path at which to save the photo file. If not
-     * specified, photo will be saved in a temp location.
-     * @return {string} Path at which the photo was saved.
-     * @private
-     * @async
-     */
-    private _takePhoto;
     /** ------------------------------------------------------------------------ */
     /** SHINE                                                                    */
     /** ------------------------------------------------------------------------ */
@@ -324,7 +186,7 @@ declare class TJBot {
      * follow an #RRGGBB format.
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      */
-    shine(color: string): void;
+    shine(color: string, asPulse?: boolean): void;
     /**
      * Pulse the LED a single time.
      * @param {string} color The color to shine the LED. May be specified in a number of
@@ -342,6 +204,7 @@ declare class TJBot {
      * @return {array} List of all named colors recognized by `shine()` and `pulse()`.
      */
     shineColors(): array;
+    _shineColors: any;
     /**
      * Get a random color.
      * @return {string} Random named color.
@@ -379,7 +242,6 @@ declare class TJBot {
      * @async
      */
     speak(message: string): Promise<void>;
-    _ttsVoices: import("ibm-watson/text-to-speech/v1-generated").Voice[] | undefined;
     /**
      * Play a sound at the specified path.
      * @param {string} soundFile The path to the sound file to be played.
@@ -409,7 +271,6 @@ declare class TJBot {
      */
     wave(): Promise<void>;
 }
-import { Raspistill } from 'node-raspistill';
 import { Gpio } from 'pigpio';
 import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';

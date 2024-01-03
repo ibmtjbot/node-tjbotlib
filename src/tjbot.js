@@ -25,10 +25,13 @@ import winston from 'winston';
 import { once } from 'events';
 import TOML from '@iarna/toml';
 import { easeInOutQuad } from 'js-easing-functions';
+import path from 'node:path';
+import { resolve } from 'import-meta-resolve';
+
 
 // hardware modules
 import Mic from 'mic';
-import { Raspistill } from 'node-raspistill';
+import { libcamera } from 'libcamera';
 import ws281x from 'rpi-ws281x-native';
 import { Gpio } from 'pigpio';
 import SoundPlayer from 'sound-player';
@@ -123,19 +126,22 @@ class TJBot {
 
         winston.info('Hello from TJBot!');
         winston.verbose(`TJBot library version ${TJBot.VERSION}`);
-        winston.silly(`TJBot configuration: ${JSON.stringify(this.config)}`);
+        winston.debug(`TJBot configuration: ${JSON.stringify(this.config)}`);
     }
 
     static _loadTJBotConfig(configFile) {
         // load base config
         let baseConfig = '';
         let userConfig = '';
+        
+        const baseConfigPath = resolve('./tjbot.default.toml', import.meta.url);
 
         try {
-            const data = fs.readFileSync('src/tjbot.default.toml', 'utf8');
+            // construct a URL because the file comes back with a file:// prefix
+            const data = fs.readFileSync(new URL(baseConfigPath), 'utf8');
             baseConfig = TOML.parse(data);
         } catch (err) {
-            throw new Error('unable to read tjbot default configuration from tjbot.default.toml');
+            throw new Error(`unable to read tjbot default configuration from tjbot.default.toml: ${err}`);
         }
 
         try {
@@ -144,7 +150,7 @@ class TJBot {
                 userConfig = TOML.parse(data);
             }
         } catch (err) {
-            throw new Error(`unable to read tjbot configuration from ${configFile}`);
+            throw new Error(`unable to read tjbot configuration from ${configFile}: ${err}`);
         }
 
         const config = { ...baseConfig, ...userConfig };
@@ -214,16 +220,7 @@ class TJBot {
     _setupCamera() {
         winston.verbose(`initializing ${TJBot.Hardware.CAMERA}`);
 
-        this._camera = new Raspistill({
-            width: this.config.See.camera.width,
-            height: this.config.See.camera.height,
-            noPreview: true,
-            encoding: 'jpg',
-            outputDir: './',
-            verticalFlip: this.config.See.camera.verticalFlip,
-            horizontalFlip: this.config.See.camera.horizontalFlip,
-            time: 1,
-        });
+        this._camera = libcamera;
     }
 
     /**
@@ -485,7 +482,7 @@ class TJBot {
                 backgroundAudioSuppression: this.config.Listen.backgroundAudioSuppression || 0.0,
             };
 
-            winston.silly(`recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
+            winston.debug(`recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
 
             // Create the stream.
             this._recognizeStream = this._stt.recognizeUsingWebSocket(params);
@@ -553,53 +550,31 @@ class TJBot {
      */
     async look(filePath = '') {
         this._assertCapability(TJBot.Capability.LOOK);
-        return this._takePhoto(filePath);
-    }
-
-    /**
-     * Internal method to capture an image at the given path. Used to avoid triggering
-     * the check for an apikey for Watson Visual Recognition in _assertCapability()
-     * during testing.
-     * @param  {string=} filePath (optional) Path at which to save the photo file. If not
-     * specified, photo will be saved in a temp location.
-     * @return {string} Path at which the photo was saved.
-     * @private
-     * @async
-     */
-    async _takePhoto(filePath = '') {
-        let fp = filePath;
-        let path = '';
-        let name = '';
-
-        // if no file path provided, save to temp location
-        if (fp === '') {
-            fp = temp.path({
+        
+        if (filePath === '') {
+            filePath = temp.path({
                 prefix: 'tjbot',
                 suffix: '.jpg',
             });
         }
 
-        winston.verbose(`capturing image at path: ${fp}`);
-        path = fp.lastIndexOf('/') > 0 ? fp.substring(0, fp.lastIndexOf('/')) : '.'; // save to current dir if no directory provided.
-        name = fp.substring(fp.lastIndexOf('/') + 1);
-        name = name.replace('.jpg', ''); // the node raspistill lib already adds encoding .jpg to file.
-        winston.silly(`image path: ${path}, image filename: ${name}`);
-
+        winston.verbose(`capturing image at path: ${filePath}`);
+        
         // set the configuration options, which may have changed since the camera was initialized
-        this._camera.setOptions({
-            outputDir: path,
-            fileName: name,
-            width: this.config.See.camera.width,
-            height: this.config.See.camera.height,
-            verticalFlip: this.config.See.camera.verticalFlip,
-            horizontalFlip: this.config.See.camera.horizontalFlip,
-        });
+        const cameraConfig = {
+            output: filePath,
+            nopreview: true,
+            hflip: this.config.See.horizontalFlip,
+            vflip: this.config.See.vertifalFlip,
+            width: this.config.See.cameraResolution[0],
+            height: this.config.See.cameraResolution[1],
+        }
 
-        winston.silly(`camera options: ${JSON.stringify(this._camera.getOptions())}`);
+        winston.debug(`camera options: ${JSON.stringify(cameraConfig)}`);
 
         try {
-            await this._camera.takePhoto();
-            return fp;
+            await this._camera.jpeg({config: cameraConfig});
+            return filePath;
         } catch (err) {
             winston.error('error taking picture', err);
             throw err;
@@ -861,7 +836,7 @@ class TJBot {
         const response = await this._tts.synthesize(params);
 
         // pipe the audio buffer to a file
-        winston.silly('writing audio buffer to temp file', info.path);
+        winston.debug('writing audio buffer to temp file', info.path);
         const fd = fs.createWriteStream(info.path);
         response.result.pipe(fd);
 
@@ -903,12 +878,12 @@ class TJBot {
         };
         const player = new this._soundplayer(params);
 
-        winston.silly('playing audio with parameters: ', params);
+        winston.debug('playing audio with parameters: ', params);
 
         // capture 'this' context
         const self = this;
         player.on('complete', () => {
-            winston.silly('audio playback finished');
+            winston.debug('audio playback finished');
 
             // resume listening
             self._resumeListening();

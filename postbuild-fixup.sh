@@ -10,3 +10,6 @@ cat >dist/mjs/package.json <<!EOF
     "type": "module"
 }
 !EOF
+
+cp src/tjbot.default.toml dist/cjs
+cp src/tjbot.default.toml dist/mjs

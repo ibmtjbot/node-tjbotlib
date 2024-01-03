@@ -36,9 +36,13 @@ const colornames_1 = __importDefault(require("colornames"));
 const color_model_1 = __importDefault(require("color-model"));
 const winston_1 = __importDefault(require("winston"));
 const events_1 = require("events");
+const toml_1 = __importDefault(require("@iarna/toml"));
+const js_easing_functions_1 = require("js-easing-functions");
+const node_path_1 = __importDefault(require("node:path"));
+const import_meta_resolve_1 = require("import-meta-resolve");
 // hardware modules
 const mic_1 = __importDefault(require("mic"));
-const node_raspistill_1 = require("node-raspistill");
+const libcamera_1 = require("libcamera");
 const rpi_ws281x_native_1 = __importDefault(require("rpi-ws281x-native"));
 const pigpio_1 = require("pigpio");
 const sound_player_1 = __importDefault(require("sound-player"));
@@ -55,12 +59,11 @@ class TJBot {
      * @param  {string=} credentialsFile (optional) Path to the 'ibm-credentials.env' file containing authentication credentials for IBM Watson services.
      * @return {TJBot} instance of the TJBot class
      */
-    constructor(configuration = {}, credentialsFile = '') {
-        // import configuration params
-        this.configuration = Object.assign(Object.assign({}, TJBot.DEFAULT_CONFIG), configuration);
+    constructor(configFile = 'tjbot.toml', credentialsFile = '') {
+        this.config = TJBot._loadTJBotConfig(configFile);
         // set up logging
         winston_1.default.configure({
-            level: this.configuration.log.level || 'info',
+            level: this.config.Log.level || 'info',
             format: winston_1.default.format.simple(),
             transports: [
                 new winston_1.default.transports.Console(),
@@ -74,11 +77,36 @@ class TJBot {
         }
         winston_1.default.info('Hello from TJBot!');
         winston_1.default.verbose(`TJBot library version ${TJBot.VERSION}`);
-        winston_1.default.silly(`TJBot configuration: ${JSON.stringify(this.configuration)}`);
+        winston_1.default.debug(`TJBot configuration: ${JSON.stringify(this.config)}`);
+    }
+    static _loadTJBotConfig(configFile) {
+        // load base config
+        let baseConfig = '';
+        let userConfig = '';
+        const baseConfigPath = (0, import_meta_resolve_1.resolve)('./tjbot.default.toml', import.meta.url);
+        try {
+            // construct a URL because the file comes back with a file:// prefix
+            const data = fs_1.default.readFileSync(new URL(baseConfigPath), 'utf8');
+            baseConfig = toml_1.default.parse(data);
+        }
+        catch (err) {
+            throw new Error(`unable to read tjbot default configuration from tjbot.default.toml: ${err}`);
+        }
+        try {
+            if (fs_1.default.existsSync(configFile) && fs_1.default.lstatSync(configFile).isFile()) {
+                const data = fs_1.default.readFileSync(configFile, 'utf8');
+                userConfig = toml_1.default.parse(data);
+            }
+        }
+        catch (err) {
+            throw new Error(`unable to read tjbot configuration from ${configFile}: ${err}`);
+        }
+        const config = Object.assign(Object.assign({}, baseConfig), userConfig);
+        return config;
     }
     /**
      * @param  {array} hardware List of hardware peripherals attached to TJBot.
-     * @see {@link #TJBot+HARDWARE} for a list of supported hardware.
+     * @see {@link #TJBot+Hardware} for a list of supported hardware.
      * @async
      */
     initialize(hardware) {
@@ -93,22 +121,22 @@ class TJBot {
             winston_1.default.info(`Initializing TJBot with ${hardware}`);
             hardware.forEach((device) => {
                 switch (device) {
-                    case TJBot.HARDWARE.CAMERA:
+                    case TJBot.Hardware.CAMERA:
                         this._setupCamera();
                         break;
-                    case TJBot.HARDWARE.LED_NEOPIXEL:
-                        this._setupLEDNeopixel(this.configuration.shine.neopixel.gpioPin);
+                    case TJBot.Hardware.LED_NEOPIXEL:
+                        this._setupLEDNeopixel(this.config.Shine.neopixel.gpioPin);
                         break;
-                    case TJBot.HARDWARE.LED_COMMON_ANODE:
-                        this._setupLEDCommonAnode(this.configuration.shine.commonAnode.redPin, this.configuration.shine.commonAnode.greenPin, this.configuration.shine.commonAnode.bluePin);
+                    case TJBot.Hardware.LED_COMMON_ANODE:
+                        this._setupLEDCommonAnode(this.config.Shine.commonAnode.redPin, this.config.Shine.commonAnode.greenPin, this.config.Shine.commonAnode.bluePin);
                         break;
-                    case TJBot.HARDWARE.MICROPHONE:
+                    case TJBot.Hardware.MICROPHONE:
                         this._setupMicrophone();
                         break;
-                    case TJBot.HARDWARE.SERVO:
-                        this._setupServo(this.configuration.wave.servoPin);
+                    case TJBot.Hardware.SERVO:
+                        this._setupServo(this.config.Wave.servoPin);
                         break;
-                    case TJBot.HARDWARE.SPEAKER:
+                    case TJBot.Hardware.SPEAKER:
                         this._setupSpeaker();
                         break;
                     default:
@@ -125,17 +153,8 @@ class TJBot {
     * @private
     */
     _setupCamera() {
-        winston_1.default.verbose(`initializing ${TJBot.HARDWARE.CAMERA}`);
-        this._camera = new node_raspistill_1.Raspistill({
-            width: this.configuration.see.camera.width,
-            height: this.configuration.see.camera.height,
-            noPreview: true,
-            encoding: 'jpg',
-            outputDir: './',
-            verticalFlip: this.configuration.see.camera.verticalFlip,
-            horizontalFlip: this.configuration.see.camera.horizontalFlip,
-            time: 1,
-        });
+        winston_1.default.verbose(`initializing ${TJBot.Hardware.CAMERA}`);
+        this._camera = libcamera_1.libcamera;
     }
     /**
     * Configure the Neopixel LED hardware.
@@ -143,7 +162,7 @@ class TJBot {
     * @private
     */
     _setupLEDNeopixel(gpioPin) {
-        winston_1.default.verbose(`initializing ${TJBot.HARDWARE.LED_NEOPIXEL} on PIN ${gpioPin}`);
+        winston_1.default.verbose(`initializing ${TJBot.Hardware.LED_NEOPIXEL} on PIN ${gpioPin}`);
         // init with 1 LED
         this._neopixelLed = rpi_ws281x_native_1.default;
         this._neopixelLed.init(1, {
@@ -167,7 +186,7 @@ class TJBot {
     * @private
     */
     _setupLEDCommonAnode(redPin, greenPin, bluePin) {
-        winston_1.default.verbose(`initializing ${TJBot.HARDWARE.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
+        winston_1.default.verbose(`initializing ${TJBot.Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
         this._commonAnodeLed = {
             redPin: new pigpio_1.Gpio(redPin, {
                 mode: pigpio_1.Gpio.OUTPUT,
@@ -185,15 +204,15 @@ class TJBot {
      * @private
      */
     _setupMicrophone() {
-        winston_1.default.verbose(`initializing ${TJBot.HARDWARE.MICROPHONE}`);
+        winston_1.default.verbose(`initializing ${TJBot.Hardware.MICROPHONE}`);
         const micParams = {
             rate: '16000',
             channels: '1',
             debug: false,
             exitOnSilence: 6,
         };
-        if (this.configuration.listen.microphoneDeviceId) {
-            micParams.device = this.configuration.listen.microphoneDeviceId;
+        if (this.config.Listen.microphoneDeviceId) {
+            micParams.device = this.config.Listen.microphoneDeviceId;
         }
         // create the microphone
         this._mic = (0, mic_1.default)(micParams);
@@ -223,7 +242,7 @@ class TJBot {
      * @private
      */
     _setupServo(pin) {
-        winston_1.default.verbose(`initializing ${TJBot.HARDWARE.SERVO} on PIN ${pin}`);
+        winston_1.default.verbose(`initializing ${TJBot.Hardware.SERVO} on PIN ${pin}`);
         this._motor = new pigpio_1.Gpio(pin, {
             mode: pigpio_1.Gpio.OUTPUT,
         });
@@ -233,7 +252,7 @@ class TJBot {
      * @private
      */
     _setupSpeaker() {
-        winston_1.default.verbose(`initializing ${TJBot.HARDWARE.SPEAKER}`);
+        winston_1.default.verbose(`initializing ${TJBot.Hardware.SPEAKER}`);
         this._soundplayer = sound_player_1.default;
     }
     /**
@@ -242,15 +261,15 @@ class TJBot {
      * @param {string} version The version of the service (e.g. "2018-09-20"). If null, the default version will be used.
      * @private
      */
-    _createServiceAPI(service, version) {
+    _createServiceAPI(service) {
         winston_1.default.verbose(`initializing ${service} service`);
         switch (service) {
-            case TJBot.SERVICES.SPEECH_TO_TEXT: {
+            case TJBot.Service.SPEECH_TO_TEXT: {
                 // https://cloud.ibm.com/apidocs/speech-to-text
                 this._stt = new v1_js_1.default({});
                 break;
             }
-            case TJBot.SERVICES.TEXT_TO_SPEECH: {
+            case TJBot.Service.TEXT_TO_SPEECH: {
                 // https://cloud.ibm.com/apidocs/text-to-speech
                 this._tts = new v1_js_2.default({});
                 break;
@@ -267,47 +286,47 @@ class TJBot {
      */
     _assertCapability(capability) {
         switch (capability) {
-            case TJBot.CAPABILITIES.LISTEN:
+            case TJBot.Capability.LISTEN:
                 if (!this._mic) {
                     throw new Error('TJBot is not configured to listen. '
                         + 'Please check that you included the '
-                        + `${TJBot.HARDWARE.MICROPHONE} hardware in the TJBot initialize() method.`);
+                        + `${TJBot.Hardware.MICROPHONE} hardware in the TJBot initialize() method.`);
                 }
                 if (!this._stt) {
-                    this._createServiceAPI(TJBot.SERVICES.SPEECH_TO_TEXT);
+                    this._createServiceAPI(TJBot.Service.SPEECH_TO_TEXT);
                 }
                 break;
-            case TJBot.CAPABILITIES.LOOK:
+            case TJBot.Capability.LOOK:
                 if (!this._camera) {
                     throw new Error('TJBot is not configured to look. '
                         + 'Please check that you included the '
-                        + `${TJBot.HARDWARE.CAMERA} hardware in the TJBot initialize() method.`);
+                        + `${TJBot.Hardware.CAMERA} hardware in the TJBot initialize() method.`);
                 }
                 break;
-            case TJBot.CAPABILITIES.SHINE:
+            case TJBot.Capability.SHINE:
                 // one LED should be defined
                 if (!this._neopixelLed && !this._commonAnodeLed) {
                     throw new Error('TJBot is not configured with an LED. '
                         + 'Please check that you included the '
-                        + `${TJBot.HARDWARE.LED_NEOPIXEL} or ${TJBot.HARDWARE.LED_COMMON_ANODE} `
+                        + `${TJBot.Hardware.LED_NEOPIXEL} or ${TJBot.Hardware.LED_COMMON_ANODE} `
                         + 'hardware in the TJBot initialize() method.');
                 }
                 break;
-            case TJBot.CAPABILITIES.SPEAK:
+            case TJBot.Capability.SPEAK:
                 if (!this._soundplayer) {
                     throw new Error('TJBot is not configured to speak. '
                         + 'Please check that you included the '
-                        + `${TJBot.HARDWARE.SPEAKER} hardware in the TJBot initialize() method.`);
+                        + `${TJBot.Hardware.SPEAKER} hardware in the TJBot initialize() method.`);
                 }
                 if (!this._tts) {
-                    this._createServiceAPI(TJBot.SERVICES.TEXT_TO_SPEECH);
+                    this._createServiceAPI(TJBot.Service.TEXT_TO_SPEECH);
                 }
                 break;
-            case TJBot.CAPABILITIES.WAVE:
+            case TJBot.Capability.WAVE:
                 if (!this._motor) {
                     throw new Error('TJBot is not configured with an arm. '
                         + 'Please check that you included the '
-                        + `${TJBot.HARDWARE.SERVO} hardware in the TJBot initialize() method.`);
+                        + `${TJBot.Hardware.SERVO} hardware in the TJBot initialize() method.`);
                 }
                 break;
             default:
@@ -319,9 +338,10 @@ class TJBot {
     /** ------------------------------------------------------------------------ */
     /**
      * Put TJBot to sleep.
-     * @param {int} msec Number of milliseconds to sleep for (1000 msec == 1 sec).
+     * @param {int} sec Number of seconds to sleep for.
      */
-    static sleep(msec) {
+    static sleep(sec) {
+        const msec = sec * 1000;
         Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, msec);
     }
     /** ------------------------------------------------------------------------ */
@@ -334,7 +354,7 @@ class TJBot {
     listen() {
         return __awaiter(this, void 0, void 0, function* () {
             // make sure we can listen
-            this._assertCapability(TJBot.CAPABILITIES.LISTEN);
+            this._assertCapability(TJBot.Capability.LISTEN);
             // lazy create the sttTextStream
             if (this._sttTextStream === undefined) {
                 // initialize the microphone because if stopListening() was called, we don't seem to
@@ -346,12 +366,12 @@ class TJBot {
                 const params = {
                     objectMode: false,
                     contentType: 'audio/l16; rate=16000; channels=1',
-                    model: `${this.configuration.listen.language}_BroadbandModel`,
-                    inactivityTimeout: this.configuration.listen.inactivityTimeout || 60,
+                    model: `${this.config.Listen.language}_BroadbandModel`,
+                    inactivityTimeout: this.config.Listen.inactivityTimeout || 60,
                     interimResults: true,
-                    backgroundAudioSuppression: this.configuration.listen.backgroundAudioSuppression || 0.0,
+                    backgroundAudioSuppression: this.config.Listen.backgroundAudioSuppression || 0.0,
                 };
-                winston_1.default.silly(`recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
+                winston_1.default.debug(`recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
                 // Create the stream.
                 this._recognizeStream = this._stt.recognizeUsingWebSocket(params);
                 this._recognizeStream.setEncoding('utf8');
@@ -410,50 +430,27 @@ class TJBot {
      */
     look(filePath = '') {
         return __awaiter(this, void 0, void 0, function* () {
-            this._assertCapability(TJBot.CAPABILITIES.LOOK);
-            return this._takePhoto(filePath);
-        });
-    }
-    /**
-     * Internal method to capture an image at the given path. Used to avoid triggering
-     * the check for an apikey for Watson Visual Recognition in _assertCapability()
-     * during testing.
-     * @param  {string=} filePath (optional) Path at which to save the photo file. If not
-     * specified, photo will be saved in a temp location.
-     * @return {string} Path at which the photo was saved.
-     * @private
-     * @async
-     */
-    _takePhoto(filePath = '') {
-        return __awaiter(this, void 0, void 0, function* () {
-            let fp = filePath;
-            let path = '';
-            let name = '';
-            // if no file path provided, save to temp location
-            if (fp === '') {
-                fp = temp_1.default.path({
+            this._assertCapability(TJBot.Capability.LOOK);
+            if (filePath === '') {
+                filePath = temp_1.default.path({
                     prefix: 'tjbot',
                     suffix: '.jpg',
                 });
             }
-            winston_1.default.verbose(`capturing image at path: ${fp}`);
-            path = fp.lastIndexOf('/') > 0 ? fp.substring(0, fp.lastIndexOf('/')) : '.'; // save to current dir if no directory provided.
-            name = fp.substring(fp.lastIndexOf('/') + 1);
-            name = name.replace('.jpg', ''); // the node raspistill lib already adds encoding .jpg to file.
-            winston_1.default.silly(`image path: ${path}, image filename: ${name}`);
+            winston_1.default.verbose(`capturing image at path: ${filePath}`);
             // set the configuration options, which may have changed since the camera was initialized
-            this._camera.setOptions({
-                outputDir: path,
-                fileName: name,
-                width: this.configuration.see.camera.width,
-                height: this.configuration.see.camera.height,
-                verticalFlip: this.configuration.see.camera.verticalFlip,
-                horizontalFlip: this.configuration.see.camera.horizontalFlip,
-            });
-            winston_1.default.silly(`camera options: ${JSON.stringify(this._camera.getOptions())}`);
+            const cameraConfig = {
+                output: filePath,
+                nopreview: true,
+                hflip: this.config.See.horizontalFlip,
+                vflip: this.config.See.vertifalFlip,
+                width: this.config.See.cameraResolution[0],
+                height: this.config.See.cameraResolution[1],
+            };
+            winston_1.default.debug(`camera options: ${JSON.stringify(cameraConfig)}`);
             try {
-                yield this._camera.takePhoto();
-                return fp;
+                yield this._camera.jpeg({ config: cameraConfig });
+                return filePath;
             }
             catch (err) {
                 winston_1.default.error('error taking picture', err);
@@ -472,8 +469,8 @@ class TJBot {
      * follow an #RRGGBB format.
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      */
-    shine(color) {
-        this._assertCapability(TJBot.CAPABILITIES.SHINE);
+    shine(color, asPulse = false) {
+        this._assertCapability(TJBot.Capability.SHINE);
         // normalize the color
         const c = this._normalizeColor(color);
         // shine! will shine on both LEDs if they are both set up
@@ -482,16 +479,20 @@ class TJBot {
         }
         if (this._neopixelLed) {
             const colors = new Uint32Array(1);
-            if (this.configuration.shine.neopixel.grbFormat) {
+            if (this.config.Shine.neopixel.grbFormat) {
                 // convert to the 0xGGRRBB format for the LED
                 const grb = `0x${c[3]}${c[4]}${c[1]}${c[2]}${c[5]}${c[6]}`;
-                winston_1.default.verbose(`shining my LED to GRB color ${grb}`);
+                if (asPulse === false) {
+                    winston_1.default.verbose(`shining my LED to GRB color ${grb}`);
+                }
                 colors[0] = parseInt(grb, 16);
             }
             else {
                 // convert to the 0xRRGGBB format for the LED
                 const rgb = `0x${c[1]}${c[2]}${c[3]}${c[4]}${c[5]}${c[6]}`;
-                winston_1.default.verbose(`shining my LED to RGB color ${rgb}`);
+                if (asPulze === false) {
+                    winston_1.default.verbose(`shining my LED to RGB color ${rgb}`);
+                }
                 colors[0] = parseInt(rgb, 16);
             }
             this._neopixelLed.render(colors);
@@ -510,7 +511,7 @@ class TJBot {
      */
     pulse(color, duration = 1.0) {
         return __awaiter(this, void 0, void 0, function* () {
-            this._assertCapability(TJBot.CAPABILITIES.SHINE);
+            this._assertCapability(TJBot.Capability.SHINE);
             if (duration < 0.5) {
                 throw new Error('TJBot does not recommend pulsing for less than 0.5 seconds.');
             }
@@ -520,19 +521,13 @@ class TJBot {
             // number of easing steps
             const numSteps = 20;
             // quadratic in-out easing
-            const easeInOutQuad = (t, b, c, d) => {
-                if ((t / d / 2) < 1) {
-                    return (c / 2) * (t / d) * (t / d) + b;
-                }
-                return (-c / 2) * ((t - 1) * (t - 3) - 1) + b;
-            };
             let ease = [];
             for (let i = 0; i < numSteps; i += 1) {
                 ease.push(i);
             }
-            ease = ease.map((x, i) => easeInOutQuad(i, 0, 1, ease.length));
-            // normalize to 'duration' msec
-            ease = ease.map((x) => Math.round(x * duration * 1000));
+            ease = ease.map((x, i) => (0, js_easing_functions_1.easeInOutQuad)(i, 0, 1, ease.length));
+            // normalize to 'duration' sec
+            ease = ease.map((x) => x * duration);
             // convert to deltas
             const easeDelays = [];
             for (let i = 0; i < ease.length - 1; i += 1) {
@@ -548,11 +543,12 @@ class TJBot {
                     .replace('#', '0x');
             }
             // perform the ease
+            winston_1.default.info(`pulsing my LED to RGB color ${rgb}`);
             for (let i = 0; i < easeDelays.length; i += 1) {
                 const c = i < colorRamp.length
                     ? colorRamp[i]
                     : colorRamp[colorRamp.length - 1 - (i - colorRamp.length) - 1];
-                this.shine(c);
+                this.shine(c, true);
                 // eslint-disable-next-line no-await-in-loop
                 TJBot.sleep(easeDelays[i]);
             }
@@ -563,15 +559,16 @@ class TJBot {
      * @return {array} List of all named colors recognized by `shine()` and `pulse()`.
      */
     shineColors() {
-        this._assertCapability(TJBot.CAPABILITIES.SHINE);
-        return colornames_1.default.all().map((elt) => elt.name);
+        if (this._shineColors === undefined) {
+            this._shineColors = colornames_1.default.all().map((elt) => elt.name);
+        }
+        return this._shineColors;
     }
     /**
      * Get a random color.
      * @return {string} Random named color.
      */
     randomColor() {
-        this._assertCapability(TJBot.CAPABILITIES.SHINE);
         const colors = this.shineColors();
         const randIdx = Math.floor(Math.random() * colors.length);
         const randColor = colors[randIdx];
@@ -665,64 +662,22 @@ class TJBot {
      */
     speak(message) {
         return __awaiter(this, void 0, void 0, function* () {
-            this._assertCapability(TJBot.CAPABILITIES.SPEAK);
+            this._assertCapability(TJBot.Capability.SPEAK);
             // make sure we're trying to say something
             if (message === undefined || message === '') {
                 winston_1.default.error('TJBot tried to speak an empty message.');
                 return; // exit if there's nothing to say!
             }
-            // default voice
-            let voice = 'en-US_MichaelV3Voice';
-            // check to see if the user has specified a voice
-            if (this.configuration.speak.voice !== undefined) {
-                winston_1.default.silly(`using voice specified in configuration: ${this.configuration.speak.voice}`);
-                voice = this.configuration.speak.voice;
-            }
-            else if (this.configuration.speak.language === TJBot.LANGUAGES.SPEAK.ENGLISH_US) {
-                // force MichaelV3 if the language is en-US
-                voice = 'en-US_MichaelV3Voice';
-                winston_1.default.silly(`forcing ${voice} since the language is English`);
-            }
-            else {
-                winston_1.default.silly(`finding voice that matches gender ${this.configuration.robot.gender} and language ${this.configuration.speak.language}`);
-                // load voices if they haven't been loaded yet
-                if (!this._ttsVoices) {
-                    winston_1.default.verbose('loading TTS voices…');
-                    const body = yield this._tts.listVoices();
-                    winston_1.default.silly(`response from _tts.listVoices(): ${JSON.stringify(body)}`);
-                    this._ttsVoices = body.result.voices;
-                    winston_1.default.verbose('TTS voices loaded');
-                }
-                // first figure out which voices will work for speak.langauge
-                const { language } = this.configuration.speak;
-                const languageMatches = this._ttsVoices.filter((v) => v.language === language);
-                winston_1.default.silly(`candidate TTS voices from language match: ${JSON.stringify(languageMatches)}`);
-                // now use *at least* a voice in the correct language
-                // note that Watson TTS doesn't always return voices in the same order, so
-                // this won't always pick the same voice every time
-                if (languageMatches.length > 0) {
-                    voice = languageMatches[0].name;
-                    winston_1.default.silly(`provisionally selected TTS voice ${voice} to ensure language match`);
-                }
-                // finally, see if we have a gender match with robot.gender
-                const { gender } = this.configuration.robot;
-                const languageAndGenderMatches = languageMatches.sort((a, b) => a.name < b.name).filter((v) => v.gender === gender);
-                if (languageAndGenderMatches.length > 0) {
-                    voice = languageAndGenderMatches[0].name;
-                    winston_1.default.silly(`final selection of TTS voice ${voice} due to language and gender match`);
-                }
-                winston_1.default.silly(`selected ${voice} as the ${this.configuration.robot.gender} voice for ${this.configuration.speak.language} `);
-            }
-            winston_1.default.verbose(`TJBot speaking with voice ${voice}`);
+            winston_1.default.verbose(`TJBot speaking with voice ${this.config.Speak.voice}`);
             const params = {
                 text: message,
-                voice,
+                voice: this.config.Speak.voice,
                 accept: 'audio/wav',
             };
             const info = temp_1.default.openSync('tjbot');
             const response = yield this._tts.synthesize(params);
             // pipe the audio buffer to a file
-            winston_1.default.silly('writing audio buffer to temp file', info.path);
+            winston_1.default.debug('writing audio buffer to temp file', info.path);
             const fd = fs_1.default.createWriteStream(info.path);
             response.result.pipe(fd);
             // wait for the pipe to finish writing
@@ -757,14 +712,14 @@ class TJBot {
                 gain: 100,
                 debug: true,
                 player: 'aplay',
-                device: this.configuration.speak.speakerDeviceId,
+                device: this.config.Speak.device,
             };
             const player = new this._soundplayer(params);
-            winston_1.default.silly('playing audio with parameters: ', params);
+            winston_1.default.debug('playing audio with parameters: ', params);
             // capture 'this' context
             const self = this;
             player.on('complete', () => {
-                winston_1.default.silly('audio playback finished');
+                winston_1.default.debug('audio playback finished');
                 // resume listening
                 self._resumeListening();
             });
@@ -786,7 +741,7 @@ class TJBot {
      */
     armBack() {
         // make sure we have an arm
-        this._assertCapability(TJBot.CAPABILITIES.WAVE);
+        this._assertCapability(TJBot.Capability.WAVE);
         winston_1.default.info("Moving TJBot's arm back");
         this._motor.servoWrite(TJBot.SERVO.ARM_BACK);
     }
@@ -796,7 +751,7 @@ class TJBot {
      */
     raiseArm() {
         // make sure we have an arm
-        this._assertCapability(TJBot.CAPABILITIES.WAVE);
+        this._assertCapability(TJBot.Capability.WAVE);
         winston_1.default.info("Raising TJBot's arm");
         this._motor.servoWrite(TJBot.SERVO.ARM_UP);
     }
@@ -806,7 +761,7 @@ class TJBot {
      */
     lowerArm() {
         // make sure we have an arm
-        this._assertCapability(TJBot.CAPABILITIES.WAVE);
+        this._assertCapability(TJBot.Capability.WAVE);
         winston_1.default.info("Lowering TJBot's arm");
         this._motor.servoWrite(TJBot.SERVO.ARM_DOWN);
     }
@@ -815,7 +770,7 @@ class TJBot {
      */
     wave() {
         return __awaiter(this, void 0, void 0, function* () {
-            this._assertCapability(TJBot.CAPABILITIES.WAVE);
+            this._assertCapability(TJBot.Capability.WAVE);
             winston_1.default.info("Waving TJBot's arm");
             const delay = 200;
             this._motor.servoWrite(TJBot.SERVO.ARM_UP);
@@ -837,7 +792,7 @@ TJBot.VERSION = 'v3.0.0';
  * @readonly
  * @enum {string}
  */
-TJBot.CAPABILITIES = {
+TJBot.Capability = {
     LISTEN: 'listen',
     LOOK: 'look',
     SHINE: 'shine',
@@ -849,7 +804,7 @@ TJBot.CAPABILITIES = {
  * @readonly
  * @enum {string}
  */
-TJBot.HARDWARE = {
+TJBot.Hardware = {
     CAMERA: 'camera',
     LED_NEOPIXEL: 'led_neopixel',
     LED_COMMON_ANODE: 'led_common_anode',
@@ -862,110 +817,19 @@ TJBot.HARDWARE = {
  * @readonly
  * @enum {string}
  */
-TJBot.SERVICES = {
+TJBot.Services = {
     SPEECH_TO_TEXT: 'speech_to_text',
     TEXT_TO_SPEECH: 'text_to_speech',
-};
-/**
- * TJBot languages for listening and speaking
- * @readonly
- * @enum {string}
- */
-TJBot.LANGUAGES = {
-    // https://cloud.ibm.com/docs/speech-to-text?topic=speech-to-text-models#models
-    LISTEN: {
-        ARABIC: 'ar-AR',
-        CHINESE: 'zh-CN',
-        ENGLISH_UK: 'en-GB',
-        ENGLISH_US: 'en-US',
-        FRENCH: 'fr-FR',
-        GERMAN: 'de-DE',
-        ITALIAN: 'it-IT',
-        JAPANESE: 'ja-JP',
-        KOREAN: 'ko-KR',
-        PORTUGUESE: 'pt-BR',
-        SPANISH: 'es-ES',
-    },
-    // https://cloud.ibm.com/docs/text-to-speech?topic=text-to-speech-voices
-    SPEAK: {
-        ARABIC: 'ar-AR',
-        CHINESE: 'zh-CN',
-        DUTCH: 'nl-NL',
-        ENGLISH_GB: 'en-GB',
-        ENGLISH_US: 'en-US',
-        FRENCH: 'fr-FR',
-        GERMAN: 'de-DE',
-        ITALIAN: 'it-IT',
-        JAPANESE: 'ja-JP',
-        KOREAN: 'ko-KR',
-        PORTUGUESE: 'pt-BR',
-        SPANISH: 'es-ES',
-    }
-};
-/**
- * TJBot genders, used to pick a voice when speaking
- * @readonly
- * @enum {string}
- */
-TJBot.GENDERS = {
-    MALE: 'male',
-    FEMALE: 'female',
 };
 /**
  * TJBot servo motor stop positions
  * @readonly
  * @enum {int}
  */
-TJBot.SERVO = {
+TJBot.Servo = {
     ARM_BACK: 500,
     ARM_UP: 1400,
     ARM_DOWN: 2300,
-};
-/**
- * TJBot default configuration
- * @readonly
- */
-TJBot.DEFAULT_CONFIG = {
-    log: {
-        level: 'info', // valid levels are 'error', 'warn', 'info', 'verbose', 'debug', 'silly'
-    },
-    robot: {
-        gender: TJBot.GENDERS.MALE, // see TJBot.GENDERS
-    },
-    listen: {
-        microphoneDeviceId: 'plughw:1,0',
-        inactivityTimeout: -1,
-        backgroundAudioSuppression: 0.4,
-        language: TJBot.LANGUAGES.LISTEN.ENGLISH_US, // see TJBot.LANGUAGES.LISTEN
-    },
-    wave: {
-        servoPin: 7, // default pin is GPIO 7 (physical pin 26)
-    },
-    speak: {
-        language: TJBot.LANGUAGES.SPEAK.ENGLISH_US,
-        voice: undefined,
-        speakerDeviceId: 'plughw:0,0', // plugged-in USB card 1, device 0; 'see aplay -l' for a list of playback devices
-    },
-    look: {
-        camera: {
-            height: 720,
-            width: 960,
-            verticalFlip: false,
-            horizontalFlip: false, // flips the image horizontally, should not need to be overridden
-        },
-    },
-    shine: {
-        // see https://pinout.xyz for a pin diagram
-        neopixel: {
-            gpioPin: 18,
-            grbFormat: false, // if false, the RGB color format will be used for the LED; if true, the GRB format will be used
-        },
-        commonAnode: {
-            redPin: 19,
-            greenPin: 13,
-            bluePin: 12, // default blue pin is GPIO 12 (physical pin 32)
-        },
-    },
 };
 /** ------------------------------------------------------------------------ */
 /** MODULE EXPORTS                                                           */
