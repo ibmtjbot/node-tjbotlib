@@ -83,7 +83,7 @@ language = 'en-US_Multimedia'
 
 [See]
 # camera resolution is width x height
-cameraResolution = [1280, 720]
+cameraResolution = [1920, 1080]
 
 # if true, flips the camera image vertically
 verticalFlip = false
