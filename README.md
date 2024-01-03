@@ -1,6 +1,6 @@
 # TJBot Library
 
-> Node.js library that encapsulates TJBot's capabilities: seeing, listening, speaking, shining, and waving.
+> Node.js library that encapsulates TJBot's capabilities: listening, looking, shining, speaking, and waving.
 
 This library can be used to create your own recipes for [TJBot](http://ibm.biz/mytjbot).
 
@@ -12,13 +12,13 @@ To use these services, you will need to sign up for a free [IBM Cloud](https://w
 
 1. Install the library using `npm`.
 
-```
+```sh
 $ npm install --save tjbot
 ```
 
 > 💡 Note: The TJBot library was developed for use on Raspberry Pi. It may be possible to develop and test portions of this library on other Linux-based systems (e.g. Ubuntu), but this usage is not officially supported.
 
-2. Import the TJBot library.
+2. Create a new Node.js script and import the TJBot library.
 
 TJBot is packaged as both an ES6 and a CommonJS module (explained in [this guide](https://www.sensedeep.com/blog/posts/2021/how-to-create-single-source-npm-module.html)), which means you may import it using either the ES6 `import` statement or the CommonJS `require` method.
 
@@ -38,22 +38,80 @@ const TJBot = require('tjbot').default;
 
 3. Instantiate the `TJBot` object.
 
-```
+```js
 const tj = new TJBot();
-tj.initialize([TJBot.HARDWARE.LED_NEOPIXEL, TJBot.HARDWARE.SERVO, TJBot.HARDWARE.MICROPHONE, TJBot.HARDWARE.SPEAKER]);
+tj.initialize([
+    TJBot.Hardware.LED_NEOPIXEL, 
+    TJBot.Hardware.SERVO, 
+    TJBot.Hardware.MICROPHONE, 
+    TJBot.Hardware.SPEAKER]);
 ```
 
-This code will configure your TJBot with an LED (Neopixel), servo, microphone, and speaker. The default configuration of TJBot uses English as the main language with a male voice. Here is an example of a TJBot that speaks with a female voice in Japanese:
+This code will configure your TJBot with a NeoPixel LED (Common Anode LEDs are also supported), a servo, a microphone, and a speaker. The default configuration of TJBot uses English as the main language with a male voice.
 
+The entire list of hardware devices supported by TJBot is defined in `TJBot.Hardware`:
+
+```js
+static Hardware = {
+    CAMERA: 'camera',
+    LED_NEOPIXEL: 'led_neopixel',
+    LED_COMMON_ANODE: 'led_common_anode',
+    MICROPHONE: 'microphone',
+    SERVO: 'servo',
+    SPEAKER: 'speaker',
+};
 ```
-const tj = new TJBot({ 
-    robot: { 
-        gender: TJBot.GENDERS.FEMALE 
-    }, 
-    speak: { 
-        language: TJBot.LANGUAGES.SPEAK.JAPANESE 
-    }
-});
+
+### TJBot Configuration
+
+TJBot's configuration is specified in a [TOML](https://toml.io/en/) file. By default, TJBot loads user-specific configuration from `tjbot.toml` in the same directory as your recipe, but this path may be specified in the TJBot constructor using the `configFile` argument.
+
+The default TJBot configuration is shown below. Values specified in your own `tjbot.toml` file are used to override these defaults.
+
+```toml
+[Log]
+# valid levels are 'error', 'warning', 'info', 'verbose', 'debug'
+level = 'info' 
+
+[Listen]
+microphoneDeviceId = -1
+inactivityTimeout = -1
+backgroundAudioSuppression = 0.4
+
+# see https://cloud.ibm.com/docs/speech-to-text?topic=speech-to-text-models-ng for available languages
+language = 'en-US_Multimedia'
+
+[See]
+# camera resolution is width x height
+cameraResolution = [1920, 1080]
+
+# if true, flips the camera image vertically
+verticalFlip = false
+
+# if true, flips the camera image horizontally
+horizontalFlip = false
+
+[Shine.NeoPixel]
+# see https://pinout.xyz for a complete listing of RPi pins
+gpioPin = 21 # GPIO21 / Physical pin 40
+
+# if true, uses the GRB (instead of RGB) color format
+grbFormat = false
+
+[Shine.CommonAnode]
+redPin = 19   # GPIO19 / Physical pin 35
+greenPin = 13 # GPIO13 / Physical pin 33
+bluePin = 12  # GPIO12 / Physical pin 32
+
+[Speak]
+# see https://cloud.ibm.com/docs/text-to-speech?topic=text-to-speech-voices for available voices
+voice = 'en-US_MichaelV3Voice'
+
+# use 'aplay -l' to see a list of playback devices
+speakerDeviceId = 'plughw:0,0' # plugged-in USB card 0, device 0
+
+[Wave]
+servoPin = 7 # GPIO7 / Physical Pin 26
 ```
 
 ### IBM Watson Credentials
@@ -66,96 +124,76 @@ The file `ibm-credentials.sample.env` shows a sample of how credentials are stor
 
 > 💡 Note: You may also specify the path to the credentials file in the TJBot constructor using the `credentialsFile` argument. For example, `const tj = new TJBot(credentialsFile="/home/pi/my-credentials.env")`.
 
-## Hardware Configuration
-
-The entire list of hardware devices supported by TJBot is defined in `TJBot.HARDWARE` and includes `CAMERA`, `LED_NEOPIXEL`, `LED_COMMON_ANODE`, `MICROPHONE`, `SERVO`, and `SPEAKER`. Each of these hardware devices may be configured by passing in configuration options to the `TJBot` constructor as follows.
-
-```
-var configuration = {
-    log: {
-        level: 'info', // valid levels are 'error', 'warn', 'info', 'verbose', 'debug', 'silly'
-    },
-    robot: {
-        gender: TJBot.GENDERS.MALE, // see TJBot.GENDERS
-    },
-    converse: {
-        assistantId: undefined, // placeholder for Watson Assistant's assistantId
-    },
-    listen: {
-        microphoneDeviceId: 'plughw:1,0', // plugged-in USB card 1, device 0; see 'arecord -l' for a list of recording devices
-        inactivityTimeout: -1, // -1 to never timeout or break the connection. Set this to a value in seconds e.g 120 to end connection after 120 seconds of silence
-        backgroundAudioSuppression: 0.4, // should be in the range [0.0, 1.0] indicating how much audio suppression to perform
-        language: TJBot.LANGUAGES.LISTEN.ENGLISH_US, // see TJBot.LANGUAGES.LISTEN
-    },
-    wave: {
-        servoPin: 7, // default pin is GPIO 7 (physical pin 26)
-    },
-    speak: {
-        language: TJBot.LANGUAGES.SPEAK.ENGLISH_US, // see TJBot.LANGUAGES.SPEAK
-        voice: undefined, // use a specific voice; if undefined, a voice is chosen based on robot.gender and speak.language
-        speakerDeviceId: 'plughw:0,0', // plugged-in USB card 1, device 0; 'see aplay -l' for a list of playback devices
-    },
-    see: {
-        confidenceThreshold: 0.6,
-        camera: {
-            height: 720,
-            width: 960,
-            verticalFlip: false, // flips the image vertically, may need to set to 'true' if the camera is installed upside-down
-            horizontalFlip: false, // flips the image horizontally, should not need to be overridden
-        },
-        language: TJBot.LANGUAGES.SEE.ENGLISH_US,
-    },
-    shine: {
-        // see https://pinout.xyz for a pin diagram
-        neopixel: {
-            gpioPin: 18, // default pin is GPIO 18 (physical pin 12)
-            grbFormat: false // if false, the RGB color format will be used for the LED; if true, the GRB format will be used
-        },
-        commonAnode: {
-            redPin: 19, // default red pin is GPIO 19 (physical pin 35)
-            greenPin: 13, // default green pin is GPIO 13 (physical pin 33)
-            bluePin: 12 // default blue pin is GPIO 12 (physical pin 32)
-        }
-    }
-};
-const tj = new TJBot(configuration);
-```
-
 ## Capabilities
 
 TJBot has a number of capabilities that you can use to bring it to life. Capabilities are combinations of hardware and Watson services that enable TJBot's functionality. For example, "listening" is a combination of having a `speaker` and the `speech_to_text` service. Internally, the `_assertCapability()` method checks to make sure your TJBot is configured with the right hardware and services before it performs an action that depends on having a capability. Thus, the method used to make TJBot listen, `tj.listen()`, first checks that your TJBot has been configured with a `speaker` and the `speech_to_text` service.
 
 TJBot's capabilities are:
 
-- **Analyzing Tone** with the [Watson Tone Analyzer](https://www.ibm.com/cloud/watson-tone-analyzer) service
-- **Conversing** with the [Watson Assistant](https://www.ibm.com/cloud/watson-assistant/) service
-- **Listening** with the [Watson Speech to Text](https://www.ibm.com/cloud/watson-speech-to-text) service
-- **Seeing** with the [Watson Visual Recognition](https://www.ibm.com/cloud/watson-visual-recognition) service
+- **Listening** with a microphone and the [Watson Speech to Text](https://www.ibm.com/cloud/watson-speech-to-text) service
+- **Looking** with its (optional) camera
 - **Shining** its LED
-- **Speaking** with the [Watson Text to Speech](https://www.ibm.com/cloud/watson-text-to-speech) service
-- **Translating** between languages with the [Watson Language Translator](https://www.ibm.com/cloud/watson-language-translator) service
-- **Waving**  its arm
-
-The full list of capabilities can be accessed programatically via `TJBot.CAPABILITIES`, the full list of hardware components can be accessed programatically via `TJBot.HARDWARE`, and the full list of Watson services can be accessed programatically via `TJBot.SERVICES`.
+- **Speaking** with a speaker and the [Watson Text to Speech](https://www.ibm.com/cloud/watson-text-to-speech) service
+- **Waving**  its arm with a servo
 
 ## TJBot API
 
-Please see [the API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.2/) for documentation of the TJBot API.
+Please see [the API docs](https://ibmtjbot.github.io/docs/node-tjbotlib/3.0.0/) for documentation of the TJBot API.
 
 > 💡 Please see the [Migration Guide](MIGRATING.md) for guidance on migrating your code to the latest version of the TJBot API.
 
 ## Tests
 
-TJBotLib uses the [Jest](https://jestjs.io) framework for basic testing of the library. These tests may be run from the `tjbotlib` directory using `npm`:
+`node-tjbotlib` uses the [Jest](https://jestjs.io) framework for basic testing of the library. These tests may be run from the `node-tjbotlib` directory using `npm`:
 
-    npm test
+```sh
+$ npm test
+```
 
-The tests run by this command only covers basic functionality of the library. A separate set of tests (see below) covers hardware-specific behaviors. These tests also do not cover functionality provided by Watson services.
-
-A suite of hardware tests exists in the main [TJBot repository](https://github.com/ibmtjbot/tjbot) in the `tests` directory.
+The tests run by this command only cover basic functionality. A separate suite of hardware tests exists in the [TJBot repository](https://github.com/ibmtjbot/tjbot) in the `tests` directory.
 
 # Contributing
+
 We encourage you to make enhancements to this library and contribute them back to us via a pull request.
 
+## Setting up a development environment
+
+The easiest way to hack on `node-tjbotlib` is to check out the source and use `npm` to link your project to the locally-checked out version.
+
+1. Clone the `node-tjbotlib` repository.
+
+```sh
+$ cd Desktop
+$ git clone git@github.com:ibmtjbot/node-tjbotlib.git
+```
+
+2. Create a new directory for writing test code (e.g. a new recipe). This directory shoudl be outside of the `node-tjbotlib` directory.
+
+```sh
+$ cd Desktop
+$ mkdir tjbot-recipe && cd tjbot-recipe
+$ npm init
+...
+$ cat > index.js
+import TJBot from 'tjbot';
+const tj = new TJBot();
+<ctrl-d>
+```
+
+> 🤔 Since we use `import` in the example above, remember to add `"type": "module"` to your `package.json` file for `node` to be able to run the script!
+
+3. Install the local checkout of `node-tjbotlib` using `npm`:
+
+```sh
+$ npm install ~/Desktop/node-tjbotlib/
+```
+
+4. Run your script.
+
+```sh
+$ node index.js
+```
+
 # License
+
 This project uses the [Apache License Version 2.0](LICENSE) software license.
