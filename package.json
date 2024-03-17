@@ -19,7 +19,7 @@
     "color-model": "^0.2.2",
     "colornames": "^1.1.1",
     "fifo": "^2.3.0",
-    "ibm-watson": "^5.7.0",
+    "ibm-watson": "^9.0.1",
     "mic": "^2.1.2",
     "node-raspistill": "^1.0.1",
     "pigpio": "^3.2.3",
