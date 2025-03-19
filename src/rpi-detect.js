@@ -38,6 +38,16 @@ class RPiDetect {
         return model;
     }
 
+    static isPi3() {
+        const model = RPiDetect.model();
+        return model.startsWith("Raspberry Pi 3");
+    }
+
+    static isPi4() {
+        const model = RPiDetect.model();
+        return model.startsWith("Raspberry Pi 4");
+    }
+
     static isPi5() {
         const model = RPiDetect.model();
         return model.startsWith("Raspberry Pi 5");
