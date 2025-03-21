@@ -14,6 +14,48 @@
  * limitations under the License.
  */
 
+/**
+ * TJBot capabilities
+ * @readonly
+ * @enum {string}
+ */
+export enum Capability {
+    LISTEN = 'listen',
+    LOOK = 'look',
+    SHINE = 'shine',
+    SPEAK = 'speak',
+    WAVE = 'wave',
+}
+
+/**
+ * TJBot hardware
+ * @readonly
+ * @enum {string}
+ */
+export enum Hardware {
+    CAMERA = 'camera',
+    LED_COMMON_ANODE = 'common_anode_led',
+    LED_NEOPIXEL = 'neopixel_led',
+    MICROPHONE = 'microphone',
+    SERVO = 'servo',
+    SPEAKER = 'speaker',
+}
+
+/**
+ * IBM Watson AI services
+ * @readonly
+ * @enum {string}
+ */
+export enum WatsonService {
+    SPEECH_TO_TEXT = 'speech_to_text',
+    TEXT_TO_SPEECH = 'text_to_speech',
+}
+
+/**
+ * TJBot servo motor stop positions
+ * @readonly
+ * @enum {int}
+ */
 export enum ServoPosition {
     ARM_BACK = 500,
     ARM_UP = 1400,

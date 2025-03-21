@@ -5,15 +5,16 @@ import tseslint from "typescript-eslint";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
-  {files: ["**/*.{js,mjs,cjs,ts}"]},
-  {languageOptions: { globals: globals.browser }},
-  pluginJs.configs.recommended,
-  ...tseslint.configs.recommended,
-  {rules:
+    { files: ["**/*.{js,mjs,cjs,ts}"] },
+    { languageOptions: { globals: globals.browser } },
+    pluginJs.configs.recommended,
+    ...tseslint.configs.recommended,
     {
-      "indent": ["error", 4],
-      "max-len": "off",
-      "no-underscore-dangle": "off"
+        rules:
+    {
+        "indent": ["error", 4, { "SwitchCase": 1 }],
+        "max-len": "off",
+        "no-underscore-dangle": "off",
     }
-  }
+    }
 ];

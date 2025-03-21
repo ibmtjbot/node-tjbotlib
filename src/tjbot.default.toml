@@ -1,6 +1,6 @@
 [Log]
 # valid levels are 'error', 'warning', 'info', 'verbose', 'debug'
-level = 'info' 
+level = 'info'
 
 [Listen]
 # 'device' specifies the audio device `arecord` will use for audio recording
@@ -9,10 +9,10 @@ level = 'info'
 #   https://github.com/ibmtjbot/tjbot/wiki/Troubleshooting-TJBot#audio-issues
 # also, you can use `aplay -l` to list available audio output devices
 device = ''
-inactivityTimeout = -1
-backgroundAudioSuppression = 0.4
 microphoneRate = 44100
 microphoneChannels = 2
+inactivityTimeout = -1
+backgroundAudioSuppression = 0.4
 
 # see https://cloud.ibm.com/docs/speech-to-text?topic=speech-to-text-models-ng for available STT models
 model = 'en-US_Multimedia'
@@ -36,15 +36,15 @@ spiInterface = "/dev/spidev0.0"
 
 # On all other Raspberry Pi models, NeoPixels must be connected to one of these
 # GPIO pins to work: GPIO10, GPIO12, GPIO18, GPIO21.
-# 
+#
 # GPIO18 is the standard pin, but sound must be disabled to use GPIO18.
-# 
+#
 # To disable sound, edit /boot/config.txt and change:
 #   dtparam=audio=on
 # to:
 #   dtparam=audio=off
 # and then reboot.
-# 
+#
 # See https://pinout.xyz for a complete listing of RPi pins.
 # See https://learn.adafruit.com/neopixels-on-raspberry-pi/raspberry-pi-wiring
 # for more information about using NeoPixels with RPi.

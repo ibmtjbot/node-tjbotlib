@@ -80,8 +80,6 @@ level = 'info'
 #   https://github.com/ibmtjbot/tjbot/wiki/Troubleshooting-TJBot#audio-issues
 # also, you can use `aplay -l` to list available audio output devices
 device = ''
-inactivityTimeout = -1
-backgroundAudioSuppression = 0.4
 microphoneRate = 44100
 microphoneChannels = 2
 

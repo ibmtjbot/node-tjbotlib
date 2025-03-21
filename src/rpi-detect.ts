@@ -17,12 +17,12 @@
 import fs from 'fs';
 
 class RPiDetect {
-    static model() {
-        var cpuInfo = "";
+    static model(): string {
+        let cpuInfo = "";
 
         try {
             cpuInfo = fs.readFileSync('/proc/cpuinfo', { encoding: 'utf8' });
-        } catch (e) {
+        } catch {
             // likely not a Pi if we can't open /proc/cpuinfo
             return "";
         }
@@ -38,17 +38,17 @@ class RPiDetect {
         return model;
     }
 
-    static isPi3() {
+    static isPi3(): boolean {
         const model = RPiDetect.model();
         return model.startsWith("Raspberry Pi 3");
     }
 
-    static isPi4() {
+    static isPi4(): boolean {
         const model = RPiDetect.model();
         return model.startsWith("Raspberry Pi 4");
     }
 
-    static isPi5() {
+    static isPi5(): boolean {
         const model = RPiDetect.model();
         return model.startsWith("Raspberry Pi 5");
     }
