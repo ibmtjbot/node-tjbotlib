@@ -456,7 +456,7 @@ class TJBot {
      * Change the color of the LED.
      * @param {string} color The color to shine the LED. May be specified in a number of
      * formats, including: hexadecimal, (e.g. "0xF12AC4", "11FF22", "#AABB24"), "on", "off",
-     * "random", or may be a named color in the `colornames` package. Hexadecimal colors
+     * or may be a named color in the `colornames` package. Hexadecimal colors
      * follow an #RRGGBB format.
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      */
@@ -479,7 +479,7 @@ class TJBot {
      * Pulse the LED a single time.
      * @param {string} color The color to shine the LED. May be specified in a number of
      * formats, including: hexadecimal, (e.g. "0xF12AC4", "11FF22", "#AABB24"), "on", "off",
-     * "random", or may be a named color in the `colornames` package. Hexadecimal colors
+     * or may be a named color in the `colornames` package. Hexadecimal colors
      * follow an #RRGGBB format.
      * @param {float=} duration The duration the pulse should last. The duration should be in
      * the range [0.5, 2.0] seconds.

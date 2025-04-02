@@ -15,6 +15,7 @@
  */
 
 import colorToHex from 'colornames';
+import winston from 'winston';
 
 /**
  * Put TJBot to sleep.
@@ -31,18 +32,28 @@ export function sleep(sec: number) {
 * @return {array} RGB color (e.g. (255, 128, 128))
 * @private
 */
-export function convertHexToRgbColor(hexColor): [number, number, number] {
-    return hexColor.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i,
-        (_m, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
-        .substring(1).match(/.{2}/g)
-        .map((x: string) => parseInt(x, 16));
+export function convertHexToRgbColor(hexColor: string): [number, number, number] {
+    const rgbHex: RegExpMatchArray | null = hexColor
+        .replace(
+            /^#?([a-f\d])([a-f\d])([a-f\d])$/i,
+            (_m: string, r: string, g: string, b: string) => `#${r}${r}${g}${g}${b}${b}`)
+        .substring(1)
+        .match(/.{2}/g);
+
+    if (rgbHex !== null) {
+        const rgb: number[] = rgbHex.map((x: string) => parseInt(x, 16));
+        return [rgb[0], rgb[1], rgb[2]];
+    } else {
+        winston.warn(`an error occurred converting hex color ${hexColor} to RGB, returning [0, 0, 0]`);
+        return [0, 0, 0];
+    }
 }
 
 /**
  * Normalize the given color to #RRGGBB.
  * @param {string} color The color to shine the LED. May be specified in a number of
  * formats, including: hexadecimal, (e.g. "0xF12AC4", "11FF22", "#AABB24"), "on", "off",
- * "random", or may be a named color in the `colornames` package. Hexadecimal colors
+ * or may be a named color in the `colornames` package. Hexadecimal colors
  * follow an #RRGGBB format.
  * @return {string} Hex string corresponding to the given color (e.g. "#RRGGBB")
  * @private
@@ -60,8 +71,6 @@ export function normalizeColor(color: string): string {
         normColor = 'FFFFFF';
     } else if (normColor === 'off') {
         normColor = '000000';
-    } else if (normColor === 'random') {
-        normColor = this.randomColor();
     }
 
     // strip prefixes if they are present

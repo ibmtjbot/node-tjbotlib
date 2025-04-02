@@ -26,8 +26,8 @@ import SoundPlayer from 'sound-player';
 import { once } from 'events';
 
 import { Capability, Hardware, ServoPosition } from "./constants";
-import { mic } from './mic';
-import { soundplayer } from './soundplayer';
+import { mic } from './@custom-types/mic';
+import { soundplayer } from './@custom-types/sound-player';
 import { convertHexToRgbColor } from './utils';
 
 export abstract class RPiHardwareDriver {
@@ -68,7 +68,7 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
     initializedHardware: Set<Hardware>;
 
     // camera
-    camera: PiCameraOutput;
+    camera?: PiCameraOutput;
     cameraResolution: [number, number];
     cameraVerticalFlip: boolean;
     cameraHorizontalFlip: boolean;
