@@ -38,8 +38,10 @@
   "devDependencies": {
     "@babel/preset-env": "^7.26.9",
     "@eslint/js": "^9.22.0",
+    "@types/colornames": "^1.1.4",
     "@types/pi-spi": "^0.0.31",
     "@types/rpi-ws281x-native": "^1.0.3",
+    "@types/temp": "^0.9.4",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^29.7.0",
     "braintree-jsdoc-template": "^3.3.0",

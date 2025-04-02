@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import IsSilence from 'mic/lib/silenceTransform';
+declare module 'sound-player';
 
-declare namespace mic {
-    export interface Mic {
-        start(): void;
+export declare namespace soundplayer {
+    interface SoundPlayer {
+        setOptions(options: string | object): void;
+        play(options: string | object): void;
         stop(): void;
         pause(): void;
         resume(): void;
-        getAudioStream(): IsSilence;
     }
 }

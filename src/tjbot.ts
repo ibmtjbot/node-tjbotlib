@@ -15,6 +15,8 @@
  */
 
 // internal classes
+import { Capability, Hardware, ServoPosition, WatsonService } from './constants.js';
+import { normalizeColor, sleep } from './utils.js';
 import RPiDetect from './rpi-detect';
 import { RPiHardwareDriver } from './rpi-driver';
 import RPi3Driver from './rpi3-driver';
@@ -35,9 +37,7 @@ import { resolve } from 'import-meta-resolve';
 // watson modules
 import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
-import { Capability, Hardware, ServoPosition, WatsonService } from './constants.js';
 import RecognizeStream from 'ibm-watson/lib/recognize-stream.js';
-import { normalizeColor, sleep } from './utils.js';
 
 /**
 * Class representing a TJBot

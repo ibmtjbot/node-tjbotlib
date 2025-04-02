@@ -26,8 +26,8 @@ import SoundPlayer from 'sound-player';
 import { once } from 'events';
 
 import { Capability, Hardware, ServoPosition } from "./constants";
-import { mic } from './@custom-types/mic';
-import { soundplayer } from './@custom-types/sound-player';
+import { mic } from './@types/mic';
+import { soundplayer } from './@types/sound-player';
 import { convertHexToRgbColor } from './utils';
 
 export abstract class RPiHardwareDriver {
