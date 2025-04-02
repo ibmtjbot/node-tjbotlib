@@ -124,7 +124,7 @@ class RPi5Driver extends RPiBaseHardwareDriver {
         this.initializedHardware.add(Hardware.SERVO);
     }
 
-    renderCommonAnodeLED(rgbColor: [number, number, number]): void {
+    renderLEDCommonAnode(rgbColor: [number, number, number]): void {
         if (this.commonAnodeLed) {
             this.commonAnodeLed.redPin.pwmWrite(rgbColor[0] == null ? 255 : 255 - rgbColor[0]);
             this.commonAnodeLed.greenPin.pwmWrite(rgbColor[1] == null ? 255 : 255 - rgbColor[1]);
@@ -134,7 +134,7 @@ class RPi5Driver extends RPiBaseHardwareDriver {
         }
     }
 
-    renderNeopixelLed(hexColor: string): void {
+    renderLEDNeopixel(hexColor: string): void {
         if (this.neopixelLed) {
             this.neopixelLed.render(hexColor);
         } else {
