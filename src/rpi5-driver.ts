@@ -21,6 +21,7 @@ import SPI from 'pi-spi';
 
 import { Hardware, ServoPosition } from './constants';
 import { RPiBaseHardwareDriver } from './rpi-driver';
+import { sleep } from './utils';
 
 class GPIOLED {
     redPin: Gpio;
@@ -40,26 +41,29 @@ class SPILED {
 
     spi: SPI.SPI;
 
+    static readonly HIGH: number = 0xF8;    // possibles: F0, F8, FC
+    static readonly LOW: number = 0xC0;     // possibles: C0
+    static readonly FREQ: number = 6400000; // possibles: 3200000, 6400000; pi5neo uses: spi_speed_khz (800) * 1024 * 8  = 6553600
+
     constructor(spiInterface: string) {
         const i = spiInterface || "/dev/spidev0.0";
         this.spi = SPI.initialize(i);
+        this.spi.clockSpeed(SPILED.FREQ);
     }
 
     static bitMask(byte: number, index: number): boolean {
-        return (byte & (1 << index)) != 0;
+        return (byte & (1 << (7 - index))) != 0;
     }
 
-    static byteToBitstream(byte): number[] {
+    static byteToBitstream(byte) {
         // Initialize with low bits
-        const bitstream: number[] = [0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0, 0xC0];
-
+        const bitstream = Array(8).fill(SPILED.LOW);
         for (let i = 0; i < 8; i++) {
             if (SPILED.bitMask(byte, i)) {
                 // Set high bits for '1'
-                bitstream[i] = 0xF8;
+                bitstream[i] = SPILED.HIGH;
             }
         }
-
         return bitstream;
     }
 
@@ -67,7 +71,7 @@ class SPILED {
         const red_bits = SPILED.byteToBitstream(red);
         const green_bits = SPILED.byteToBitstream(green);
         const blue_bits = SPILED.byteToBitstream(blue);
-        const bitstream = Buffer.from(red_bits.concat(green_bits).concat(blue_bits));
+        const bitstream = Buffer.from(green_bits.concat(red_bits).concat(blue_bits));
         return bitstream;
     }
 
@@ -89,6 +93,9 @@ class SPILED {
                 throw e;
             }
         });
+
+        // sleep for 9 microseconds
+        sleep(9/1000);
     }
 }
 
