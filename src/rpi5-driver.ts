@@ -55,9 +55,9 @@ class SPILED {
         return (byte & (1 << (7 - index))) != 0;
     }
 
-    static byteToBitstream(byte) {
+    static byteToBitstream(byte): number[] {
         // Initialize with low bits
-        const bitstream = Array(8).fill(SPILED.LOW);
+        const bitstream: number[] = Array(8).fill(SPILED.LOW);
         for (let i = 0; i < 8; i++) {
             if (SPILED.bitMask(byte, i)) {
                 // Set high bits for '1'
