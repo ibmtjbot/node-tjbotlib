@@ -15,7 +15,7 @@
  */
 
 import winston from 'winston';
-import TOML from '@iarna/toml';
+import { JsonArray, JsonMap } from '@iarna/toml';
 import temp from 'temp';
 import { Transform } from 'stream';
 import libcamera from 'libcamera';
@@ -26,20 +26,19 @@ import SoundPlayer from 'sound-player';
 import { once } from 'events';
 
 import { Capability, Hardware, ServoPosition } from "./constants";
-import { mic } from './@types/mic';
-import { soundplayer } from './@types/sound-player';
+
 import { convertHexToRgbColor } from './utils';
 
 export abstract class RPiHardwareDriver {
     abstract hasHardware(hardware: Hardware): boolean;
     abstract hasCapability(capability: Capability): boolean;
 
-    abstract setupCamera(config: TOML.AnyJson): void;
-    abstract setupLEDCommonAnode(config: TOML.AnyJson): void;
-    abstract setupLEDNeopixel(config: TOML.AnyJson): void;
-    abstract setupMicrophone(config: TOML.AnyJson): void;
-    abstract setupServo(config: TOML.AnyJson): void;
-    abstract setupSpeaker(config: TOML.AnyJson): void;
+    abstract setupCamera(config: JsonMap): void;
+    abstract setupLEDCommonAnode(config: JsonMap): void;
+    abstract setupLEDNeopixel(config: JsonMap): void;
+    abstract setupMicrophone(config: JsonMap): void;
+    abstract setupServo(config: JsonMap): void;
+    abstract setupSpeaker(config: JsonMap): void;
 
     // LISTEN
     abstract connectMicStreamToSTTStream(sttStream: RecognizeStream): RecognizeStream;
@@ -74,17 +73,23 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
     cameraHorizontalFlip: boolean;
 
     // microphone
-    mic: mic.Mic;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mic: any;
     micInputStream: Transform;
 
     // speaker
-    soundplayer: soundplayer.SoundPlayer;
     speakerDevice: string;
 
     constructor() {
         super();
         this.initializedHardware = new Set();
-        this.soundplayer = SoundPlayer;
+        this.cameraResolution = [1920, 1080];
+        this.cameraVerticalFlip = false;
+        this.cameraHorizontalFlip = false;
+        const params = {};
+        this.mic = Mic(params);
+        this.micInputStream = ((this.mic.getAudioStream() as unknown) as Transform);
+        this.speakerDevice = '';
     }
 
     hasHardware(hardware: Hardware): boolean {
@@ -108,25 +113,28 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
         }
     }
 
-    setupCamera(config: TOML.AnyJson): void {
+    setupCamera(config: JsonMap): void {
         this.camera = libcamera;
-        this.cameraResolution = config['cameraResolution'];
-        this.cameraVerticalFlip = config['verticalFlip'];
-        this.cameraHorizontalFlip = config['horizontalFlip'];
+        const width = (config['cameraResolution'] as JsonArray)[0] as number;
+        const height = (config['cameraResolution'] as JsonArray)[1] as number;
+        this.cameraResolution = [width, height];
+        this.cameraVerticalFlip = config['verticalFlip'] as boolean;
+        this.cameraHorizontalFlip = config['horizontalFlip'] as boolean;
         this.initializedHardware.add(Hardware.CAMERA);
     }
 
-    setupMicrophone(config: TOML.AnyJson) {
+    setupMicrophone(config: JsonMap) {
         winston.verbose(`🎤 initializing ${Hardware.MICROPHONE}`);
 
         const params = {
-            rate: config['microphoneRate'],
-            channels: config['microphoneChannels'],
+            device: '',
+            rate: config['microphoneRate'] as number,
+            channels: config['microphoneChannels'] as number,
             debug: false,
             exitOnSilence: 6,
         };
 
-        const device = config['device'] ?? '';
+        const device = (config['device'] as string) ?? '';
         if (device != '') {
             winston.verbose('🎤 listening through user-defined audio device: ' + device);
             params['device'] = device;
@@ -172,10 +180,9 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
         this.initializedHardware.add(Hardware.MICROPHONE);
     }
 
-    setupSpeaker(config: TOML.AnyJson): void {
-        this.speakerDevice = config['device'] ?? '';
+    setupSpeaker(config: JsonMap): void {
+        this.speakerDevice = (config['device'] as string) ?? '';
         winston.verbose(`🔈 initializing ${Hardware.SPEAKER} on device ${this.speakerDevice}`);
-        this.soundplayer = SoundPlayer;
 
         this.initializedHardware.add(Hardware.SPEAKER);
     }
@@ -231,9 +238,13 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
         winston.verbose(`📷 capturing image at path: ${atPath}`);
         winston.debug(`📷 camera options: ${JSON.stringify(cameraConfig)}`);
 
-        await this.camera.jpeg({
-            config: cameraConfig
-        });
+        if (this.camera) {
+            await this.camera.jpeg({
+                config: cameraConfig
+            });
+        } else {
+            winston.error('📷 camera is not initialized');
+        }
 
         return new Promise((resolve) => {
             resolve(atPath);
@@ -256,13 +267,9 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
         // isn't configured to listen)
         this.pauseMic();
 
-        // if we don't have a speaker, throw an error
-        if (this.soundplayer === undefined) {
-            throw new Error(`unable to play audio, ${Hardware.SPEAKER} not initialized`);
-        }
-
         // initialize soundplayer lib
         const params = {
+            device: '',
             filename: audioPath,
             gain: 100,
             debug: true,
@@ -276,7 +283,7 @@ export abstract class RPiBaseHardwareDriver extends RPiHardwareDriver {
             winston.verbose('🔈 playing through default audio device');
         }
 
-        const player = new this.soundplayer(params);
+        const player: SoundPlayer = new SoundPlayer(params);
 
         winston.debug('🔈 playing audio with parameters: ', params);
 

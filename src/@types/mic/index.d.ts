@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-import IsSilence from 'mic/lib/silenceTransform';
+declare module 'mic' {
+    import IsSilence from 'mic/lib/silenceTransform';
 
-declare module 'mic';
-
-export declare namespace mic {
     interface Mic {
         start(): void;
         stop(): void;
@@ -26,4 +24,9 @@ export declare namespace mic {
         resume(): void;
         getAudioStream(): IsSilence;
     }
+
+    type MicOptions = Record<string, unknown>;
+
+    function mic(options?: MicOptions): Mic;
+    export = mic;
 }

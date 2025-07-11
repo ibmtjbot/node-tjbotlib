@@ -15,7 +15,7 @@
  */
 
 import winston from 'winston';
-import TOML from '@iarna/toml';
+import { JsonMap } from '@iarna/toml';
 import { Gpio } from 'pigpio';
 import ws281x from 'rpi-ws281x-native';
 
@@ -66,34 +66,35 @@ class ws281xLED {
 }
 
 class RPi4Driver extends RPiBaseHardwareDriver {
-    commonAnodeLed: GPIOLED;
-    neopixelLed: ws281xLED;
+    commonAnodeLed: GPIOLED | undefined;
+    neopixelLed: ws281xLED | undefined;
     useGRBFormat: boolean;
-    servo: Gpio;
+    servo: Gpio | undefined;
 
     constructor() {
         super();
+        this.useGRBFormat = false;
     }
 
-    setupLEDCommonAnode(config: TOML.AnyJson): void {
-        const redPin: number = config['redPin'] ?? 19;
-        const greenPin: number = config['greenPin'] ?? 13;
-        const bluePin: number = config['bluePin'] ?? 12;
+    setupLEDCommonAnode(config: JsonMap): void {
+        const redPin: number = config['redPin'] as number ?? 19;
+        const greenPin: number = config['greenPin'] as number ?? 13;
+        const bluePin: number = config['bluePin'] as number ?? 12;
         winston.verbose(`💡 initializing ${Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
         this.commonAnodeLed = new GPIOLED(redPin, greenPin, bluePin);
         this.initializedHardware.add(Hardware.LED_COMMON_ANODE);
     }
 
-    setupLEDNeopixel(config: TOML.AnyJson): void {
-        const pin: number = config['gpioPin'] ?? 12;
+    setupLEDNeopixel(config: JsonMap): void {
+        const pin: number = config['gpioPin'] as number ?? 12;
         winston.verbose(`💡 initializing ${Hardware.LED_NEOPIXEL} on pin ${pin}`);
         this.neopixelLed = new ws281xLED(pin);
         this.useGRBFormat = (config['useGRB'] ?? "false") == "true";
         this.initializedHardware.add(Hardware.LED_NEOPIXEL);
     }
 
-    setupServo(config: TOML.AnyJson): void {
-        const pin: number = config['servoPin'] ?? 7;
+    setupServo(config: JsonMap): void {
+        const pin: number = config['servoPin'] as number ?? 7;
         winston.verbose(`🦾 initializing ${Hardware.SERVO} on PIN ${pin}`);
         this.servo = new Gpio(pin, { mode: Gpio.OUTPUT });
         this.initializedHardware.add(Hardware.SERVO);

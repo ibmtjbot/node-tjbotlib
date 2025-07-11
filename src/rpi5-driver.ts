@@ -15,7 +15,7 @@
  */
 
 import winston from 'winston';
-import TOML from '@iarna/toml';
+import { JsonMap } from '@iarna/toml';
 import { Gpio } from 'pigpio';
 import SPI from 'pi-spi';
 
@@ -55,7 +55,7 @@ class SPILED {
         return (byte & (1 << (7 - index))) != 0;
     }
 
-    static byteToBitstream(byte): number[] {
+    static byteToBitstream(byte: number): number[] {
         // Initialize with low bits
         const bitstream: number[] = Array(8).fill(SPILED.LOW);
         for (let i = 0; i < 8; i++) {
@@ -100,32 +100,32 @@ class SPILED {
 }
 
 class RPi5Driver extends RPiBaseHardwareDriver {
-    commonAnodeLed: GPIOLED;
-    neopixelLed: SPILED;
-    servo: Gpio;
+    commonAnodeLed: GPIOLED | undefined;
+    neopixelLed: SPILED | undefined;
+    servo: Gpio | undefined;
 
     constructor() {
         super();
     }
 
-    setupLEDCommonAnode(config: TOML.AnyJson): void {
-        const redPin: number = config['redPin'] ?? 19;
-        const greenPin: number = config['greenPin'] ?? 13;
-        const bluePin: number = config['bluePin'] ?? 12;
+    setupLEDCommonAnode(config: JsonMap): void {
+        const redPin: number = config['redPin'] as number ?? 19;
+        const greenPin: number = config['greenPin'] as number ?? 13;
+        const bluePin: number = config['bluePin'] as number ?? 12;
         winston.verbose(`💡 initializing ${Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
         this.commonAnodeLed = new GPIOLED(redPin, greenPin, bluePin);
         this.initializedHardware.add(Hardware.LED_COMMON_ANODE);
     }
 
-    setupLEDNeopixel(config: TOML.AnyJson): void {
-        const spiInterface: string = config['spiInterface'] ?? '/dev/spidev0.0';
+    setupLEDNeopixel(config: JsonMap): void {
+        const spiInterface: string = config['spiInterface'] as string ?? '/dev/spidev0.0';
         winston.verbose(`💡 initializing ${Hardware.LED_NEOPIXEL} on SPI ${spiInterface}`);
         this.neopixelLed = new SPILED(spiInterface);
         this.initializedHardware.add(Hardware.LED_NEOPIXEL);
     }
 
-    setupServo(config: TOML.AnyJson): void {
-        const pin: number = config['servoPin'] ?? 7;
+    setupServo(config: JsonMap): void {
+        const pin: number = config['servoPin'] as number ?? 7;
         winston.verbose(`🦾 initializing ${Hardware.SERVO} on PIN ${pin}`);
         this.servo = new Gpio(pin, { mode: Gpio.OUTPUT });
         this.initializedHardware.add(Hardware.SERVO);

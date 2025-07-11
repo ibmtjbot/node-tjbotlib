@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-declare module 'sound-player';
+declare module 'sound-player' {
+  import { EventEmitter } from 'events';
 
-export declare namespace soundplayer {
-    interface SoundPlayer {
-        setOptions(options: string | object): void;
-        play(options: string | object): void;
-        stop(): void;
-        pause(): void;
-        resume(): void;
-    }
+  class SoundPlayer extends EventEmitter {
+      constructor(options: string | object);
+      setOptions(options: string | object): void;
+      play(options?: string | object): void;
+      stop(): void;
+      pause(): void;
+      resume(): void;
+  }
+  export = SoundPlayer;
 }

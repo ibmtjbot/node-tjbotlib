@@ -25,12 +25,11 @@ import RPi5Driver from './rpi5-driver';
 
 // node modules
 import temp from 'temp';
-import Promise from 'bluebird';
 import fs from 'fs';
 import colorToHex from 'colornames';
 import cm from 'color-model';
 import winston from 'winston';
-import TOML from '@iarna/toml';
+import TOML, { JsonMap } from '@iarna/toml';
 import { easeInOutQuad } from 'js-easing-functions';
 import { resolve } from 'import-meta-resolve';
 
@@ -52,7 +51,7 @@ class TJBot {
     /**
      * TJBot configuration
      */
-    config: TOML.JsonMap;
+    config: JsonMap;
 
     /**
      * Raspberry Pi model on which TJBot is running
@@ -68,14 +67,14 @@ class TJBot {
     /**
      * Watson STT service
      */
-    stt: SpeechToTextV1;
-    sttRecognizeStream: RecognizeStream;
-    sttTextStream: RecognizeStream;
+    stt: SpeechToTextV1 | undefined;
+    sttRecognizeStream: RecognizeStream | undefined;
+    sttTextStream: RecognizeStream | undefined;
 
     /**
      * Watson TTS service
      */
-    tts: TextToSpeechV1;
+    tts: TextToSpeechV1 | undefined;
 
     /**
      * Cache of the colors recognized by TJBot
@@ -93,7 +92,7 @@ class TJBot {
 
         // set up logging
         winston.configure({
-            level: this.config['Log']['level'] ?? 'info',
+            level: (this.config['Log'] as JsonMap)['level'] as string ?? 'info',
             format: winston.format.simple(),
             transports: [
                 new winston.transports.Console(),
@@ -131,9 +130,9 @@ class TJBot {
     /**
      * Helper method to load user-specific configuration from the user-facing TJBot configuration file.
      * @param  {string} configFile   Path to the TOML file to load, usually 'tjbot.toml'.
-     * @return {TOML.JsonMap} The TOML configuration.
+     * @return {JsonMap} The TOML configuration.
      */
-    static loadUserConfig(configFile: string | undefined = 'tjbot.toml'): TOML.JsonMap {
+    static loadUserConfig(configFile: string | undefined = 'tjbot.toml'): JsonMap {
         let config: TOML.JsonMap = {};
 
         try {
@@ -143,13 +142,13 @@ class TJBot {
             throw new Error(`unable to read TOML from ${configFile}: ${err}`);
         }
 
-        return config;
+        return config as JsonMap;
     }
 
     /**
      * Helper method to load recipe-specific configuration from the user-facing TJBot configuration file.
      * @param  {string} configFile   Path to the TOML file to load, usually 'tjbot.toml'.
-     * @return {TOML.JsonMap} The TOML configuration specified in the [Recipe] section.
+     * @return {TOML.AnyJson} The TOML configuration specified in the [Recipe] section.
      */
     static loadRecipeConfig(configFile: string | undefined = 'tjbot.toml'): TOML.AnyJson {
         return TJBot.loadUserConfig(configFile).Recipe;
@@ -160,9 +159,9 @@ class TJBot {
      * Do not use this method within TJBot recipes. Instead, use `TJBot.loadUserConfig()`.
      * @private
      * @param  {string} configFile   Path to the TOML file to load.
-     * @return {TOML.JsonMap} The TOML configuration.
+     * @return {JsonMap} The TOML configuration.
      */
-    static _loadInternalConfigFromTOML(configFile: string | undefined = './tjbot.default.toml'): TOML.JsonMap {
+    static _loadInternalConfigFromTOML(configFile: string | undefined = './tjbot.default.toml'): JsonMap {
         const configPath: string = resolve(configFile, import.meta.url);
         let config: TOML.JsonMap = {};
 
@@ -173,7 +172,7 @@ class TJBot {
             throw new Error(`unable to read TOML from ${configFile}: ${err}`);
         }
 
-        return config;
+        return config as JsonMap;
     }
 
     /**
@@ -211,42 +210,42 @@ class TJBot {
             switch (device) {
                 case Hardware.CAMERA:
                 {
-                    const config: TOML.AnyJson = this.config['See'];
+                    const config: JsonMap = this.config['See'] as JsonMap;
                     this.rpiDriver.setupCamera(config);
                     break;
                 }
 
                 case Hardware.LED_NEOPIXEL:
                 {
-                    const config: TOML.AnyJson = this.config['Shine']['NeoPixel'];
+                    const config: JsonMap = (this.config['Shine'] as JsonMap)['NeoPixel'] as JsonMap;
                     this.rpiDriver.setupLEDNeopixel(config);
                     break;
                 }
 
                 case Hardware.LED_COMMON_ANODE:
                 {
-                    const config: TOML.AnyJson = this.config['Shine']['CommonAnode'];
+                    const config: JsonMap = (this.config['Shine'] as JsonMap)['CommonAnode'] as JsonMap;
                     this.rpiDriver.setupLEDCommonAnode(config);
                     break;
                 }
 
                 case Hardware.MICROPHONE:
                 {
-                    const config: TOML.AnyJson = this.config['Listen'];
+                    const config: JsonMap = this.config['Listen'] as JsonMap;
                     this.rpiDriver.setupMicrophone(config);
                     break;
                 }
 
                 case Hardware.SERVO:
                 {
-                    const config: TOML.AnyJson = this.config['Wave'];
+                    const config: JsonMap = this.config['Wave'] as JsonMap;
                     this.rpiDriver.setupServo(config);
                     break;
                 }
 
                 case Hardware.SPEAKER:
                 {
-                    const config: TOML.AnyJson = this.config['Speak'];
+                    const config: JsonMap = this.config['Speak'] as JsonMap;
                     this.rpiDriver.setupSpeaker(config);
                     break;
                 }
@@ -380,17 +379,17 @@ class TJBot {
         if (this.sttTextStream === undefined) {
             // (re)-initialize the microphone because if stopListening() was called, we don't seem to
             // be able to re-use the microphone twice
-            const config = this.config['Listen'];
+            const config: JsonMap = this.config['Listen'] as JsonMap;
             this.rpiDriver.setupMicrophone(config);
 
             // create the microphone -> STT recognizer stream
             // see this page for additional documentation on the STT configuration parameters:
             // https://cloud.ibm.com/apidocs/speech-to-text?code=node#recognize-audio-websockets-
-            const rate = config['Listen'].microphoneRate ?? 44100;
-            const channels = config['Listen'].microphoneChannels ?? 2;
-            const inactivityTimeout = config['Listen'].inactivityTimeout ?? -1;
-            const backgroundAudioSuppression = config['Listen'].backgroundAudioSuppression ?? 0.4;
-            const model = config['Listen'].model ?? 'en-US_Multimedia';
+            const rate: number = config.microphoneRate as number ?? 44100;
+            const channels: number = config.microphoneChannels as number ?? 2;
+            const inactivityTimeout: number = config.inactivityTimeout as number ?? -1;
+            const backgroundAudioSuppression: number = config.backgroundAudioSuppression as number ?? 0.4;
+            const model: string = config.model as string ?? 'en-US_Multimedia';
 
             const params = {
                 objectMode: false,
@@ -404,11 +403,11 @@ class TJBot {
             winston.debug(`🎤 recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
 
             // Create the stream.
-            this.sttRecognizeStream = this.stt.recognizeUsingWebSocket(params);
-            this.sttRecognizeStream.setEncoding('utf8');
+            this.sttRecognizeStream = this.stt?.recognizeUsingWebSocket(params);
+            this.sttRecognizeStream?.setEncoding('utf8');
 
             // create the mic -> STT recognizer -> text stream
-            this.sttTextStream = this.rpiDriver.connectMicStreamToSTTStream(this.sttRecognizeStream);
+            this.sttTextStream = this.rpiDriver.connectMicStreamToSTTStream(this.sttRecognizeStream as RecognizeStream);
             this.sttTextStream.setEncoding('utf8');
 
             // start the microphone
@@ -584,8 +583,8 @@ class TJBot {
             return; // exit if there's nothing to say!
         }
 
-        const config: TOML.AnyJson = this.config['Speak'];
-        const voice: string = config['voice'];
+        const config: JsonMap = this.config['Speak'] as JsonMap;
+        const voice: string = config['voice'] as string;
 
         winston.verbose(`🔈 TJBot speaking with voice ${voice}`);
 
@@ -596,12 +595,12 @@ class TJBot {
         };
 
         const info = temp.openSync('tjbot');
-        const response = await this.tts.synthesize(params);
+        const response = await this.tts?.synthesize(params);
 
         // pipe the audio buffer to a file
         winston.debug('🔈 writing audio buffer to temp file', info.path);
         const fd = fs.createWriteStream(info.path);
-        response.result.pipe(fd);
+        response?.result.pipe(fd);
 
         // wait for the pipe to finish writing
         const end: Promise<void> = new Promise((resolve, reject) => {
