@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import TJBot from '../src/tjbot.js';
+import TJBot from '../dist/mjs/tjbot.js';
 
 test('instantiate TJBot', () => {
     const tjbot = new TJBot();

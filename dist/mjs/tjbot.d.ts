@@ -1,4 +1,24 @@
-export default TJBot;
+/**
+ * Copyright 2016-2025 IBM Corp. All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+import { Capability, Hardware } from './constants.js';
+import { RPiHardwareDriver } from './rpi-driver';
+import TOML, { JsonMap } from '@iarna/toml';
+import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
+import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
+import RecognizeStream from 'ibm-watson/lib/recognize-stream.js';
 /**
 * Class representing a TJBot
 */
@@ -7,172 +27,94 @@ declare class TJBot {
      * TJBot library version
      * @readonly
     */
-    static readonly VERSION: "v3.0.0";
+    static VERSION: string;
     /**
-     * TJBot capabilities
-     * @readonly
-     * @enum {string}
+     * TJBot configuration
      */
-    static readonly Capability: {
-        LISTEN: string;
-        LOOK: string;
-        SHINE: string;
-        SPEAK: string;
-        WAVE: string;
-    };
+    config: JsonMap;
     /**
-     * TJBot hardware
-     * @readonly
-     * @enum {string}
+     * Raspberry Pi model on which TJBot is running
+     * @example "Raspberry Pi 5"
      */
-    static readonly Hardware: {
-        CAMERA: string;
-        LED_NEOPIXEL: string;
-        LED_COMMON_ANODE: string;
-        MICROPHONE: string;
-        SERVO: string;
-        SPEAKER: string;
-    };
+    rpiModel: string;
     /**
-     * IBM AI services
-     * @readonly
-     * @enum {string}
+     * Raspberry Pi hardware driver
      */
-    static readonly Service: {
-        SPEECH_TO_TEXT: string;
-        TEXT_TO_SPEECH: string;
-    };
+    rpiDriver: RPiHardwareDriver;
     /**
-     * TJBot servo motor stop positions
-     * @readonly
-     * @enum {int}
+     * Watson STT service
      */
-    static readonly Servo: {
-        ARM_BACK: number;
-        ARM_UP: number;
-        ARM_DOWN: number;
-    };
+    stt: SpeechToTextV1 | undefined;
+    sttRecognizeStream: RecognizeStream | undefined;
+    sttTextStream: RecognizeStream | undefined;
+    /**
+     * Watson TTS service
+     */
+    tts: TextToSpeechV1 | undefined;
+    /**
+     * Cache of the colors recognized by TJBot
+     */
+    _shineColors: string[];
+    /**
+     * TJBot constructor. After constructing a TJBot instance, call initialize() to configure its hardware.
+     * @constructor
+     * @param  {string=} configFile      (optional) Configuration for the TJBot.
+     * @param  {string=} credentialsFile (optional) Path to the 'ibm-credentials.env' file containing authentication credentials for IBM AI services.
+     */
+    constructor(configFile?: string | undefined, credentialsFile?: string | undefined);
     /**
      * Helper method to load user-specific configuration from the user-facing TJBot configuration file.
-     * @param  {string=} configFile   Path to the TOML file to load, usually 'tjbot.toml'.
-     * @return {TOML.JsonMap} The TOML configuration.
+     * @param  {string} configFile   Path to the TOML file to load, usually 'tjbot.toml'.
+     * @return {JsonMap} The TOML configuration.
      */
-    static loadUserConfig(configFile?: string | undefined): TOML.JsonMap;
+    static loadUserConfig(configFile?: string | undefined): JsonMap;
     /**
      * Helper method to load recipe-specific configuration from the user-facing TJBot configuration file.
-     * @param  {string=} configFile   Path to the TOML file to load, usually 'tjbot.toml'.
-     * @return {TOML.JsonMap} The TOML configuration specified in the [Recipe] section.
+     * @param  {string} configFile   Path to the TOML file to load, usually 'tjbot.toml'.
+     * @return {TOML.AnyJson} The TOML configuration specified in the [Recipe] section.
      */
-    static loadRecipeConfig(configFile?: string | undefined): TOML.JsonMap;
+    static loadRecipeConfig(configFile?: string | undefined): TOML.AnyJson;
     /**
-     * Internal helper method to load TJBot's default TOML configuration from a specified file. Do not use this method within TJBot recipes. Instead, use `TJBot.loadUserConfig()`.
-     * @param  {string=} configFile   Path to the TOML file to load.
-     * @return {TOML.JsonMap} The TOML configuration.
+     * Internal helper method to load TJBot's default TOML configuration from a specified file.
+     * Do not use this method within TJBot recipes. Instead, use `TJBot.loadUserConfig()`.
+     * @private
+     * @param  {string} configFile   Path to the TOML file to load.
+     * @return {JsonMap} The TOML configuration.
      */
-    static _loadInternalConfigFromTOML(configFile?: string | undefined): TOML.JsonMap;
+    static _loadInternalConfigFromTOML(configFile?: string | undefined): JsonMap;
     /**
     * Load TJBot's configuration from TOML files.
     * @private
+    * @param  {string} configFile   Path to the TOML file to load.
     */
-    private static _loadTJBotConfig;
-    /** ------------------------------------------------------------------------ */
-    /** UTILITY METHODS                                                          */
-    /** ------------------------------------------------------------------------ */
-    /**
-     * Put TJBot to sleep.
-     * @param {int} sec Number of seconds to sleep for.
-     */
-    static sleep(sec: int): void;
-    /**
-     * TJBot constructor. After constructing a TJBot instance, call initialize() to configure its hardware.
-     * @param  {object=} configuration   (optional) Configuration for the TJBot.
-     * @param  {string=} credentialsFile (optional) Path to the 'ibm-credentials.env' file containing authentication credentials for IBM AI services.
-     * @return {TJBot} Instance of the TJBot class
-     */
-    constructor(configFile?: string, credentialsFile?: string | undefined);
-    config: any;
-    rpiModel: string;
+    static _loadTJBotConfig(configFile: string): TOML.JsonMap;
     /**
      * @param  {array} hardware List of hardware peripherals attached to TJBot.
      * @see {@link #TJBot+Hardware} for a list of supported hardware.
      * @async
      */
-    initialize(hardware: array): Promise<void>;
+    initialize(hardware: Hardware[]): Promise<void>;
     /**
     * Change the level of TJBot's logging.
     * @param {string} level Logging level (see Winston's [list of logging levels](https://github.com/winstonjs/winston?tab=readme-ov-file#using-logging-levels))
     */
     setLogLevel(level: string): void;
     /** ------------------------------------------------------------------------ */
-    /** INTERNAL HARDWARE & WATSON SERVICE INITIALIZATION                        */
+    /**  WATSON SERVICE INITIALIZATION                                           */
     /** ------------------------------------------------------------------------ */
     /**
-    * Configure the camera hardware.
-    * @private
-    */
-    private _setupCamera;
-    _camera: import("libcamera/dist/types.js").PiCameraOutput | undefined;
-    /**
-    * Configure the Neopixel LED hardware.
-    * @private
-    */
-    private _setupLEDNeopixel;
-    _neopixelLed: {
-        _spi: any;
-        render(color: string): void;
-    } | {
-        _neopixelLed: any;
-        render(color: any): void;
-    } | undefined;
-    /**
-    * Configure the common anode RGB LED hardware.
-    * @param {int} redPin The pin number to which the led red pin is connected.
-    * @param {int} greenPin The pin number to which the led green pin is connected.
-    * @param {int} bluePin The pin number to which the led blue pin is connected.
-    * @private
-    */
-    private _setupLEDCommonAnode;
-    _commonAnodeLed: {
-        redPin: Gpio;
-        greenPin: Gpio;
-        bluePin: Gpio;
-    } | undefined;
-    /**
-     * Configure the microphone for speech recognition.
-     * @private
-     */
-    private _setupMicrophone;
-    _mic: any;
-    _micInputStream: any;
-    /**
-     * Configure the servo module for the given pin number.
-     * @param  {int} pin The pin number to which the servo is connected.
-     * @private
-     */
-    private _setupServo;
-    _motor: Gpio | undefined;
-    /**
-     * Configure the speaker.
-     * @private
-     */
-    private _setupSpeaker;
-    _soundplayer: any;
-    /**
      * Instantiate the specified Watson service.
-     * @param {string} service The name of the service. Valid names are defined in TJBot.services.
-     * @param {string} version The version of the service (e.g. "2018-09-20"). If null, the default version will be used.
      * @private
+     * @param {string} service The name of the service. Valid names are defined in TJBot.services.
      */
-    private _createServiceAPI;
-    _stt: SpeechToTextV1 | undefined;
-    _tts: TextToSpeechV1 | undefined;
+    _createServiceAPI(service: string): void;
     /**
      * Assert that TJBot is able to perform a specified capability. Instantiates Watson
      * services as needed.
-     * @param {string} capability The capability assert (see TJBot.prototype.capabilities).
      * @private
+     * @param {string} capability The capability assert (see TJBot.prototype.capabilities).
      */
-    private _assertCapability;
+    _assertCapability(capability: Capability): void;
     /** ------------------------------------------------------------------------ */
     /** LISTEN                                                                   */
     /** ------------------------------------------------------------------------ */
@@ -180,23 +122,7 @@ declare class TJBot {
      * Listen for a spoken utterance.
      * @async
      */
-    listen(): Promise<any>;
-    _recognizeStream: import("ibm-watson/lib/recognize-stream.js") | undefined;
-    _sttTextStream: any;
-    /**
-     * Internal method for pausing listening, used when
-     * we want to play a sound but we don't want to assert
-     * the 'listen' capability.
-     * @private
-     */
-    private _pauseListening;
-    /**
-     * Internal method for resuming listening, used when
-     * we want to play a sound but we don't want to assert
-     * the 'listen' capability.
-     * @private
-     */
-    private _resumeListening;
+    listen(): Promise<string>;
     /** ------------------------------------------------------------------------ */
     /** LOOK                                                                      */
     /** ------------------------------------------------------------------------ */
@@ -207,7 +133,7 @@ declare class TJBot {
      * @return {string} Path at which the photo was saved.
      * @async
      */
-    look(filePath?: string | undefined): string;
+    look(filePath?: string): Promise<string>;
     /** ------------------------------------------------------------------------ */
     /** SHINE                                                                    */
     /** ------------------------------------------------------------------------ */
@@ -215,63 +141,33 @@ declare class TJBot {
      * Change the color of the LED.
      * @param {string} color The color to shine the LED. May be specified in a number of
      * formats, including: hexadecimal, (e.g. "0xF12AC4", "11FF22", "#AABB24"), "on", "off",
-     * "random", or may be a named color in the `colornames` package. Hexadecimal colors
+     * or may be a named color in the `colornames` package. Hexadecimal colors
      * follow an #RRGGBB format.
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      */
-    shine(color: string, asPulse?: boolean): void;
+    shine(color: string): void;
     /**
      * Pulse the LED a single time.
      * @param {string} color The color to shine the LED. May be specified in a number of
      * formats, including: hexadecimal, (e.g. "0xF12AC4", "11FF22", "#AABB24"), "on", "off",
-     * "random", or may be a named color in the `colornames` package. Hexadecimal colors
+     * or may be a named color in the `colornames` package. Hexadecimal colors
      * follow an #RRGGBB format.
      * @param {float=} duration The duration the pulse should last. The duration should be in
      * the range [0.5, 2.0] seconds.
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      * @async
      */
-    pulse(color: string, duration?: float | undefined): Promise<void>;
+    pulse(color: string, duration?: number): Promise<void>;
     /**
      * Get the list of all colors recognized by TJBot.
      * @return {array} List of all named colors recognized by `shine()` and `pulse()`.
      */
-    shineColors(): array;
-    _shineColors: any;
+    shineColors(): string[];
     /**
      * Get a random color.
      * @return {string} Random named color.
      */
     randomColor(): string;
-    /**
-     * Normalize the given color to #RRGGBB.
-     * @param {string} color The color to shine the LED. May be specified in a number of
-     * formats, including: hexadecimal, (e.g. "0xF12AC4", "11FF22", "#AABB24"), "on", "off",
-     * "random", or may be a named color in the `colornames` package. Hexadecimal colors
-     * follow an #RRGGBB format.
-     * @return {string} Hex string corresponding to the given color (e.g. "#RRGGBB")
-     * @private
-     */
-    private _normalizeColor;
-    /**
-    * Convert hex color code to RGB value.
-    * @param {string} hexColor Hex color code
-    * @return {array} RGB color (e.g. (255, 128, 128))
-    * @private
-    */
-    private _convertHexToRgbColor;
-    /**
-    * Render the given rgb color for the common anode led.
-    * @param {string} hexColor Color in hex format (e.g. "AA00FF", no leading "0x")
-    * @private
-    */
-    private _renderCommonAnodeLed;
-    /**
-    * Render the given rgb color for the NeoPixel led.
-    * @param {string} hexColor Color in hex format (e.g. "AA00FF", no leading "0x")
-    * @private
-    */
-    private _renderNeopixelLed;
     /** ------------------------------------------------------------------------ */
     /** SPEAK                                                                    */
     /** ------------------------------------------------------------------------ */
@@ -310,7 +206,10 @@ declare class TJBot {
      */
     wave(): Promise<void>;
 }
-import { Gpio } from 'pigpio';
-import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
-import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
-import TOML from '@iarna/toml';
+/** ------------------------------------------------------------------------ */
+/** MODULE EXPORTS                                                           */
+/** ------------------------------------------------------------------------ */
+/**
+ * Export TJBot!
+ */
+export default TJBot;

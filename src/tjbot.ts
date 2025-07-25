@@ -162,7 +162,16 @@ class TJBot {
      * @return {JsonMap} The TOML configuration.
      */
     static _loadInternalConfigFromTOML(configFile: string | undefined = './tjbot.default.toml'): JsonMap {
-        const configPath: string = resolve(configFile, import.meta.url);
+        // are we loaded via a module or CommonJS?
+        let modulePath = '';
+        // if (typeof import.meta !== 'undefined' && typeof import.meta.url === 'string') {
+        //     modulePath = import.meta.url;
+        // } else {
+        modulePath = __dirname + '/' + __filename;
+        // }
+
+        winston.info(`loading default TJBot configuraution TOML from ${modulePath}`);
+        const configPath: string = resolve(configFile, modulePath);
         let config: TOML.JsonMap = {};
 
         try {

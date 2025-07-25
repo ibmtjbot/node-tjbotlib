@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Copyright 2024 IBM Corp. All Rights Reserved.
  *
@@ -13,14 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import fs from 'fs';
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs_1 = __importDefault(require("fs"));
 class RPiDetect {
     static model() {
-        var cpuInfo = "";
+        let cpuInfo = "";
         try {
-            cpuInfo = fs.readFileSync('/proc/cpuinfo', { encoding: 'utf8' });
+            cpuInfo = fs_1.default.readFileSync('/proc/cpuinfo', { encoding: 'utf8' });
         }
-        catch (e) {
+        catch {
             // likely not a Pi if we can't open /proc/cpuinfo
             return "";
         }
@@ -31,9 +36,17 @@ class RPiDetect {
         const model = modelLine.split(':')[1].trim();
         return model;
     }
+    static isPi3() {
+        const model = RPiDetect.model();
+        return model.startsWith("Raspberry Pi 3");
+    }
+    static isPi4() {
+        const model = RPiDetect.model();
+        return model.startsWith("Raspberry Pi 4");
+    }
     static isPi5() {
         const model = RPiDetect.model();
         return model.startsWith("Raspberry Pi 5");
     }
 }
-export default RPiDetect;
+exports.default = RPiDetect;

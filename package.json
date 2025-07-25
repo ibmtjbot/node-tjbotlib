@@ -54,8 +54,10 @@
   "scripts": {
     "prebuild": "rm -rf dist/*",
     "build": "tsc -p tsconfig-mjs.json && tsc -p tsconfig-cjs.json",
+    "build-module": "tsc -p tsconfig-mjs.json",
+    "build-commonjs": "tsc -p tsconfig-cjs.json",
     "postbuild": "sh postbuild-fixup.sh",
-    "test": "jest test.tjbotlib.js",
+    "test": "jest __tests__",
     "generate-docs": "jsdoc --configure .jsdoc.json --verbose",
     "update-deps": "npx npm-check-updates",
     "upgrade-deps": "npx npm-check-updates -u"
