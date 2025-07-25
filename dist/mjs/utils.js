@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Copyright 2025 IBM Corp. All Rights Reserved.
  *
@@ -14,20 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.sleep = sleep;
-exports.convertHexToRgbColor = convertHexToRgbColor;
-exports.normalizeColor = normalizeColor;
-const colornames_1 = __importDefault(require("colornames"));
-const winston_1 = __importDefault(require("winston"));
+import colorToHex from 'colornames';
+import winston from 'winston';
 /**
  * Put TJBot to sleep.
  * @param {number} sec Number of seconds to sleep for.
  */
-function sleep(sec) {
+export function sleep(sec) {
     const msec = sec * 1000;
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, msec);
 }
@@ -37,7 +29,7 @@ function sleep(sec) {
 * @return {array} RGB color (e.g. (255, 128, 128))
 * @private
 */
-function convertHexToRgbColor(hexColor) {
+export function convertHexToRgbColor(hexColor) {
     const rgbHex = hexColor
         .replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (_m, r, g, b) => `#${r}${r}${g}${g}${b}${b}`)
         .substring(1)
@@ -47,7 +39,7 @@ function convertHexToRgbColor(hexColor) {
         return [rgb[0], rgb[1], rgb[2]];
     }
     else {
-        winston_1.default.warn(`an error occurred converting hex color ${hexColor} to RGB, returning [0, 0, 0]`);
+        winston.warn(`an error occurred converting hex color ${hexColor} to RGB, returning [0, 0, 0]`);
         return [0, 0, 0];
     }
 }
@@ -60,7 +52,7 @@ function convertHexToRgbColor(hexColor) {
  * @return {string} Hex string corresponding to the given color (e.g. "#RRGGBB")
  * @private
  */
-function normalizeColor(color) {
+export function normalizeColor(color) {
     let normColor = color;
     // assume undefined == "off"
     if (normColor === undefined) {
@@ -84,7 +76,7 @@ function normalizeColor(color) {
     const isHex = /(^[0-9A-F]{6}$)|(^[0-9A-F]{3}$)/i;
     let rgb;
     if (!isHex.test(normColor)) {
-        rgb = (0, colornames_1.default)(normColor);
+        rgb = colorToHex(normColor);
     }
     else {
         rgb = normColor;

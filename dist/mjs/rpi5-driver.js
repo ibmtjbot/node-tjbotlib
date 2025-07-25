@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Copyright 2025 IBM Corp. All Rights Reserved.
  *
@@ -14,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const winston_1 = __importDefault(require("winston"));
-const pigpio_1 = require("pigpio");
-const pi_spi_1 = __importDefault(require("pi-spi"));
-const constants_1 = require("./constants");
-const rpi_driver_1 = require("./rpi-driver");
-const utils_1 = require("./utils");
+import winston from 'winston';
+import { Gpio } from 'pigpio';
+import SPI from 'pi-spi';
+import { Hardware } from './constants';
+import { RPiBaseHardwareDriver } from './rpi-driver';
+import { sleep } from './utils';
 class GPIOLED {
     redPin;
     greenPin;
     bluePin;
     constructor(red, green, blue) {
-        this.redPin = new pigpio_1.Gpio(red, { mode: pigpio_1.Gpio.OUTPUT });
-        this.greenPin = new pigpio_1.Gpio(green, { mode: pigpio_1.Gpio.OUTPUT });
-        this.bluePin = new pigpio_1.Gpio(blue, { mode: pigpio_1.Gpio.OUTPUT });
+        this.redPin = new Gpio(red, { mode: Gpio.OUTPUT });
+        this.greenPin = new Gpio(green, { mode: Gpio.OUTPUT });
+        this.bluePin = new Gpio(blue, { mode: Gpio.OUTPUT });
     }
 }
 class SPILED {
@@ -43,7 +38,7 @@ class SPILED {
     static FREQ = 6400000; // possibles: 3200000, 6400000; pi5neo uses: spi_speed_khz (800) * 1024 * 8  = 6553600
     constructor(spiInterface) {
         const i = spiInterface || "/dev/spidev0.0";
-        this.spi = pi_spi_1.default.initialize(i);
+        this.spi = SPI.initialize(i);
         this.spi.clockSpeed(SPILED.FREQ);
     }
     static bitMask(byte, index) {
@@ -77,7 +72,7 @@ class SPILED {
         const r = (c & 0xFF0000) >> 16;
         const g = (c & 0x00FF00) >> 8;
         const b = (c & 0x0000FF) >> 0;
-        winston_1.default.verbose(`rendering LED color ${color} (RGB: ${r} ${g} ${b})`);
+        winston.verbose(`rendering LED color ${color} (RGB: ${r} ${g} ${b})`);
         const bitstream = SPILED.rgbToSpiBitstream(r, g, b);
         this.spi.transfer(bitstream, bitstream.length, function (e, d) {
             if (e) {
@@ -85,10 +80,10 @@ class SPILED {
             }
         });
         // sleep for 9 microseconds
-        (0, utils_1.sleep)(9 / 1000);
+        sleep(9 / 1000);
     }
 }
-class RPi5Driver extends rpi_driver_1.RPiBaseHardwareDriver {
+class RPi5Driver extends RPiBaseHardwareDriver {
     commonAnodeLed;
     neopixelLed;
     servo;
@@ -99,21 +94,21 @@ class RPi5Driver extends rpi_driver_1.RPiBaseHardwareDriver {
         const redPin = config['redPin'] ?? 19;
         const greenPin = config['greenPin'] ?? 13;
         const bluePin = config['bluePin'] ?? 12;
-        winston_1.default.verbose(`💡 initializing ${constants_1.Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
+        winston.verbose(`💡 initializing ${Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
         this.commonAnodeLed = new GPIOLED(redPin, greenPin, bluePin);
-        this.initializedHardware.add(constants_1.Hardware.LED_COMMON_ANODE);
+        this.initializedHardware.add(Hardware.LED_COMMON_ANODE);
     }
     setupLEDNeopixel(config) {
         const spiInterface = config['spiInterface'] ?? '/dev/spidev0.0';
-        winston_1.default.verbose(`💡 initializing ${constants_1.Hardware.LED_NEOPIXEL} on SPI ${spiInterface}`);
+        winston.verbose(`💡 initializing ${Hardware.LED_NEOPIXEL} on SPI ${spiInterface}`);
         this.neopixelLed = new SPILED(spiInterface);
-        this.initializedHardware.add(constants_1.Hardware.LED_NEOPIXEL);
+        this.initializedHardware.add(Hardware.LED_NEOPIXEL);
     }
     setupServo(config) {
         const pin = config['servoPin'] ?? 7;
-        winston_1.default.verbose(`🦾 initializing ${constants_1.Hardware.SERVO} on PIN ${pin}`);
-        this.servo = new pigpio_1.Gpio(pin, { mode: pigpio_1.Gpio.OUTPUT });
-        this.initializedHardware.add(constants_1.Hardware.SERVO);
+        winston.verbose(`🦾 initializing ${Hardware.SERVO} on PIN ${pin}`);
+        this.servo = new Gpio(pin, { mode: Gpio.OUTPUT });
+        this.initializedHardware.add(Hardware.SERVO);
     }
     renderLEDCommonAnode(rgbColor) {
         if (this.commonAnodeLed) {
@@ -122,7 +117,7 @@ class RPi5Driver extends rpi_driver_1.RPiBaseHardwareDriver {
             this.commonAnodeLed.bluePin.pwmWrite(rgbColor[2] == null ? 255 : 255 - rgbColor[2]);
         }
         else {
-            winston_1.default.warn('attempted to render on an uninitialized Common Anode LED');
+            winston.warn('attempted to render on an uninitialized Common Anode LED');
         }
     }
     renderLEDNeopixel(hexColor) {
@@ -130,7 +125,7 @@ class RPi5Driver extends rpi_driver_1.RPiBaseHardwareDriver {
             this.neopixelLed.render(hexColor);
         }
         else {
-            winston_1.default.warn('attempted to render on an uninitialized Neopixel LED');
+            winston.warn('attempted to render on an uninitialized Neopixel LED');
         }
     }
     renderServoPosition(position) {
@@ -138,8 +133,8 @@ class RPi5Driver extends rpi_driver_1.RPiBaseHardwareDriver {
             this.servo.servoWrite(position);
         }
         else {
-            winston_1.default.warn('attempted to render on an uninitialized servo');
+            winston.warn('attempted to render on an uninitialized servo');
         }
     }
 }
-exports.default = RPi5Driver;
+export default RPi5Driver;

@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Copyright 2016-2025 IBM Corp. All Rights Reserved.
  *
@@ -14,29 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
 // internal classes
-const constants_js_1 = require("./constants.js");
-const utils_js_1 = require("./utils.js");
-const rpi_detect_1 = __importDefault(require("./rpi-detect"));
-const rpi3_driver_1 = __importDefault(require("./rpi3-driver"));
-const rpi4_driver_1 = __importDefault(require("./rpi4-driver"));
-const rpi5_driver_1 = __importDefault(require("./rpi5-driver"));
+import { Capability, Hardware, ServoPosition, WatsonService } from './constants.js';
+import { normalizeColor, sleep } from './utils.js';
+import RPiDetect from './rpi-detect';
+import RPi3Driver from './rpi3-driver';
+import RPi4Driver from './rpi4-driver';
+import RPi5Driver from './rpi5-driver';
 // node modules
-const temp_1 = __importDefault(require("temp"));
-const fs_1 = __importDefault(require("fs"));
-const colornames_1 = __importDefault(require("colornames"));
-const color_model_1 = __importDefault(require("color-model"));
-const winston_1 = __importDefault(require("winston"));
-const toml_1 = __importDefault(require("@iarna/toml"));
-const js_easing_functions_1 = require("js-easing-functions");
-const import_meta_resolve_1 = require("import-meta-resolve");
+import temp from 'temp';
+import fs from 'fs';
+import colorToHex from 'colornames';
+import cm from 'color-model';
+import winston from 'winston';
+import TOML from '@iarna/toml';
+import { easeInOutQuad } from 'js-easing-functions';
+// import { resolve } from 'import-meta-resolve';
 // watson modules
-const v1_js_1 = __importDefault(require("ibm-watson/speech-to-text/v1.js"));
-const v1_js_2 = __importDefault(require("ibm-watson/text-to-speech/v1.js"));
+import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
+import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
 /**
 * Class representing a TJBot
 */
@@ -82,38 +77,38 @@ class TJBot {
     constructor(configFile = 'tjbot.toml', credentialsFile = 'ibm-credentials.env') {
         this.config = TJBot._loadTJBotConfig(configFile);
         // set up logging
-        winston_1.default.configure({
+        winston.configure({
             level: this.config['Log']['level'] ?? 'info',
-            format: winston_1.default.format.simple(),
+            format: winston.format.simple(),
             transports: [
-                new winston_1.default.transports.Console(),
+                new winston.transports.Console(),
             ],
         });
         // automatically track and clean up temporary files
-        temp_1.default.track();
+        temp.track();
         // keep track of IBM Cloud service credentials
         if (credentialsFile !== '') {
             process.env.IBM_CREDENTIALS_FILE = credentialsFile;
         }
         // figure out which RPi we're running on
-        this.rpiModel = rpi_detect_1.default.model();
+        this.rpiModel = RPiDetect.model();
         if (this.rpiModel.startsWith('Raspberry Pi 3')) {
-            this.rpiDriver = new rpi3_driver_1.default();
+            this.rpiDriver = new RPi3Driver();
         }
         else if (this.rpiModel.startsWith('Raspberry Pi 4')) {
-            this.rpiDriver = new rpi4_driver_1.default();
+            this.rpiDriver = new RPi4Driver();
         }
         else if (this.rpiModel.startsWith('Raspberry Pi 5')) {
-            this.rpiDriver = new rpi5_driver_1.default();
+            this.rpiDriver = new RPi5Driver();
         }
         else {
-            winston_1.default.warn('TJBot is running on unsupported Raspberry Pi hardware. Restorting to RPi3 hardware driver, but errors may occur.');
-            this.rpiDriver = new rpi3_driver_1.default();
+            winston.warn('TJBot is running on unsupported Raspberry Pi hardware. Restorting to RPi3 hardware driver, but errors may occur.');
+            this.rpiDriver = new RPi3Driver();
         }
         // say hello
-        winston_1.default.info(`👋 Hello from TJBot! Running on ${this.rpiModel}`);
-        winston_1.default.verbose(`🤖 TJBot library version ${TJBot.VERSION}`);
-        winston_1.default.debug(`🤖 TJBot configuration: ${JSON.stringify(this.config)}`);
+        winston.info(`👋 Hello from TJBot! Running on ${this.rpiModel}`);
+        winston.verbose(`🤖 TJBot library version ${TJBot.VERSION}`);
+        winston.debug(`🤖 TJBot configuration: ${JSON.stringify(this.config)}`);
     }
     /**
      * Helper method to load user-specific configuration from the user-facing TJBot configuration file.
@@ -123,8 +118,8 @@ class TJBot {
     static loadUserConfig(configFile = 'tjbot.toml') {
         let config = {};
         try {
-            const configData = fs_1.default.readFileSync(configFile, 'utf8');
-            config = toml_1.default.parse(configData);
+            const configData = fs.readFileSync(configFile, 'utf8');
+            config = TOML.parse(configData);
         }
         catch (err) {
             throw new Error(`unable to read TOML from ${configFile}: ${err}`);
@@ -147,19 +142,12 @@ class TJBot {
      * @return {JsonMap} The TOML configuration.
      */
     static _loadInternalConfigFromTOML(configFile = './tjbot.default.toml') {
-        // are we loaded via a module or CommonJS?
-        let modulePath = '';
-        // if (typeof import.meta !== 'undefined' && typeof import.meta.url === 'string') {
-        //     modulePath = import.meta.url;
-        // } else {
-        modulePath = __dirname + '/' + __filename;
-        // }
-        winston_1.default.info(`loading default TJBot configuraution TOML from ${modulePath}`);
-        const configPath = (0, import_meta_resolve_1.resolve)(configFile, modulePath);
+        const configPath = import.meta.resolve(configFile);
+        winston.info(`loading default TJBot configuraution TOML from ${configPath}`);
         let config = {};
         try {
-            const configData = fs_1.default.readFileSync(new URL(configPath), 'utf8');
-            config = toml_1.default.parse(configData);
+            const configData = fs.readFileSync(new URL(configPath), 'utf8');
+            config = TOML.parse(configData);
         }
         catch (err) {
             throw new Error(`unable to read TOML from ${configFile}: ${err}`);
@@ -176,7 +164,7 @@ class TJBot {
         const baseConfig = TJBot._loadInternalConfigFromTOML();
         let userConfig = {};
         try {
-            if (fs_1.default.existsSync(configFile) && fs_1.default.lstatSync(configFile).isFile()) {
+            if (fs.existsSync(configFile) && fs.lstatSync(configFile).isFile()) {
                 userConfig = TJBot.loadUserConfig(configFile);
             }
         }
@@ -193,40 +181,40 @@ class TJBot {
      */
     async initialize(hardware) {
         // set up the hardware
-        winston_1.default.info(`🤖 Initializing TJBot with ${hardware.join(', ')}`);
+        winston.info(`🤖 Initializing TJBot with ${hardware.join(', ')}`);
         hardware.forEach((device) => {
             switch (device) {
-                case constants_js_1.Hardware.CAMERA:
+                case Hardware.CAMERA:
                     {
                         const config = this.config['See'];
                         this.rpiDriver.setupCamera(config);
                         break;
                     }
-                case constants_js_1.Hardware.LED_NEOPIXEL:
+                case Hardware.LED_NEOPIXEL:
                     {
                         const config = this.config['Shine']['NeoPixel'];
                         this.rpiDriver.setupLEDNeopixel(config);
                         break;
                     }
-                case constants_js_1.Hardware.LED_COMMON_ANODE:
+                case Hardware.LED_COMMON_ANODE:
                     {
                         const config = this.config['Shine']['CommonAnode'];
                         this.rpiDriver.setupLEDCommonAnode(config);
                         break;
                     }
-                case constants_js_1.Hardware.MICROPHONE:
+                case Hardware.MICROPHONE:
                     {
                         const config = this.config['Listen'];
                         this.rpiDriver.setupMicrophone(config);
                         break;
                     }
-                case constants_js_1.Hardware.SERVO:
+                case Hardware.SERVO:
                     {
                         const config = this.config['Wave'];
                         this.rpiDriver.setupServo(config);
                         break;
                     }
-                case constants_js_1.Hardware.SPEAKER:
+                case Hardware.SPEAKER:
                     {
                         const config = this.config['Speak'];
                         this.rpiDriver.setupSpeaker(config);
@@ -242,7 +230,7 @@ class TJBot {
     * @param {string} level Logging level (see Winston's [list of logging levels](https://github.com/winstonjs/winston?tab=readme-ov-file#using-logging-levels))
     */
     setLogLevel(level) {
-        winston_1.default.level = level;
+        winston.level = level;
     }
     /** ------------------------------------------------------------------------ */
     /**  WATSON SERVICE INITIALIZATION                                           */
@@ -253,16 +241,16 @@ class TJBot {
      * @param {string} service The name of the service. Valid names are defined in TJBot.services.
      */
     _createServiceAPI(service) {
-        winston_1.default.verbose(`🧠 initializing ${service} service`);
+        winston.verbose(`🧠 initializing ${service} service`);
         switch (service) {
-            case constants_js_1.WatsonService.SPEECH_TO_TEXT: {
+            case WatsonService.SPEECH_TO_TEXT: {
                 // https://cloud.ibm.com/apidocs/speech-to-text
-                this.stt = new v1_js_1.default({});
+                this.stt = new SpeechToTextV1({});
                 break;
             }
-            case constants_js_1.WatsonService.TEXT_TO_SPEECH: {
+            case WatsonService.TEXT_TO_SPEECH: {
                 // https://cloud.ibm.com/apidocs/text-to-speech
-                this.tts = new v1_js_2.default({});
+                this.tts = new TextToSpeechV1({});
                 break;
             }
             default:
@@ -277,46 +265,46 @@ class TJBot {
      */
     _assertCapability(capability) {
         switch (capability) {
-            case constants_js_1.Capability.LISTEN:
-                if (!this.rpiDriver.hasCapability(constants_js_1.Capability.LISTEN)) {
+            case Capability.LISTEN:
+                if (!this.rpiDriver.hasCapability(Capability.LISTEN)) {
                     throw new Error('TJBot is not configured to listen. '
                         + 'Please check that you included the '
-                        + `${constants_js_1.Hardware.MICROPHONE} hardware in the TJBot initialize() method.`);
+                        + `${Hardware.MICROPHONE} hardware in the TJBot initialize() method.`);
                 }
                 if (!this.stt) {
-                    this._createServiceAPI(constants_js_1.WatsonService.SPEECH_TO_TEXT);
+                    this._createServiceAPI(WatsonService.SPEECH_TO_TEXT);
                 }
                 break;
-            case constants_js_1.Capability.LOOK:
-                if (!this.rpiDriver.hasCapability(constants_js_1.Capability.LOOK)) {
+            case Capability.LOOK:
+                if (!this.rpiDriver.hasCapability(Capability.LOOK)) {
                     throw new Error('TJBot is not configured to look. '
                         + 'Please check that you included the '
-                        + `${constants_js_1.Hardware.CAMERA} hardware in the TJBot initialize() method.`);
+                        + `${Hardware.CAMERA} hardware in the TJBot initialize() method.`);
                 }
                 break;
-            case constants_js_1.Capability.SHINE:
-                if (!this.rpiDriver.hasCapability(constants_js_1.Capability.SHINE)) {
+            case Capability.SHINE:
+                if (!this.rpiDriver.hasCapability(Capability.SHINE)) {
                     throw new Error('TJBot is not configured with an LED. '
                         + 'Please check that you included the '
-                        + `${constants_js_1.Hardware.LED_NEOPIXEL} or ${constants_js_1.Hardware.LED_COMMON_ANODE} `
+                        + `${Hardware.LED_NEOPIXEL} or ${Hardware.LED_COMMON_ANODE} `
                         + 'hardware in the TJBot initialize() method.');
                 }
                 break;
-            case constants_js_1.Capability.SPEAK:
-                if (!this.rpiDriver.hasCapability(constants_js_1.Capability.SPEAK)) {
+            case Capability.SPEAK:
+                if (!this.rpiDriver.hasCapability(Capability.SPEAK)) {
                     throw new Error('TJBot is not configured to speak. '
                         + 'Please check that you included the '
-                        + `${constants_js_1.Hardware.SPEAKER} hardware in the TJBot initialize() method.`);
+                        + `${Hardware.SPEAKER} hardware in the TJBot initialize() method.`);
                 }
                 if (!this.tts) {
-                    this._createServiceAPI(constants_js_1.WatsonService.TEXT_TO_SPEECH);
+                    this._createServiceAPI(WatsonService.TEXT_TO_SPEECH);
                 }
                 break;
-            case constants_js_1.Capability.WAVE:
-                if (!this.rpiDriver.hasCapability(constants_js_1.Capability.WAVE)) {
+            case Capability.WAVE:
+                if (!this.rpiDriver.hasCapability(Capability.WAVE)) {
                     throw new Error('TJBot is not configured with an arm. '
                         + 'Please check that you included the '
-                        + `${constants_js_1.Hardware.SERVO} hardware in the TJBot initialize() method.`);
+                        + `${Hardware.SERVO} hardware in the TJBot initialize() method.`);
                 }
                 break;
             default:
@@ -332,7 +320,7 @@ class TJBot {
      */
     async listen() {
         // make sure we can listen
-        this._assertCapability(constants_js_1.Capability.LISTEN);
+        this._assertCapability(Capability.LISTEN);
         // lazy create the sttTextStream
         if (this.sttTextStream === undefined) {
             // (re)-initialize the microphone because if stopListening() was called, we don't seem to
@@ -355,7 +343,7 @@ class TJBot {
                 interimResults: true,
                 backgroundAudioSuppression: backgroundAudioSuppression,
             };
-            winston_1.default.debug(`🎤 recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
+            winston.debug(`🎤 recognizeUsingWebSocket() params: ${JSON.stringify(params)}`);
             // Create the stream.
             this.sttRecognizeStream = this.stt?.recognizeUsingWebSocket(params);
             this.sttRecognizeStream?.setEncoding('utf8');
@@ -366,7 +354,7 @@ class TJBot {
             this.rpiDriver.startMic();
             // handle errors
             this.sttTextStream.on('error', (err) => {
-                winston_1.default.error('an error occurred in the STT text stream: ', err);
+                winston.error('an error occurred in the STT text stream: ', err);
             });
         }
         const fd = this.sttTextStream;
@@ -374,7 +362,7 @@ class TJBot {
             fd.once('data', (data) => resolve(data));
         });
         const transcript = await end;
-        winston_1.default.verbose(`👂 TJBot heard: "${transcript.trim()}"`);
+        winston.verbose(`👂 TJBot heard: "${transcript.trim()}"`);
         return transcript.trim();
     }
     /** ------------------------------------------------------------------------ */
@@ -388,7 +376,7 @@ class TJBot {
      * @async
      */
     async look(filePath) {
-        this._assertCapability(constants_js_1.Capability.LOOK);
+        this._assertCapability(Capability.LOOK);
         const path = await this.rpiDriver.capturePhoto(filePath);
         return path;
     }
@@ -404,9 +392,9 @@ class TJBot {
      * @see {@link https://github.com/timoxley/colornames|Colornames} for a list of color names.
      */
     shine(color) {
-        this._assertCapability(constants_js_1.Capability.SHINE);
+        this._assertCapability(Capability.SHINE);
         // normalize the color
-        let c = (0, utils_js_1.normalizeColor)(color);
+        let c = normalizeColor(color);
         // remove leading '#' if present
         if (c.startsWith('#')) {
             c = c.substring(1);
@@ -426,9 +414,9 @@ class TJBot {
      * @async
      */
     async pulse(color, duration = 1.0) {
-        this._assertCapability(constants_js_1.Capability.SHINE);
+        this._assertCapability(Capability.SHINE);
         if (duration < 0.5) {
-            winston_1.default.warn('TJBot cannot pulse for less than 0.5 seconds, using duration of 0.5 seconds');
+            winston.warn('TJBot cannot pulse for less than 0.5 seconds, using duration of 0.5 seconds');
             duration = 0.5;
         }
         if (duration > 2.0) {
@@ -442,7 +430,7 @@ class TJBot {
         for (let i = 0; i < numSteps; i += 1) {
             ease.push(i);
         }
-        ease = ease.map((x, i) => (0, js_easing_functions_1.easeInOutQuad)(i, 0, 1, ease.length));
+        ease = ease.map((x, i) => easeInOutQuad(i, 0, 1, ease.length));
         // normalize to 'duration' sec
         ease = ease.map((x) => x * duration);
         // convert to deltas
@@ -451,8 +439,8 @@ class TJBot {
             easeDelays[i] = ease[i + 1] - ease[i];
         }
         // color ramp
-        const rgb = (0, utils_js_1.normalizeColor)(color).slice(1); // remove the #
-        const hex = new color_model_1.default.HexRgb(rgb);
+        const rgb = normalizeColor(color).slice(1); // remove the #
+        const hex = new cm.HexRgb(rgb);
         const colorRamp = [];
         for (let i = 0; i < numSteps / 2; i += 1) {
             const l = 0.0 + (i / (numSteps / 2)) * 0.5;
@@ -463,13 +451,13 @@ class TJBot {
                 .replace('#', '0x');
         }
         // perform the ease
-        winston_1.default.verbose(`💡 pulsing my LED to RGB color ${rgb}`);
+        winston.verbose(`💡 pulsing my LED to RGB color ${rgb}`);
         for (let i = 0; i < easeDelays.length; i += 1) {
             const c = i < colorRamp.length
                 ? colorRamp[i]
                 : colorRamp[colorRamp.length - 1 - (i - colorRamp.length) - 1];
             this.shine(c);
-            (0, utils_js_1.sleep)(easeDelays[i]);
+            sleep(easeDelays[i]);
         }
     }
     /**
@@ -478,7 +466,7 @@ class TJBot {
      */
     shineColors() {
         if (this._shineColors === undefined) {
-            this._shineColors = colornames_1.default.all().map((elt) => elt.name);
+            this._shineColors = colorToHex.all().map((elt) => elt.name);
         }
         return this._shineColors;
     }
@@ -501,25 +489,25 @@ class TJBot {
      * @async
      */
     async speak(message) {
-        this._assertCapability(constants_js_1.Capability.SPEAK);
+        this._assertCapability(Capability.SPEAK);
         // make sure we're trying to say something
         if (message === undefined || message === '') {
-            winston_1.default.error('TJBot tried to speak an empty message.');
+            winston.error('TJBot tried to speak an empty message.');
             return; // exit if there's nothing to say!
         }
         const config = this.config['Speak'];
         const voice = config['voice'];
-        winston_1.default.verbose(`🔈 TJBot speaking with voice ${voice}`);
+        winston.verbose(`🔈 TJBot speaking with voice ${voice}`);
         const params = {
             text: message,
             voice: voice,
             accept: 'audio/wav',
         };
-        const info = temp_1.default.openSync('tjbot');
+        const info = temp.openSync('tjbot');
         const response = await this.tts?.synthesize(params);
         // pipe the audio buffer to a file
-        winston_1.default.debug('🔈 writing audio buffer to temp file', info.path);
-        const fd = fs_1.default.createWriteStream(info.path);
+        winston.debug('🔈 writing audio buffer to temp file', info.path);
+        const fd = fs.createWriteStream(info.path);
         response?.result.pipe(fd);
         // wait for the pipe to finish writing
         const end = new Promise((resolve, reject) => {
@@ -528,7 +516,7 @@ class TJBot {
         });
         await end;
         // now play it
-        winston_1.default.verbose(`🔈 TJBot speaking: ${message}`);
+        winston.verbose(`🔈 TJBot speaking: ${message}`);
         await this.play(info.path);
     }
     /**
@@ -548,9 +536,9 @@ class TJBot {
      */
     armBack() {
         // make sure we have an arm
-        this._assertCapability(constants_js_1.Capability.WAVE);
-        winston_1.default.verbose("🦾 Moving TJBot's arm back");
-        this.rpiDriver.renderServoPosition(constants_js_1.ServoPosition.ARM_BACK);
+        this._assertCapability(Capability.WAVE);
+        winston.verbose("🦾 Moving TJBot's arm back");
+        this.rpiDriver.renderServoPosition(ServoPosition.ARM_BACK);
     }
     /**
      * Raises TJBot's arm. If this method doesn't move the arm all the way back, the servo motor stop point defined in TJBot.Servo.ARM_UP may need to be overridden. Valid servo values are in the range [500, 2300].
@@ -558,9 +546,9 @@ class TJBot {
      */
     raiseArm() {
         // make sure we have an arm
-        this._assertCapability(constants_js_1.Capability.WAVE);
-        winston_1.default.verbose("🦾 Raising TJBot's arm");
-        this.rpiDriver.renderServoPosition(constants_js_1.ServoPosition.ARM_UP);
+        this._assertCapability(Capability.WAVE);
+        winston.verbose("🦾 Raising TJBot's arm");
+        this.rpiDriver.renderServoPosition(ServoPosition.ARM_UP);
     }
     /**
      * Lowers TJBot's arm. If this method doesn't move the arm all the way back, the servo motor stop point defined in TJBot.Servo.ARM_DOWN may need to be overridden. Valid servo values are in the range [500, 2300].
@@ -568,23 +556,23 @@ class TJBot {
      */
     lowerArm() {
         // make sure we have an arm
-        this._assertCapability(constants_js_1.Capability.WAVE);
-        winston_1.default.verbose("🦾 Lowering TJBot's arm");
-        this.rpiDriver.renderServoPosition(constants_js_1.ServoPosition.ARM_DOWN);
+        this._assertCapability(Capability.WAVE);
+        winston.verbose("🦾 Lowering TJBot's arm");
+        this.rpiDriver.renderServoPosition(ServoPosition.ARM_DOWN);
     }
     /**
      * Waves TJBots's arm once.
      */
     async wave() {
-        this._assertCapability(constants_js_1.Capability.WAVE);
-        winston_1.default.verbose("🦾 Waving TJBot's arm");
+        this._assertCapability(Capability.WAVE);
+        winston.verbose("🦾 Waving TJBot's arm");
         const delay = 200;
-        this.rpiDriver.renderServoPosition(constants_js_1.ServoPosition.ARM_UP);
-        (0, utils_js_1.sleep)(delay);
-        this.rpiDriver.renderServoPosition(constants_js_1.ServoPosition.ARM_DOWN);
-        (0, utils_js_1.sleep)(delay);
-        this.rpiDriver.renderServoPosition(constants_js_1.ServoPosition.ARM_UP);
-        (0, utils_js_1.sleep)(delay);
+        this.rpiDriver.renderServoPosition(ServoPosition.ARM_UP);
+        sleep(delay);
+        this.rpiDriver.renderServoPosition(ServoPosition.ARM_DOWN);
+        sleep(delay);
+        this.rpiDriver.renderServoPosition(ServoPosition.ARM_UP);
+        sleep(delay);
     }
 }
 /** ------------------------------------------------------------------------ */
@@ -593,4 +581,4 @@ class TJBot {
 /**
  * Export TJBot!
  */
-exports.default = TJBot;
+export default TJBot;

@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Copyright 2025 IBM Corp. All Rights Reserved.
  *
@@ -14,30 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const winston_1 = __importDefault(require("winston"));
-const pigpio_1 = require("pigpio");
-const rpi_ws281x_native_1 = __importDefault(require("rpi-ws281x-native"));
-const constants_1 = require("./constants");
-const rpi_driver_1 = require("./rpi-driver");
+import winston from 'winston';
+import { Gpio } from 'pigpio';
+import ws281x from 'rpi-ws281x-native';
+import { Hardware } from './constants';
+import { RPiBaseHardwareDriver } from './rpi-driver';
 class GPIOLED {
     redPin;
     greenPin;
     bluePin;
     constructor(red, green, blue) {
-        this.redPin = new pigpio_1.Gpio(red, { mode: pigpio_1.Gpio.OUTPUT });
-        this.greenPin = new pigpio_1.Gpio(green, { mode: pigpio_1.Gpio.OUTPUT });
-        this.bluePin = new pigpio_1.Gpio(blue, { mode: pigpio_1.Gpio.OUTPUT });
+        this.redPin = new Gpio(red, { mode: Gpio.OUTPUT });
+        this.greenPin = new Gpio(green, { mode: Gpio.OUTPUT });
+        this.bluePin = new Gpio(blue, { mode: Gpio.OUTPUT });
     }
 }
 class ws281xLED {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     neopixel;
     constructor(pin) {
-        this.neopixel = rpi_ws281x_native_1.default;
+        this.neopixel = ws281x;
         this.neopixel.init(1, {
             pin,
         });
@@ -58,7 +53,7 @@ class ws281xLED {
         this.neopixel.render(colors);
     }
 }
-class RPi4Driver extends rpi_driver_1.RPiBaseHardwareDriver {
+class RPi4Driver extends RPiBaseHardwareDriver {
     commonAnodeLed;
     neopixelLed;
     useGRBFormat;
@@ -71,22 +66,22 @@ class RPi4Driver extends rpi_driver_1.RPiBaseHardwareDriver {
         const redPin = config['redPin'] ?? 19;
         const greenPin = config['greenPin'] ?? 13;
         const bluePin = config['bluePin'] ?? 12;
-        winston_1.default.verbose(`💡 initializing ${constants_1.Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
+        winston.verbose(`💡 initializing ${Hardware.LED_COMMON_ANODE} on RED PIN ${redPin}, GREEN PIN ${greenPin}, and BLUE PIN ${bluePin}`);
         this.commonAnodeLed = new GPIOLED(redPin, greenPin, bluePin);
-        this.initializedHardware.add(constants_1.Hardware.LED_COMMON_ANODE);
+        this.initializedHardware.add(Hardware.LED_COMMON_ANODE);
     }
     setupLEDNeopixel(config) {
         const pin = config['gpioPin'] ?? 12;
-        winston_1.default.verbose(`💡 initializing ${constants_1.Hardware.LED_NEOPIXEL} on pin ${pin}`);
+        winston.verbose(`💡 initializing ${Hardware.LED_NEOPIXEL} on pin ${pin}`);
         this.neopixelLed = new ws281xLED(pin);
         this.useGRBFormat = (config['useGRB'] ?? "false") == "true";
-        this.initializedHardware.add(constants_1.Hardware.LED_NEOPIXEL);
+        this.initializedHardware.add(Hardware.LED_NEOPIXEL);
     }
     setupServo(config) {
         const pin = config['servoPin'] ?? 7;
-        winston_1.default.verbose(`🦾 initializing ${constants_1.Hardware.SERVO} on PIN ${pin}`);
-        this.servo = new pigpio_1.Gpio(pin, { mode: pigpio_1.Gpio.OUTPUT });
-        this.initializedHardware.add(constants_1.Hardware.SERVO);
+        winston.verbose(`🦾 initializing ${Hardware.SERVO} on PIN ${pin}`);
+        this.servo = new Gpio(pin, { mode: Gpio.OUTPUT });
+        this.initializedHardware.add(Hardware.SERVO);
     }
     renderLEDCommonAnode(rgbColor) {
         if (this.commonAnodeLed) {
@@ -95,7 +90,7 @@ class RPi4Driver extends rpi_driver_1.RPiBaseHardwareDriver {
             this.commonAnodeLed.bluePin.pwmWrite(rgbColor[2] == null ? 255 : 255 - rgbColor[2]);
         }
         else {
-            winston_1.default.warn('attempted to render on an uninitialized Common Anode LED');
+            winston.warn('attempted to render on an uninitialized Common Anode LED');
         }
     }
     renderLEDNeopixel(hexColor) {
@@ -113,7 +108,7 @@ class RPi4Driver extends rpi_driver_1.RPiBaseHardwareDriver {
             }
         }
         else {
-            winston_1.default.warn('attempted to render on an uninitialized Neopixel LED');
+            winston.warn('attempted to render on an uninitialized Neopixel LED');
         }
     }
     renderServoPosition(position) {
@@ -121,8 +116,8 @@ class RPi4Driver extends rpi_driver_1.RPiBaseHardwareDriver {
             this.servo.servoWrite(position);
         }
         else {
-            winston_1.default.warn('attempted to render on an uninitialized servo');
+            winston.warn('attempted to render on an uninitialized servo');
         }
     }
 }
-exports.default = RPi4Driver;
+export default RPi4Driver;

@@ -1,4 +1,3 @@
-"use strict";
 /**
  * Copyright 2025 IBM Corp. All Rights Reserved.
  *
@@ -14,27 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ServoPosition = exports.WatsonService = exports.Hardware = exports.Capability = void 0;
 /**
  * TJBot capabilities
  * @readonly
  * @enum {string}
  */
-var Capability;
+export var Capability;
 (function (Capability) {
     Capability["LISTEN"] = "listen";
     Capability["LOOK"] = "look";
     Capability["SHINE"] = "shine";
     Capability["SPEAK"] = "speak";
     Capability["WAVE"] = "wave";
-})(Capability || (exports.Capability = Capability = {}));
+})(Capability || (Capability = {}));
 /**
  * TJBot hardware
  * @readonly
  * @enum {string}
  */
-var Hardware;
+export var Hardware;
 (function (Hardware) {
     Hardware["CAMERA"] = "camera";
     Hardware["LED_COMMON_ANODE"] = "common_anode_led";
@@ -42,25 +39,25 @@ var Hardware;
     Hardware["MICROPHONE"] = "microphone";
     Hardware["SERVO"] = "servo";
     Hardware["SPEAKER"] = "speaker";
-})(Hardware || (exports.Hardware = Hardware = {}));
+})(Hardware || (Hardware = {}));
 /**
  * IBM Watson AI services
  * @readonly
  * @enum {string}
  */
-var WatsonService;
+export var WatsonService;
 (function (WatsonService) {
     WatsonService["SPEECH_TO_TEXT"] = "speech_to_text";
     WatsonService["TEXT_TO_SPEECH"] = "text_to_speech";
-})(WatsonService || (exports.WatsonService = WatsonService = {}));
+})(WatsonService || (WatsonService = {}));
 /**
  * TJBot servo motor stop positions
  * @readonly
  * @enum {int}
  */
-var ServoPosition;
+export var ServoPosition;
 (function (ServoPosition) {
     ServoPosition[ServoPosition["ARM_BACK"] = 500] = "ARM_BACK";
     ServoPosition[ServoPosition["ARM_UP"] = 1400] = "ARM_UP";
     ServoPosition[ServoPosition["ARM_DOWN"] = 2300] = "ARM_DOWN";
-})(ServoPosition || (exports.ServoPosition = ServoPosition = {}));
+})(ServoPosition || (ServoPosition = {}));

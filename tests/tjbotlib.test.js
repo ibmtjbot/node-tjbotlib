@@ -15,7 +15,8 @@
  * limitations under the License.
  */
 
-import TJBot from '../dist/mjs/tjbot.js';
+import { expect, test } from 'vitest';
+import TJBot from '../src/tjbot';
 
 test('instantiate TJBot', () => {
     const tjbot = new TJBot();
@@ -24,11 +25,9 @@ test('instantiate TJBot', () => {
 
 test('instantiate TJBot with configuration', () => {
     const tjbot = new TJBot({
-        log: { level: 'silly' },
-        robot: { gender: TJBot.GENDERS.FEMALE },
+        log: { level: 'silly' }
     });
     expect(tjbot.configuration.log.level).toEqual('silly');
-    expect(tjbot.configuration.robot.gender).toEqual('female');
 });
 
 test('instantiate TJBot with credentials file', () => {
