@@ -52,7 +52,7 @@ class TJBot {
      * Hardware list
      * @readonly
      */
-    static Hardware = Object.keys(Hardware);
+    static Hardware = Hardware;
 
     /**
      * TJBot configuration

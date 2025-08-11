@@ -37,7 +37,7 @@ test('initialize TJBot with all hardware', () => {
 });
 
 test('make sure TJBot class exports the Hardware list correctly', () => {
-    const hardware = TJBot.Hardware;
+    const hardware = Object.keys(TJBot.Hardware);
     expect(hardware.length > 0);
     expect(hardware.indexOf(Hardware.CAMERA) > -1);
     expect(hardware.indexOf(Hardware.LED_COMMON_ANODE) > -1);
@@ -45,4 +45,10 @@ test('make sure TJBot class exports the Hardware list correctly', () => {
     expect(hardware.indexOf(Hardware.MICROPHONE) > -1);
     expect(hardware.indexOf(Hardware.SERVO) > -1);
     expect(hardware.indexOf(Hardware.SPEAKER) > -1);
+    expect(TJBot.Hardware.CAMERA == Hardware.CAMERA);
+    expect(TJBot.Hardware.LED_COMMON_ANODE == Hardware.LED_COMMON_ANODE);
+    expect(TJBot.Hardware.LED_NEOPIXEL == Hardware.LED_NEOPIXEL);
+    expect(TJBot.Hardware.MICROPHONE == Hardware.MICROPHONE);
+    expect(TJBot.Hardware.SERVO == Hardware.SERVO);
+    expect(TJBot.Hardware.SPEAKER == Hardware.SPEAKER);
 });

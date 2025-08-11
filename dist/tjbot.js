@@ -564,7 +564,7 @@ TJBot.VERSION = 'v3.0.0';
  * Hardware list
  * @readonly
  */
-TJBot.Hardware = Object.keys(Hardware);
+TJBot.Hardware = Hardware;
 /** ------------------------------------------------------------------------ */
 /** MODULE EXPORTS                                                           */
 /** ------------------------------------------------------------------------ */

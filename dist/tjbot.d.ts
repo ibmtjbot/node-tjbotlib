@@ -32,7 +32,7 @@ declare class TJBot {
      * Hardware list
      * @readonly
      */
-    static Hardware: string[];
+    static Hardware: typeof Hardware;
     /**
      * TJBot configuration
      */
