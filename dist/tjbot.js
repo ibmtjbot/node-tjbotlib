@@ -116,9 +116,10 @@ class TJBot {
      * @return {JsonMap} The TOML configuration.
      */
     static _loadInternalConfigFromTOML(configFile = './tjbot.default.toml') {
-        // const configPath: string = import.meta.resolve(configFile);
         const configPath = resolve(configFile, import.meta.url);
-        winston.info(`loading default TJBot configuration TOML from ${configPath}`);
+        // note: by default this message will be suppressed unless the
+        // initial logging level is set to 'debug' in the TJBot constructor
+        winston.debug(`loading default TJBot configuration TOML from ${configPath}`);
         let config = {};
         try {
             const configData = fs.readFileSync(new URL(configPath), 'utf8');
@@ -156,7 +157,11 @@ class TJBot {
      */
     async initialize(hardware) {
         // set up the hardware
-        winston.info(`🤖 Initializing TJBot with ${hardware.join(', ')}`);
+        let hw = hardware.join(', ');
+        if (hw === '') {
+            hw = "<no hardware>";
+        }
+        winston.info(`🤖 Initializing TJBot with ${hw}`);
         hardware.forEach((device) => {
             switch (device) {
                 case Hardware.CAMERA:

@@ -35,3 +35,14 @@ test('initialize TJBot with all hardware', () => {
     tjbot.initialize(Object.keys(Hardware));
     expect(tjbot).toBeDefined();
 });
+
+test('make sure TJBot class exports the Hardware list correctly', () => {
+    const hardware = TJBot.Hardware;
+    expect(hardware.length > 0);
+    expect(hardware.indexOf(Hardware.CAMERA) > -1);
+    expect(hardware.indexOf(Hardware.LED_COMMON_ANODE) > -1);
+    expect(hardware.indexOf(Hardware.LED_NEOPIXEL) > -1);
+    expect(hardware.indexOf(Hardware.MICROPHONE) > -1);
+    expect(hardware.indexOf(Hardware.SERVO) > -1);
+    expect(hardware.indexOf(Hardware.SPEAKER) > -1);
+});
