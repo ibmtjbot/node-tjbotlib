@@ -19,8 +19,8 @@ import { JsonMap } from '@iarna/toml';
 import { Gpio } from 'pigpio';
 import ws281x from 'rpi-ws281x-native';
 
-import { Hardware, ServoPosition } from './constants';
-import { RPiBaseHardwareDriver } from './rpi-driver';
+import { Hardware, ServoPosition } from './constants.js';
+import { RPiBaseHardwareDriver } from './rpi-driver.js';
 
 
 class GPIOLED {

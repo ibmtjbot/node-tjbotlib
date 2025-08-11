@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 import { Capability, Hardware } from './constants.js';
-import { RPiHardwareDriver } from './rpi-driver';
+import { RPiHardwareDriver } from './rpi-driver.js';
 import TOML, { JsonMap } from '@iarna/toml';
 import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
 import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
@@ -28,6 +28,11 @@ declare class TJBot {
      * @readonly
     */
     static VERSION: string;
+    /**
+     * Hardware list
+     * @readonly
+     */
+    static Hardware: string[];
     /**
      * TJBot configuration
      */

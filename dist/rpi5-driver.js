@@ -16,9 +16,9 @@
 import winston from 'winston';
 import { Gpio } from 'pigpio';
 import SPI from 'pi-spi';
-import { Hardware } from './constants';
-import { RPiBaseHardwareDriver } from './rpi-driver';
-import { sleep } from './utils';
+import { Hardware } from './constants.js';
+import { RPiBaseHardwareDriver } from './rpi-driver.js';
+import { sleep } from './utils.js';
 class GPIOLED {
     constructor(red, green, blue) {
         this.redPin = new Gpio(red, { mode: Gpio.OUTPUT });

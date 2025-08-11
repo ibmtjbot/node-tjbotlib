@@ -17,7 +17,7 @@ import { JsonMap } from '@iarna/toml';
 import { Transform } from 'stream';
 import { PiCameraOutput } from 'libcamera/dist/types';
 import RecognizeStream from 'ibm-watson/lib/recognize-stream';
-import { Capability, Hardware, ServoPosition } from "./constants";
+import { Capability, Hardware, ServoPosition } from "./constants.js";
 export declare abstract class RPiHardwareDriver {
     abstract hasHardware(hardware: Hardware): boolean;
     abstract hasCapability(capability: Capability): boolean;

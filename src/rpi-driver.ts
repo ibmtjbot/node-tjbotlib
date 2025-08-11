@@ -25,9 +25,9 @@ import RecognizeStream from 'ibm-watson/lib/recognize-stream';
 import SoundPlayer from 'sound-player';
 import { once } from 'events';
 
-import { Capability, Hardware, ServoPosition } from "./constants";
+import { Capability, Hardware, ServoPosition } from "./constants.js";
 
-import { convertHexToRgbColor } from './utils';
+import { convertHexToRgbColor } from './utils.js';
 
 export abstract class RPiHardwareDriver {
     abstract hasHardware(hardware: Hardware): boolean;

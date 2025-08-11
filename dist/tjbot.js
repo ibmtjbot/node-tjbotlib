@@ -16,10 +16,10 @@
 // internal classes
 import { Capability, Hardware, ServoPosition, WatsonService } from './constants.js';
 import { normalizeColor, sleep } from './utils.js';
-import RPiDetect from './rpi-detect';
-import RPi3Driver from './rpi3-driver';
-import RPi4Driver from './rpi4-driver';
-import RPi5Driver from './rpi5-driver';
+import RPiDetect from './rpi-detect.js';
+import RPi3Driver from './rpi3-driver.js';
+import RPi4Driver from './rpi4-driver.js';
+import RPi5Driver from './rpi5-driver.js';
 // node modules
 import temp from 'temp';
 import fs from 'fs';
@@ -47,15 +47,17 @@ class TJBot {
          * Cache of the colors recognized by TJBot
          */
         this._shineColors = [];
-        this.config = TJBot._loadTJBotConfig(configFile);
-        // set up logging
+        // set up logging -- start with the 'info' level
         winston.configure({
-            level: this.config['Log']['level'] ?? 'info',
+            level: 'info',
             format: winston.format.simple(),
             transports: [
                 new winston.transports.Console(),
             ],
         });
+        this.config = TJBot._loadTJBotConfig(configFile);
+        // change the level if it was defined differently in the config
+        winston.level = this.config['Log']['level'] ?? winston.level;
         // automatically track and clean up temporary files
         temp.track();
         // keep track of IBM Cloud service credentials
@@ -116,7 +118,7 @@ class TJBot {
     static _loadInternalConfigFromTOML(configFile = './tjbot.default.toml') {
         // const configPath: string = import.meta.resolve(configFile);
         const configPath = resolve(configFile, import.meta.url);
-        winston.info(`loading default TJBot configuraution TOML from ${configPath}`);
+        winston.info(`loading default TJBot configuration TOML from ${configPath}`);
         let config = {};
         try {
             const configData = fs.readFileSync(new URL(configPath), 'utf8');
@@ -553,6 +555,11 @@ class TJBot {
  * @readonly
 */
 TJBot.VERSION = 'v3.0.0';
+/**
+ * Hardware list
+ * @readonly
+ */
+TJBot.Hardware = Object.keys(Hardware);
 /** ------------------------------------------------------------------------ */
 /** MODULE EXPORTS                                                           */
 /** ------------------------------------------------------------------------ */

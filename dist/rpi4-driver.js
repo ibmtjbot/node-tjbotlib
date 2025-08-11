@@ -16,8 +16,8 @@
 import winston from 'winston';
 import { Gpio } from 'pigpio';
 import ws281x from 'rpi-ws281x-native';
-import { Hardware } from './constants';
-import { RPiBaseHardwareDriver } from './rpi-driver';
+import { Hardware } from './constants.js';
+import { RPiBaseHardwareDriver } from './rpi-driver.js';
 class GPIOLED {
     constructor(red, green, blue) {
         this.redPin = new Gpio(red, { mode: Gpio.OUTPUT });

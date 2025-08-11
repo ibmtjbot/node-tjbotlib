@@ -19,9 +19,9 @@ import { JsonMap } from '@iarna/toml';
 import { Gpio } from 'pigpio';
 import SPI from 'pi-spi';
 
-import { Hardware, ServoPosition } from './constants';
-import { RPiBaseHardwareDriver } from './rpi-driver';
-import { sleep } from './utils';
+import { Hardware, ServoPosition } from './constants.js';
+import { RPiBaseHardwareDriver } from './rpi-driver.js';
+import { sleep } from './utils.js';
 
 class GPIOLED {
     redPin: Gpio;

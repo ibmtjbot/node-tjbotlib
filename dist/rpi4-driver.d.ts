@@ -15,8 +15,8 @@
  */
 import { JsonMap } from '@iarna/toml';
 import { Gpio } from 'pigpio';
-import { ServoPosition } from './constants';
-import { RPiBaseHardwareDriver } from './rpi-driver';
+import { ServoPosition } from './constants.js';
+import { RPiBaseHardwareDriver } from './rpi-driver.js';
 declare class GPIOLED {
     redPin: Gpio;
     greenPin: Gpio;

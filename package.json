@@ -29,6 +29,7 @@
     "@types/rpi-ws281x-native": "^1.0.3",
     "@types/temp": "^0.9.4",
     "braintree-jsdoc-template": "^3.3.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^9.22.0",
     "globals": "^16.0.0",
     "jsdoc": "^4.0.4",
@@ -44,6 +45,7 @@
   "scripts": {
     "prebuild": "rm -rf dist/*",
     "build": "tsc",
+    "postbuild": "copyfiles -u 1 src/**/*.toml dist/",
     "test": "vitest",
     "generate-docs": "jsdoc --configure .jsdoc.json --verbose",
     "update-deps": "npx npm-check-updates",

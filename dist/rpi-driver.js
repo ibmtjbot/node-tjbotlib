@@ -19,8 +19,8 @@ import libcamera from 'libcamera';
 import Mic from 'mic';
 import SoundPlayer from 'sound-player';
 import { once } from 'events';
-import { Capability, Hardware } from "./constants";
-import { convertHexToRgbColor } from './utils';
+import { Capability, Hardware } from "./constants.js";
+import { convertHexToRgbColor } from './utils.js';
 export class RPiHardwareDriver {
 }
 export class RPiBaseHardwareDriver extends RPiHardwareDriver {
