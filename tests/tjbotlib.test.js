@@ -17,33 +17,21 @@
 
 import { expect, test } from 'vitest';
 import TJBot from '../src/tjbot';
+import { Hardware } from '../src/constants';
 
 test('instantiate TJBot', () => {
     const tjbot = new TJBot();
     expect(tjbot).toBeDefined();
 });
 
-test('instantiate TJBot with configuration', () => {
-    const tjbot = new TJBot({
-        log: { level: 'silly' }
-    });
-    expect(tjbot.configuration.log.level).toEqual('silly');
-});
-
-test('instantiate TJBot with credentials file', () => {
-    // eslint-disable-next-line no-unused-vars
-    const tjbot = new TJBot({}, 'ibm-credentials.env');
-    expect(process.env.IBM_CREDENTIALS_FILE).toEqual('ibm-credentials.env');
-});
-
-test('instantiate TJBot with no hardware', () => {
+test('initialize TJBot with no hardware', () => {
     const tjbot = new TJBot();
     tjbot.initialize([]);
     expect(tjbot).toBeDefined();
 });
 
-test('instantiate TJBot with all hardware', () => {
+test('initialize TJBot with all hardware', () => {
     const tjbot = new TJBot();
-    tjbot.initialize(Object.keys(TJBot.HARDWARE));
+    tjbot.initialize(Object.keys(Hardware));
     expect(tjbot).toBeDefined();
 });

@@ -31,7 +31,7 @@ import cm from 'color-model';
 import winston from 'winston';
 import TOML, { JsonMap } from '@iarna/toml';
 import { easeInOutQuad } from 'js-easing-functions';
-// import { resolve } from 'import-meta-resolve';
+import { resolve } from 'import-meta-resolve';
 
 // watson modules
 import SpeechToTextV1 from 'ibm-watson/speech-to-text/v1.js';
@@ -162,7 +162,8 @@ class TJBot {
      * @return {JsonMap} The TOML configuration.
      */
     static _loadInternalConfigFromTOML(configFile: string | undefined = './tjbot.default.toml'): JsonMap {
-        const configPath: string = import.meta.resolve(configFile);
+        // const configPath: string = import.meta.resolve(configFile);
+        const configPath: string = resolve(configFile, import.meta.url);
         winston.info(`loading default TJBot configuraution TOML from ${configPath}`);
 
         let config: TOML.JsonMap = {};
