@@ -95,3 +95,4 @@ export function normalizeColor(color) {
     }
     return rgb;
 }
+//# sourceMappingURL=utils.js.map

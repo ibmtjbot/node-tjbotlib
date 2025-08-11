@@ -19,9 +19,6 @@ import ws281x from 'rpi-ws281x-native';
 import { Hardware } from './constants';
 import { RPiBaseHardwareDriver } from './rpi-driver';
 class GPIOLED {
-    redPin;
-    greenPin;
-    bluePin;
     constructor(red, green, blue) {
         this.redPin = new Gpio(red, { mode: Gpio.OUTPUT });
         this.greenPin = new Gpio(green, { mode: Gpio.OUTPUT });
@@ -29,8 +26,6 @@ class GPIOLED {
     }
 }
 class ws281xLED {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    neopixel;
     constructor(pin) {
         this.neopixel = ws281x;
         this.neopixel.init(1, {
@@ -54,10 +49,6 @@ class ws281xLED {
     }
 }
 class RPi3Driver extends RPiBaseHardwareDriver {
-    commonAnodeLed;
-    neopixelLed;
-    useGRBFormat;
-    servo;
     constructor() {
         super();
         this.useGRBFormat = false;
@@ -121,3 +112,4 @@ class RPi3Driver extends RPiBaseHardwareDriver {
     }
 }
 export default RPi3Driver;
+//# sourceMappingURL=rpi3-driver.js.map

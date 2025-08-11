@@ -61,3 +61,4 @@ export var ServoPosition;
     ServoPosition[ServoPosition["ARM_UP"] = 1400] = "ARM_UP";
     ServoPosition[ServoPosition["ARM_DOWN"] = 2300] = "ARM_DOWN";
 })(ServoPosition || (ServoPosition = {}));
+//# sourceMappingURL=constants.js.map

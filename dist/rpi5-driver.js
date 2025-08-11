@@ -20,9 +20,6 @@ import { Hardware } from './constants';
 import { RPiBaseHardwareDriver } from './rpi-driver';
 import { sleep } from './utils';
 class GPIOLED {
-    redPin;
-    greenPin;
-    bluePin;
     constructor(red, green, blue) {
         this.redPin = new Gpio(red, { mode: Gpio.OUTPUT });
         this.greenPin = new Gpio(green, { mode: Gpio.OUTPUT });
@@ -30,12 +27,6 @@ class GPIOLED {
     }
 }
 class SPILED {
-    // this class is based on pi5neo.py
-    // https://github.com/vanshksingh/Pi5Neo/blob/main/pi5neo/pi5neo.py
-    spi;
-    static HIGH = 0xF8; // possibles: F0, F8, FC
-    static LOW = 0xC0; // possibles: C0
-    static FREQ = 6400000; // possibles: 3200000, 6400000; pi5neo uses: spi_speed_khz (800) * 1024 * 8  = 6553600
     constructor(spiInterface) {
         const i = spiInterface || "/dev/spidev0.0";
         this.spi = SPI.initialize(i);
@@ -83,10 +74,10 @@ class SPILED {
         sleep(9 / 1000);
     }
 }
+SPILED.HIGH = 0xF8; // possibles: F0, F8, FC
+SPILED.LOW = 0xC0; // possibles: C0
+SPILED.FREQ = 6400000; // possibles: 3200000, 6400000; pi5neo uses: spi_speed_khz (800) * 1024 * 8  = 6553600
 class RPi5Driver extends RPiBaseHardwareDriver {
-    commonAnodeLed;
-    neopixelLed;
-    servo;
     constructor() {
         super();
     }
@@ -138,3 +129,4 @@ class RPi5Driver extends RPiBaseHardwareDriver {
     }
 }
 export default RPi5Driver;
+//# sourceMappingURL=rpi5-driver.js.map

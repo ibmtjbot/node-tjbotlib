@@ -1,8 +1,0 @@
-{
-    "extends": "./tsconfig-base.json",
-    "compilerOptions": {
-        "module": "nodenext",
-        "outDir": "dist/mjs",
-        "target": "esnext"
-    }
-}

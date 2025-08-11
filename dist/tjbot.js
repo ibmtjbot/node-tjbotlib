@@ -37,44 +37,16 @@ import TextToSpeechV1 from 'ibm-watson/text-to-speech/v1.js';
 */
 class TJBot {
     /**
-     * TJBot library version
-     * @readonly
-    */
-    static VERSION = 'v3.0.0';
-    /**
-     * TJBot configuration
-     */
-    config;
-    /**
-     * Raspberry Pi model on which TJBot is running
-     * @example "Raspberry Pi 5"
-     */
-    rpiModel;
-    /**
-     * Raspberry Pi hardware driver
-     */
-    rpiDriver;
-    /**
-     * Watson STT service
-     */
-    stt;
-    sttRecognizeStream;
-    sttTextStream;
-    /**
-     * Watson TTS service
-     */
-    tts;
-    /**
-     * Cache of the colors recognized by TJBot
-     */
-    _shineColors = [];
-    /**
      * TJBot constructor. After constructing a TJBot instance, call initialize() to configure its hardware.
      * @constructor
      * @param  {string=} configFile      (optional) Configuration for the TJBot.
      * @param  {string=} credentialsFile (optional) Path to the 'ibm-credentials.env' file containing authentication credentials for IBM AI services.
      */
     constructor(configFile = 'tjbot.toml', credentialsFile = 'ibm-credentials.env') {
+        /**
+         * Cache of the colors recognized by TJBot
+         */
+        this._shineColors = [];
         this.config = TJBot._loadTJBotConfig(configFile);
         // set up logging
         winston.configure({
@@ -575,6 +547,11 @@ class TJBot {
         sleep(delay);
     }
 }
+/**
+ * TJBot library version
+ * @readonly
+*/
+TJBot.VERSION = 'v3.0.0';
 /** ------------------------------------------------------------------------ */
 /** MODULE EXPORTS                                                           */
 /** ------------------------------------------------------------------------ */
@@ -582,3 +559,4 @@ class TJBot {
  * Export TJBot!
  */
 export default TJBot;
+//# sourceMappingURL=tjbot.js.map

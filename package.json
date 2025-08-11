@@ -2,18 +2,6 @@
   "name": "tjbot",
   "version": "3.0.0",
   "description": "Node.js library for writing TJBot recipes",
-  "main": "dist/cjs/tjbot.js",
-  "module": "dist/mjs/tjbot.js",
-  "directories": {
-    "lib": "lib",
-    "test": "tests"
-  },
-  "exports": {
-    ".": {
-      "import": "./dist/mjs/tjbot.js",
-      "require": "./dist/cjs/tjbot.js"
-    }
-  },
   "dependencies": {
     "@iarna/toml": "^2.2.5",
     "color-model": "^0.2.2",
@@ -35,14 +23,11 @@
     "winston": "^3.17.0"
   },
   "devDependencies": {
-    "@babel/preset-env": "^7.26.9",
     "@eslint/js": "^9.22.0",
     "@types/colornames": "^1.1.4",
     "@types/pi-spi": "^0.0.31",
     "@types/rpi-ws281x-native": "^1.0.3",
     "@types/temp": "^0.9.4",
-    "babel-eslint": "^10.1.0",
-    "babel-jest": "^29.7.0",
     "braintree-jsdoc-template": "^3.3.0",
     "eslint": "^9.22.0",
     "globals": "^16.0.0",
@@ -52,10 +37,7 @@
   },
   "scripts": {
     "prebuild": "rm -rf dist/*",
-    "build": "tsc -p tsconfig-mjs.json && tsc -p tsconfig-cjs.json",
-    "build-module": "tsc -p tsconfig-mjs.json",
-    "build-commonjs": "tsc -p tsconfig-cjs.json",
-    "postbuild": "sh postbuild-fixup.sh",
+    "build": "tsc",
     "test": "vitest",
     "generate-docs": "jsdoc --configure .jsdoc.json --verbose",
     "update-deps": "npx npm-check-updates",

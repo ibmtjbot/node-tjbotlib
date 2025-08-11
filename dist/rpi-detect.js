@@ -45,3 +45,4 @@ class RPiDetect {
     }
 }
 export default RPiDetect;
+//# sourceMappingURL=rpi-detect.js.map

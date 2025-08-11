@@ -24,19 +24,6 @@ import { convertHexToRgbColor } from './utils';
 export class RPiHardwareDriver {
 }
 export class RPiBaseHardwareDriver extends RPiHardwareDriver {
-    // initialized hardware
-    initializedHardware;
-    // camera
-    camera;
-    cameraResolution;
-    cameraVerticalFlip;
-    cameraHorizontalFlip;
-    // microphone
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mic;
-    micInputStream;
-    // speaker
-    speakerDevice;
     constructor() {
         super();
         this.initializedHardware = new Set();
@@ -231,3 +218,4 @@ export class RPiBaseHardwareDriver extends RPiHardwareDriver {
         ]);
     }
 }
+//# sourceMappingURL=rpi-driver.js.map
