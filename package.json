@@ -36,6 +36,11 @@
     "typescript-eslint": "^8.26.1",
     "vitest": "^3.2.4"
   },
+  "exports": {
+    ".": {
+      "import": "./dist/tjbot.js"
+    }
+  },
   "scripts": {
     "prebuild": "rm -rf dist/*",
     "build": "tsc",
