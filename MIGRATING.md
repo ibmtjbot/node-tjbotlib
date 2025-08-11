@@ -1,5 +1,9 @@
 # TJBotLib Migration Guide
 
+## Migrating from 2.x to 3.x
+TODO --> major overhaul, move to typescript to compile tjbotlib as an ES module, existing recipes will break.
+
+
 ## Migrating from 1.x to 2.x
 There have been several significant changes to the 2.x release of TJBotLib that break compatability with the 1.x release. Please use this guide, the new [TJBot API docs](https://ibmtjbot.github.io/docs/tjbot/2.0.1/), and the [updated recipes](https://github.com/ibmtjbot/tjbot/tree/master/recipes) in the `tjbot` repository, to help you migrate your recipes to the new 2.x API.
 
